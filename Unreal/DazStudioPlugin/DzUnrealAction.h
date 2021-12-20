@@ -11,7 +11,7 @@
 #include "DzUnrealSubdivisionDialog.h"
 
 class DzUnrealAction : public DzRuntimePluginAction {
-    Q_OBJECT
+	Q_OBJECT
     Q_PROPERTY(int NonInteractiveMode READ getNonInteractiveMode WRITE setNonInteractiveMode)
 public:
 	 DzUnrealAction();
@@ -29,4 +29,5 @@ protected:
 	 void SetExportOptions(DzFileIOSettings& ExportOptions);
      int getNonInteractiveMode();
      void setNonInteractiveMode(int);
+
 };
