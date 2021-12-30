@@ -112,68 +112,80 @@ THIRD_PARTY_INCLUDES_END
 
 #define LOCTEXT_NAMESPACE "FDazToUnrealModule"
 
+int FDazToUnrealModule::BatchConversionMode;
+
 void FDazToUnrealModule::StartupModule()
 {
-	 // This code will execute after your module is loaded into memory; the exact timing is specified in the .uplugin file per-module
-	 FDazToUnrealStyle::Initialize();
-	 FDazToUnrealStyle::ReloadTextures();
+	// This code will execute after your module is loaded into memory; the exact timing is specified in the .uplugin file per-module
+	FDazToUnrealStyle::Initialize();
+	FDazToUnrealStyle::ReloadTextures();
 
-	 FDazToUnrealCommands::Register();
+	FDazToUnrealCommands::Register();
 
-	 PluginCommands = MakeShareable(new FUICommandList);
+	PluginCommands = MakeShareable(new FUICommandList);
 
-	 /*PluginCommands->MapAction(
-		 FDazToUnrealCommands::Get().OpenPluginWindow,
-		 FExecuteAction::CreateRaw(this, &FDazToUnrealModule::PluginButtonClicked),
-		 FCanExecuteAction());*/
+	/*PluginCommands->MapAction(
+		FDazToUnrealCommands::Get().OpenPluginWindow,
+		FExecuteAction::CreateRaw(this, &FDazToUnrealModule::PluginButtonClicked),
+		FCanExecuteAction());*/
 
-	 PluginCommands->MapAction(
-		  FDazToUnrealCommands::Get().InstallDazStudioPlugin,
-		  FExecuteAction::CreateRaw(this, &FDazToUnrealModule::InstallDazStudioPlugin),
-		  FCanExecuteAction());
+	PluginCommands->MapAction(
+		FDazToUnrealCommands::Get().InstallDazStudioPlugin,
+		FExecuteAction::CreateRaw(this, &FDazToUnrealModule::InstallDazStudioPlugin),
+		FCanExecuteAction());
 
-	 /*PluginCommands->MapAction(
-		 FDazToUnrealCommands::Get().InstallSkeletonAssets,
-		 FExecuteAction::CreateRaw(this, &FDazToUnrealModule::InstallSkeletonAssetsToProject),
-		 FCanExecuteAction());*/
+	/*PluginCommands->MapAction(
+		FDazToUnrealCommands::Get().InstallSkeletonAssets,
+		FExecuteAction::CreateRaw(this, &FDazToUnrealModule::InstallSkeletonAssetsToProject),
+		FCanExecuteAction());*/
 
-		 /*PluginCommands->MapAction(
-			 FDazToUnrealCommands::Get().InstallMaterialAssets,
-			 FExecuteAction::CreateRaw(this, &FDazToUnrealModule::InstallMaterialAssetsToProject),
-			 FCanExecuteAction());*/
+		/*PluginCommands->MapAction(
+			FDazToUnrealCommands::Get().InstallMaterialAssets,
+			FExecuteAction::CreateRaw(this, &FDazToUnrealModule::InstallMaterialAssetsToProject),
+			FCanExecuteAction());*/
 
-	 FLevelEditorModule& LevelEditorModule = FModuleManager::LoadModuleChecked<FLevelEditorModule>("LevelEditor");
+	FLevelEditorModule& LevelEditorModule = FModuleManager::LoadModuleChecked<FLevelEditorModule>("LevelEditor");
 
-	 {
-		  TSharedPtr<FExtender> MenuExtender = MakeShareable(new FExtender());
-		  MenuExtender->AddMenuExtension("WindowLayout", EExtensionHook::After, PluginCommands, FMenuExtensionDelegate::CreateRaw(this, &FDazToUnrealModule::AddMenuExtension));
+	{
+		TSharedPtr<FExtender> MenuExtender = MakeShareable(new FExtender());
+		MenuExtender->AddMenuExtension("WindowLayout", EExtensionHook::After, PluginCommands, FMenuExtensionDelegate::CreateRaw(this, &FDazToUnrealModule::AddMenuExtension));
 
-		  LevelEditorModule.GetMenuExtensibilityManager()->AddExtender(MenuExtender);
-	 }
+		LevelEditorModule.GetMenuExtensibilityManager()->AddExtender(MenuExtender);
+	}
 
-	 {
-		  TSharedPtr<FExtender> ToolbarExtender = MakeShareable(new FExtender);
-		  ToolbarExtender->AddToolBarExtension("Settings", EExtensionHook::After, PluginCommands, FToolBarExtensionDelegate::CreateRaw(this, &FDazToUnrealModule::AddToolbarExtension));
+	{
+		TSharedPtr<FExtender> ToolbarExtender = MakeShareable(new FExtender);
+		ToolbarExtender->AddToolBarExtension("Settings", EExtensionHook::After, PluginCommands, FToolBarExtensionDelegate::CreateRaw(this, &FDazToUnrealModule::AddToolbarExtension));
 
 
-		  FString InstallerPath = IPluginManager::Get().FindPlugin("DazToUnreal")->GetBaseDir() / TEXT("Resources") / TEXT("DazToUnrealSetup.exe");
-		  FString InstallerAbsolutePath = IFileManager::Get().ConvertToAbsolutePathForExternalAppForRead(*InstallerPath);
+		FString InstallerPath = IPluginManager::Get().FindPlugin("DazToUnreal")->GetBaseDir() / TEXT("Resources") / TEXT("DazToUnrealSetup.exe");
+		FString InstallerAbsolutePath = IFileManager::Get().ConvertToAbsolutePathForExternalAppForRead(*InstallerPath);
 
-		  FString DazStudioPluginPath = IPluginManager::Get().FindPlugin("DazToUnreal")->GetBaseDir() / TEXT("Resources") / TEXT("dzunrealbridge.dll");
-		  FString DazStudioPluginAbsolutePath = IFileManager::Get().ConvertToAbsolutePathForExternalAppForRead(*InstallerPath);
+		FString DazStudioPluginPath = IPluginManager::Get().FindPlugin("DazToUnreal")->GetBaseDir() / TEXT("Resources") / TEXT("dzunrealbridge.dll");
+		FString DazStudioPluginAbsolutePath = IFileManager::Get().ConvertToAbsolutePathForExternalAppForRead(*InstallerPath);
 
-		  if (FPaths::FileExists(InstallerAbsolutePath)
-			  && FPaths::FileExists(DazStudioPluginAbsolutePath))
-		  {
-			  LevelEditorModule.GetToolBarExtensibilityManager()->AddExtender(ToolbarExtender);
-		  }
-	 }
+		if (FPaths::FileExists(InstallerAbsolutePath)
+			&& FPaths::FileExists(DazStudioPluginAbsolutePath))
+		{
+			LevelEditorModule.GetToolBarExtensibilityManager()->AddExtender(ToolbarExtender);
+		}
+	}
 
-	 /*FGlobalTabmanager::Get()->RegisterNomadTabSpawner(DazToUnrealTabName, FOnSpawnTab::CreateRaw(this, &FDazToUnrealModule::OnSpawnPluginTab))
-		 .SetDisplayName(LOCTEXT("FDazToUnrealTabTitle", "DazToUnreal"))
-		 .SetMenuType(ETabSpawnerMenuType::Hidden);*/
+	/*FGlobalTabmanager::Get()->RegisterNomadTabSpawner(DazToUnrealTabName, FOnSpawnTab::CreateRaw(this, &FDazToUnrealModule::OnSpawnPluginTab))
+		.SetDisplayName(LOCTEXT("FDazToUnrealTabTitle", "DazToUnreal"))
+		.SetMenuType(ETabSpawnerMenuType::Hidden);*/
 
-	 StartupUDPListener();
+	// DB Dec-21-2021: Start in Batch Conversion Mode, if autoexec-batch-file detected.
+	FString jobPoolFilename = FPaths::ProjectDir() / TEXT("autoexec-jobpool.txt");
+	if (FPaths::FileExists(jobPoolFilename))
+	{
+		BatchConversionMode = 1;
+	}
+	else
+	{
+		BatchConversionMode = 0;
+	}
+	StartupUDPListener();
 }
 
 void FDazToUnrealModule::ShutdownModule()
@@ -268,18 +280,48 @@ void FDazToUnrealModule::ShutdownUDPListener()
 
 bool FDazToUnrealModule::Tick(float DeltaTime)
 {
-	 // Check from messages from the Daz Studio plugin
-	 uint32 BytesPending = 0;
-	 if (ServerSocket->HasPendingData(BytesPending))
-	 {
-		  uint8 Data[2048];
-		  ISocketSubsystem* SocketSubsystem = ISocketSubsystem::Get();
-		  TSharedRef<FInternetAddr> Sender = SocketSubsystem->CreateInternetAddr();
 
-		  // Parse the message
-		  int32 BytesRead = 0;
-		  if (ServerSocket->RecvFrom(Data, sizeof(Data), BytesRead, *Sender))
-		  {
+	if (BatchConversionMode == 1)
+	{
+		BatchConversionMode = -1;
+
+		// DB Dec-21-2021: Start in Batch Conversion Mode, if autoexec-batch-file detected.
+		FString jobPoolFilename = FPaths::ProjectDir() / TEXT("autoexec-jobpool.txt");
+		if (FPaths::FileExists(jobPoolFilename))
+		{
+			TArray<FString> jobPool;
+			FFileHelper::LoadFileToStringArray(jobPool, *jobPoolFilename);
+
+			for (int i = 0; i < jobPool.Num(); i++)
+			{
+				FString DtuFile = jobPool[i];
+				FString Json;
+				FFileHelper::LoadFileToString(Json, *DtuFile);
+				TSharedRef<TJsonReader<TCHAR>> JsonReader = TJsonReaderFactory<TCHAR>::Create(Json);
+				TSharedPtr<FJsonObject> JsonObject = MakeShareable(new FJsonObject);
+				if (FJsonSerializer::Deserialize(JsonReader, JsonObject) && JsonObject.IsValid())
+				{
+					ImportFromDaz(JsonObject);
+				}
+			}
+		}
+		// re-enable UDP listening after jobpool is finished
+		BatchConversionMode = 0;
+	}
+	else if (BatchConversionMode == 0)
+	{
+		// Check from messages from the Daz Studio plugin
+		uint32 BytesPending = 0;
+		if (ServerSocket->HasPendingData(BytesPending))
+		{
+			uint8 Data[2048];
+			ISocketSubsystem* SocketSubsystem = ISocketSubsystem::Get();
+			TSharedRef<FInternetAddr> Sender = SocketSubsystem->CreateInternetAddr();
+
+			// Parse the message
+			int32 BytesRead = 0;
+			if (ServerSocket->RecvFrom(Data, sizeof(Data), BytesRead, *Sender))
+			{
 				char CharData[2048];
 				memcpy(CharData, Data, BytesRead);
 				CharData[BytesRead] = 0;
@@ -287,18 +329,21 @@ bool FDazToUnrealModule::Tick(float DeltaTime)
 				FString FileName = ANSI_TO_TCHAR(CharData);
 				if (FPaths::FileExists(FileName))
 				{
-					 FString Json;
-					 FFileHelper::LoadFileToString(Json, *FileName);
-					 TSharedRef<TJsonReader<TCHAR>> JsonReader = TJsonReaderFactory<TCHAR>::Create(Json);
-					 TSharedPtr<FJsonObject> JsonObject = MakeShareable(new FJsonObject);
-					 if (FJsonSerializer::Deserialize(JsonReader, JsonObject) && JsonObject.IsValid())
-					 {
-						  ImportFromDaz(JsonObject);
-					 }
+					FString Json;
+					FFileHelper::LoadFileToString(Json, *FileName);
+					TSharedRef<TJsonReader<TCHAR>> JsonReader = TJsonReaderFactory<TCHAR>::Create(Json);
+					TSharedPtr<FJsonObject> JsonObject = MakeShareable(new FJsonObject);
+					if (FJsonSerializer::Deserialize(JsonReader, JsonObject) && JsonObject.IsValid())
+					{
+						ImportFromDaz(JsonObject);
+					}
 				}
-		  }
-	 }
-	 return true;
+			}
+		}
+
+	}
+	
+	return true;
 }
 
 bool FDazToUnrealModule::MakeDirectoryAndCheck(FString& Directory)
@@ -469,6 +514,93 @@ UObject* FDazToUnrealModule::ImportFromDaz(TSharedPtr<FJsonObject> JsonObject)
 
 		  // Version 2 "Version, ObjectName, Material, Type, Color, Opacity, File"
 		  if (Version == 2)
+		  {
+			  FString ObjectName = material->GetStringField(TEXT("Asset Name"));
+			  ObjectName = FDazToUnrealUtils::SanitizeName(ObjectName);
+			  IntermediateMaterials.AddUnique(ObjectName + TEXT("_BaseMat"));
+			  FString ShaderName = material->GetStringField(TEXT("Material Type"));
+			  FString MaterialName;
+			  if (CachedSettings->UseOriginalMaterialName)
+			  {
+				  MaterialName = material->GetStringField(TEXT("Material Name"));
+			  }
+			  else
+			  {
+				  MaterialName = AssetName + TEXT("_") + material->GetStringField(TEXT("Material Name"));
+			  }
+
+			  MaterialName = FDazToUnrealUtils::SanitizeName(MaterialName);
+			  FString TexturePath = material->GetStringField(TEXT("Texture"));
+			  FString TextureName = FDazToUnrealUtils::SanitizeName(FPaths::GetBaseFilename(TexturePath));
+
+			  if (!MaterialProperties.Contains(MaterialName))
+			  {
+				  MaterialProperties.Add(MaterialName, TArray<FDUFTextureProperty>());
+			  }
+			  FDUFTextureProperty Property;
+			  Property.Name = material->GetStringField(TEXT("Name"));
+			  Property.Type = material->GetStringField(TEXT("Data Type"));
+			  Property.Value = material->GetStringField(TEXT("Value"));
+			  Property.ObjectName = ObjectName;
+			  Property.ShaderName = ShaderName;
+			  if (Property.Type == TEXT("Texture"))
+			  {
+				  Property.Type = TEXT("Color");
+			  }
+
+			  // Properties that end with Enabled are switches for functionality
+			  if (Property.Name.EndsWith(TEXT(" Enable")))
+			  {
+				  Property.Type = TEXT("Switch");
+				  if (Property.Value == TEXT("0"))
+				  {
+					  Property.Value = TEXT("false");
+				  }
+				  else
+				  {
+					  Property.Value = TEXT("true");
+				  }
+			  }
+
+			  MaterialProperties[MaterialName].Add(Property);
+			  if (!TextureName.IsEmpty())
+			  {
+				  // If a texture is attached add a texture property
+				  FDUFTextureProperty TextureProperty;
+				  TextureProperty.Name = material->GetStringField(TEXT("Name")) + TEXT(" Texture");
+				  TextureProperty.Type = TEXT("Texture");
+				  TextureProperty.ObjectName = ObjectName;
+				  TextureProperty.ShaderName = ShaderName;
+
+				  if (!TextureFileSourceToTarget.Contains(TexturePath))
+				  {
+					  int32 TextureCount = 0;
+					  FString NewTextureName = FString::Printf(TEXT("%s_%02d_%s"), *TextureName, TextureCount, *AssetName);
+					  while (TextureFileSourceToTarget.FindKey(NewTextureName) != nullptr)
+					  {
+						  TextureCount++;
+						  NewTextureName = FString::Printf(TEXT("%s_%02d_%s"), *TextureName, TextureCount, *AssetName);
+					  }
+					  TextureFileSourceToTarget.Add(TexturePath, NewTextureName);
+				  }
+
+				  TextureProperty.Value = TextureFileSourceToTarget[TexturePath];
+				  MaterialProperties[MaterialName].Add(TextureProperty);
+				  //TextureFiles.AddUnique(TexturePath);
+
+				  // and a switch property for things like Specular that could come from different channels
+				  FDUFTextureProperty SwitchProperty;
+				  SwitchProperty.Name = material->GetStringField(TEXT("Name")) + TEXT(" Texture Active");
+				  SwitchProperty.Type = TEXT("Switch");
+				  SwitchProperty.Value = TEXT("true");
+				  SwitchProperty.ObjectName = ObjectName;
+				  SwitchProperty.ShaderName = ShaderName;
+				  MaterialProperties[MaterialName].Add(SwitchProperty);
+			  }
+		  }
+
+		  // Version 3 "Version, ObjectName, Material, [Type, Color, Opacity, File]"
+		  if (Version == 3)
 		  {		
 				FString ObjectName = material->GetStringField(TEXT("Asset Name"));
 				ObjectName = FDazToUnrealUtils::SanitizeName(ObjectName);
@@ -499,17 +631,17 @@ UObject* FDazToUnrealModule::ImportFromDaz(TSharedPtr<FJsonObject> JsonObject)
 				TArray<TSharedPtr<FJsonValue>> propList = material->GetArrayField(TEXT("Properties"));
 				for (int32 propIndex = 0; propIndex < propList.Num(); propIndex++)
 				{
-					TSharedPtr<FJsonObject> prop_Json = propList[propIndex]->AsObject();
+					TSharedPtr<FJsonObject> propListElement = propList[propIndex]->AsObject();
 
 					FDUFTextureProperty Property;
 //					Property.Name = material->GetStringField(TEXT("Name"));
 //					Property.Type = material->GetStringField(TEXT("Data Type"));
 //					Property.Value = material->GetStringField(TEXT("Value"));
-					Property.Name = prop_Json->GetStringField(TEXT("Name"));
-					Property.Type = prop_Json->GetStringField(TEXT("Data Type"));
-					Property.Value = prop_Json->GetStringField(TEXT("Value"));
+					Property.Name = propListElement->GetStringField(TEXT("Name"));
+					Property.Type = propListElement->GetStringField(TEXT("Data Type"));
+					Property.Value = propListElement->GetStringField(TEXT("Value"));
 					// Moved from "per material" execution above
-					FString TexturePath = prop_Json->GetStringField(TEXT("Texture"));
+					FString TexturePath = propListElement->GetStringField(TEXT("Texture"));
 					FString TextureName = FDazToUnrealUtils::SanitizeName(FPaths::GetBaseFilename(TexturePath));
 
 					Property.ObjectName = ObjectName;
@@ -538,7 +670,7 @@ UObject* FDazToUnrealModule::ImportFromDaz(TSharedPtr<FJsonObject> JsonObject)
 					{
 						// If a texture is attached add a texture property
 						FDUFTextureProperty TextureProperty;
-						TextureProperty.Name = prop_Json->GetStringField(TEXT("Name")) + TEXT(" Texture");
+						TextureProperty.Name = propListElement->GetStringField(TEXT("Name")) + TEXT(" Texture");
 						TextureProperty.Type = TEXT("Texture");
 						TextureProperty.ObjectName = ObjectName;
 						TextureProperty.ShaderName = ShaderName;
@@ -561,7 +693,7 @@ UObject* FDazToUnrealModule::ImportFromDaz(TSharedPtr<FJsonObject> JsonObject)
 
 						// and a switch property for things like Specular that could come from different channels
 						FDUFTextureProperty SwitchProperty;
-						SwitchProperty.Name = prop_Json->GetStringField(TEXT("Name")) + TEXT(" Texture Active");
+						SwitchProperty.Name = propListElement->GetStringField(TEXT("Name")) + TEXT(" Texture Active");
 						SwitchProperty.Type = TEXT("Switch");
 						SwitchProperty.Value = TEXT("true");
 						SwitchProperty.ObjectName = ObjectName;
