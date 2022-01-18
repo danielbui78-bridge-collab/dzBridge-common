@@ -394,6 +394,14 @@ void DzUnrealAction::WriteMaterials(DzNode* Node, DzJsonWriter& Writer, QTextStr
 								}
 								dtuPropValue = Material->getDiffuseColor().name();
 								dtuPropType = QString("Texture");
+								
+								// Check if this is a Normal Map with Strength stored in lookup table
+								if (m_imgPropertyTable_NormalMapStrength.contains(ImageProperty))
+								{
+									dtuPropType = QString("Double");
+									dtuPropNumericValue = m_imgPropertyTable_NormalMapStrength[ImageProperty];
+									bUseNumeric = true;
+								}
 						  }
 						  // DzColorProperty is subclass of DzNumericProperty
 						  else if (ColorProperty)
@@ -428,15 +436,15 @@ void DzUnrealAction::WriteMaterials(DzNode* Node, DzJsonWriter& Writer, QTextStr
 							  {
 								  dtuTextureName = dzApp->getContentMgr()->getRelativePath(TextureName, true);
 							  }
-							  if (IsTemporaryFile(TextureName))
+							  if (isTemporaryFile(TextureName))
 							  {
-								  dtuTextureName = ExportWithDTU(TextureName, Node->getLabel() + "_" + Material->getName());
+								  dtuTextureName = exportWithDTU(TextureName, Node->getLabel() + "_" + Material->getName());
 							  }
 						  }
 						  if (bUseNumeric)
-							  WriteJSON_PropertyTexture(Writer, Name, dtuPropNumericValue, dtuPropType, dtuTextureName);
+							  writeJSON_Property_Texture(Writer, Name, dtuPropNumericValue, dtuPropType, dtuTextureName);
 						  else
-							  WriteJSON_PropertyTexture(Writer, Name, dtuPropValue, dtuPropType, dtuTextureName);
+							  writeJSON_Property_Texture(Writer, Name, dtuPropValue, dtuPropType, dtuTextureName);
 
 						  if (ExportMaterialPropertiesCSV)
 						  {
