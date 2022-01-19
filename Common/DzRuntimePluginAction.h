@@ -17,19 +17,26 @@ struct AttachmentInfo
 
 class DzRuntimePluginAction : public DzAction {
 	Q_OBJECT
-	Q_PROPERTY(QString AssetType READ getAssetType WRITE setAssetType)
-	Q_PROPERTY(QString ExportFilename READ getExportFilename WRITE setExportFilename)
-	Q_PROPERTY(QString ExportFolder READ getExportFolder WRITE setExportFolder)
-	Q_PROPERTY(QString RootFolder READ getRootFolder WRITE setRootFolder)
-	Q_PROPERTY(QString ProductName READ getProductName WRITE setProductName)
-	Q_PROPERTY(QString ProductComponentName READ getProductComponentName WRITE setProductComponentName)
-	Q_PROPERTY(QStringList MorphList READ getMorphList WRITE setMorphList)
-	Q_PROPERTY(bool UseRelativePaths READ getUseRelativePaths WRITE setUseRelativePaths)
+	Q_PROPERTY(int nNonInteractiveMode READ getNonInteractiveMode WRITE setNonInteractiveMode)
+	Q_PROPERTY(QString sAssetType READ getAssetType WRITE setAssetType)
+	Q_PROPERTY(QString sExportFilename READ getExportFilename WRITE setExportFilename)
+	Q_PROPERTY(QString sExportFolder READ getExportFolder WRITE setExportFolder)
+	Q_PROPERTY(QString sRootFolder READ getRootFolder WRITE setRootFolder)
+	Q_PROPERTY(QString sProductName READ getProductName WRITE setProductName)
+	Q_PROPERTY(QString sProductComponentName READ getProductComponentName WRITE setProductComponentName)
+	Q_PROPERTY(QStringList aMorphList READ getMorphList WRITE setMorphList)
+	Q_PROPERTY(bool bUseRelativePaths READ getUseRelativePaths WRITE setUseRelativePaths)
 	Q_PROPERTY(bool bUndoNormalMaps READ getUndoNormalMaps WRITE setUndoNormalMaps)
+	Q_PROPERTY(QString sExportFbx READ getExportFbx WRITE setExportFbx)
 public:
 
 	 DzRuntimePluginAction(const QString& text = QString::null, const QString& desc = QString::null);
 	 virtual ~DzRuntimePluginAction();
+
+	 Q_INVOKABLE void resetToDefaults();
+	 Q_INVOKABLE QString cleanString(QString argString) { return argString.remove(QRegExp("[^A-Za-z0-9_]")); };
+	 Q_INVOKABLE QStringList getAvailableMorphs(DzNode* Node);
+	 Q_INVOKABLE QStringList getActiveMorphs(DzNode* Node);
 
 public slots:
 	// Normal Map Handling
@@ -44,12 +51,13 @@ public slots:
 	bool undoGenerateMissingNormalMaps();
 
 protected:
+	int NonInteractiveMode;
 	 QString CharacterName; // Exported filename without extension
 	 QString RootFolder; // The destination Root Folder
 	 QString DestinationPath; // Path to destination files: <RootFolder> + "/" + <CharacterName (folder)> + "/"
 	 QString CharacterFBX;
-	 QString CharacterBaseFBX;
-	 QString CharacterHDFBX;
+//	 QString CharacterBaseFBX;
+//	 QString CharacterHDFBX;
 	 QString AssetType;
 	 QString MorphString;
 	 QString FBXVersion;
@@ -64,6 +72,7 @@ protected:
 	 QStringList ScriptOnly_MorphList; // overrides Morph Selection Dialog
 	 bool UseRelativePaths;
 	 bool m_bUndoNormalMaps;
+	 QString m_sExportFbx;
 
 	 bool ExportMorphs;
 	 bool ExportSubdivisions;
@@ -132,6 +141,12 @@ protected:
 
 	 bool getUndoNormalMaps() { return this->m_bUndoNormalMaps; };
 	 void setUndoNormalMaps(bool arg_UndoNormalMaps) { this->m_bUndoNormalMaps = arg_UndoNormalMaps; };
+
+	 int getNonInteractiveMode() { return this->NonInteractiveMode; };
+	 void setNonInteractiveMode(int arg_Mode) { this->NonInteractiveMode = arg_Mode; };
+
+	 QString getExportFbx() { return this->m_sExportFbx; };
+	 void setExportFbx(QString arg_FbxName) { this->m_sExportFbx = arg_FbxName; };
 
 private:
 	 // Undo data structures

@@ -55,16 +55,68 @@ DzRuntimePluginAction::DzRuntimePluginAction(const QString& text, const QString&
 #else
 	 m_bUndoNormalMaps = true;
 #endif
+	 m_sExportFbx = "";
 }
 
 DzRuntimePluginAction::~DzRuntimePluginAction()
 {
 }
 
+void DzRuntimePluginAction::resetToDefaults()
+{
+	ExportMorphs = false;
+	ExportSubdivisions = false;
+	ShowFbxDialog = false;
+	ControllersToDisconnect.clear();
+	ControllersToDisconnect.append("facs_bs_MouthClose_div2");
+
+	// Reset all dialog settings and script-exposed properties to Hardcoded Defaults
+	// Exception: scene filename to exportfilename behavior is ignored
+	// Ignore saved settings, QSettings, etc.
+	DzNode* selection = dzScene->getPrimarySelection();
+	if (selection)
+	{
+		CharacterName = this->cleanString(selection->getLabel());
+		DzFigure* figure = qobject_cast<DzFigure*>(selection);
+		if (figure)
+		{
+			AssetType = "SkeletalMesh";
+		}
+		else
+		{
+			AssetType = "StaticMesh";
+		}
+	}
+	else
+	{
+		CharacterName = "";
+		AssetType = "SkeletalMesh";
+	}
+	ProductName = "";
+	ProductComponentName = "";
+	ScriptOnly_MorphList.clear();
+	UseRelativePaths = false;
+	m_bUndoNormalMaps = true;
+	NonInteractiveMode = 0;
+	m_undoTable_DuplicateMaterialRename.clear();
+	m_undoTable_GenerateMissingNormalMap.clear();
+	m_sExportFbx = "";
+
+	// TODO: 
+	// - clear MorphDialog (if exists)
+	// - clear Subdivision Dialog (if exists)
+	// - implement target-software specific settings in subclasses
+	/*
+	Q_PROPERTY(QString ExportFolder READ getExportFolder WRITE setExportFolder)
+	Q_PROPERTY(QString RootFolder READ getRootFolder WRITE setRootFolder)
+	*/
+
+}
+
 bool DzRuntimePluginAction::preProcessScene(DzNode* parentNode)
 {
 	DzProgress preProcessProgress = DzProgress("Daz Bridge Pre-Processing...", 0, false, true);
-	
+
 	///////////////////////
 	// Create JobPool
 	// Iterate through all children of "parentNode", create jobpool of nodes to process later
@@ -153,7 +205,7 @@ bool DzRuntimePluginAction::generateMissingNormalMap(DzMaterial* material)
 					}
 					else if (shaderName.contains("omubersurface"))
 					{
-						double bumpMin = -0.1; 
+						double bumpMin = -0.1;
 						double bumpMax = 0.1;
 						DzNumericProperty *bumpMinProp = qobject_cast<DzNumericProperty*>(material->findProperty("bump minimum", false));
 						DzNumericProperty *bumpMaxProp = qobject_cast<DzNumericProperty*>(material->findProperty("bump maximum", false));
@@ -518,7 +570,9 @@ void DzRuntimePluginAction::Export()
 		// After the props have been exported, export the environment
 		CharacterName = OriginalCharacterName;
 		DestinationPath = RootFolder + "/" + ExportFolder + "/";
-		CharacterFBX = DestinationPath + CharacterName + ".fbx";
+		// use original export fbx filestem, if exists
+		if (m_sExportFbx == "") m_sExportFbx = CharacterName;
+		CharacterFBX = DestinationPath + m_sExportFbx + ".fbx";
 		Selection = OriginalSelection;
 		AssetType = "Environment";
 		ExportNode(Selection);
@@ -746,13 +800,13 @@ void DzRuntimePluginAction::ExportNode(DzNode* Node)
 		  {
 			  if (ExportBaseMesh)
 			  {
-				  QString CharacterBaseFBX = CharacterFBX;
+				  QString CharacterBaseFBX = this->CharacterFBX;
 				  CharacterBaseFBX.replace(".fbx", "_base.fbx");
 				  Exporter->writeFile(CharacterBaseFBX, &ExportOptions);
 			  }
 			  else
 			  {
-				  QString CharacterHDFBX = CharacterFBX;
+				  QString CharacterHDFBX = this->CharacterFBX;
 				  CharacterHDFBX.replace(".fbx", "_HD.fbx");
 				  Exporter->writeFile(CharacterHDFBX, &ExportOptions);
 
@@ -1017,7 +1071,7 @@ void DzRuntimePluginAction::UnlockTranform(DzNode* NodeToUnlock)
 	Property = NodeToUnlock->getXPosControl();
 	Property->lock(false);
 	Property = NodeToUnlock->getYPosControl();
-	Property->lock(false);	
+	Property->lock(false);
 	Property = NodeToUnlock->getZPosControl();
 	Property->lock(false);
 
@@ -1051,7 +1105,7 @@ bool DzRuntimePluginAction::isTemporaryFile(QString sFilename)
 
 QString DzRuntimePluginAction::exportWithDTU(QString sFilename, QString sAssetMaterialName)
 {
-	if (sFilename.isEmpty()) 
+	if (sFilename.isEmpty())
 		return sFilename;
 
 	QString cleanedFilename = sFilename.toLower().replace("\\", "/");
@@ -1095,7 +1149,7 @@ QString DzRuntimePluginAction::makeUniqueFilename(QString sFilename)
 	QString newFilename = sFilename;
 	int duplicate_count = 0;
 
-	while ( 
+	while (
 		QFileInfo(newFilename).exists() &&
 		QFileInfo(sFilename).size() != QFileInfo(newFilename).size()
 		)
@@ -1133,7 +1187,7 @@ void DzRuntimePluginAction::writeJSON_Property_Texture(DzJsonWriter& Writer, QSt
 // ------------------------------------------------
 // PixelIntensity
 // ------------------------------------------------
-double DzRuntimePluginAction::getPixelIntensity(const  QRgb& pixel) 
+double DzRuntimePluginAction::getPixelIntensity(const  QRgb& pixel)
 {
 	const double r = double(qRed(pixel));
 	const double g = double(qGreen(pixel));
@@ -1145,7 +1199,7 @@ double DzRuntimePluginAction::getPixelIntensity(const  QRgb& pixel)
 // ------------------------------------------------
 // MapComponent
 // ------------------------------------------------
-uint8_t DzRuntimePluginAction::getNormalMapComponent(double pX) 
+uint8_t DzRuntimePluginAction::getNormalMapComponent(double pX)
 {
 	return (pX + 1.0) * (255.0 / 2.0);
 }
@@ -1163,7 +1217,7 @@ int DzRuntimePluginAction::getIntClamp(int x, int low, int high)
 // ------------------------------------------------
 // map_component
 // ------------------------------------------------
-QRgb DzRuntimePluginAction::getSafePixel(const QImage& img, int x, int y) 
+QRgb DzRuntimePluginAction::getSafePixel(const QImage& img, int x, int y)
 {
 	int ix = this->getIntClamp(x, 0, img.size().width() - 1);
 	int iy = this->getIntClamp(y, 0, img.size().height() - 1);
@@ -1259,6 +1313,106 @@ QImage DzRuntimePluginAction::makeNormalMapFromHeightMap(QString heightMapFilena
 	return result;
 }
 
+QStringList DzRuntimePluginAction::getAvailableMorphs(DzNode* Node)
+{
+	QStringList newMorphList;
 
+	DzObject* Object = Node->getObject();
+	DzShape* Shape = Object ? Object->getCurrentShape() : NULL;
+
+	for (int index = 0; index < Node->getNumProperties(); index++)
+	{
+		DzProperty* property = Node->getProperty(index);
+		QString propName = property->getName();
+		QString propLabel = property->getLabel();
+		DzPresentation* presentation = property->getPresentation();
+		if (presentation && presentation->getType() == "Modifier/Shape")
+		{
+			newMorphList.append(propName);
+		}
+	}
+
+	if (Object)
+	{
+		for (int index = 0; index < Object->getNumModifiers(); index++)
+		{
+			DzModifier* modifier = Object->getModifier(index);
+			QString modName = modifier->getName();
+			QString modLabel = modifier->getLabel();
+			DzMorph* mod = qobject_cast<DzMorph*>(modifier);
+			if (mod)
+			{
+				for (int propindex = 0; propindex < modifier->getNumProperties(); propindex++)
+				{
+					DzProperty* property = modifier->getProperty(propindex);
+					QString propName = property->getName();
+					QString propLabel = property->getLabel();
+					DzPresentation* presentation = property->getPresentation();
+					if (presentation)
+					{
+						newMorphList.append(modName);
+					}
+				}
+			}
+		}
+	}
+
+	return newMorphList;
+}
+
+QStringList DzRuntimePluginAction::getActiveMorphs(DzNode* Node)
+{
+	QStringList newMorphList;
+
+	DzObject* Object = Node->getObject();
+	DzShape* Shape = Object ? Object->getCurrentShape() : NULL;
+
+	for (int index = 0; index < Node->getNumProperties(); index++)
+	{
+		DzProperty* property = Node->getProperty(index);
+		QString propName = property->getName();
+		QString propLabel = property->getLabel();
+		DzPresentation* presentation = property->getPresentation();
+		if (presentation && presentation->getType() == "Modifier/Shape")
+		{
+			DzNumericProperty *numericProp = qobject_cast<DzNumericProperty*>(property);
+			if (numericProp->getDoubleValue() > 0)
+			{
+				newMorphList.append(propName);
+			}
+		}
+	}
+
+	if (Object)
+	{
+		for (int index = 0; index < Object->getNumModifiers(); index++)
+		{
+			DzModifier* modifier = Object->getModifier(index);
+			QString modName = modifier->getName();
+			QString modLabel = modifier->getLabel();
+			DzMorph* mod = qobject_cast<DzMorph*>(modifier);
+			if (mod)
+			{
+				for (int propindex = 0; propindex < modifier->getNumProperties(); propindex++)
+				{
+					DzProperty* property = modifier->getProperty(propindex);
+					QString propName = property->getName();
+					QString propLabel = property->getLabel();
+					DzPresentation* presentation = property->getPresentation();
+					if (presentation)
+					{
+						DzNumericProperty* numericProp = qobject_cast<DzNumericProperty*>(property);
+						if (numericProp->getDoubleValue() > 0)
+						{
+							newMorphList.append(modName);
+						}
+					}
+				}
+			}
+		}
+	}
+
+	return newMorphList;
+}
 
 #include "moc_DzRuntimePluginAction.cpp"

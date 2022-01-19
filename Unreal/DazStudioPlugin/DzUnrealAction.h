@@ -12,22 +12,18 @@
 
 class DzUnrealAction : public DzRuntimePluginAction {
 	Q_OBJECT
-    Q_PROPERTY(int NonInteractiveMode READ getNonInteractiveMode WRITE setNonInteractiveMode)
 public:
 	 DzUnrealAction();
 
 protected:
 	 int Port;
-     int NonInteractiveMode;
 	 DzUnrealSubdivisionDialog* SubdivisionDialog;
 
 	 void executeAction();
 	 void WriteMaterials(DzNode* Node, DzJsonWriter& Writer, QTextStream& Stream);
 	 void WriteInstances(DzNode* Node, DzJsonWriter& Writer, QMap<QString, DzMatrix3>& WritenInstances, QList<DzGeometry*>& ExportedGeometry, QUuid ParentID = QUuid());
 	 QUuid WriteInstance(DzNode* Node, DzJsonWriter& Writer, QUuid ParentID);
-	 void WriteConfiguration();
+	 Q_INVOKABLE void WriteConfiguration();
 	 void SetExportOptions(DzFileIOSettings& ExportOptions);
-     int getNonInteractiveMode();
-     void setNonInteractiveMode(int);
 
 };
