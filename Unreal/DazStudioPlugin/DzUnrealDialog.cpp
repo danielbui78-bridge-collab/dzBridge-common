@@ -23,6 +23,7 @@
 #include "dzaction.h"
 #include "dzskeleton.h"
 
+#include "DzRuntimePluginAction.h"
 #include "DzUnrealDialog.h"
 #include "DzUnrealMorphSelectionDialog.h"
 #include "DzUnrealSubdivisionDialog.h"
@@ -38,8 +39,8 @@ DzUnrealDialog::DzUnrealDialog(QWidget *parent) :
 	DzBasicDialog(parent, DAZ_TO_UNREAL_PLUGIN_NAME)
 {
 	 assetNameEdit = NULL;
-	 projectEdit = NULL;
-	 projectButton = NULL;
+//	 projectEdit = NULL;
+//	 projectButton = NULL;
 	 assetTypeCombo = NULL;
 	 portEdit = NULL;
 	 intermediateFolderEdit = NULL;
@@ -63,13 +64,13 @@ DzUnrealDialog::DzUnrealDialog(QWidget *parent) :
 	int revision = PLUGIN_REV % 1000;
 	setWindowTitle(tr("Daz To Unreal v%1.%2 Pre-Release Build %3.%4").arg(PLUGIN_MAJOR).arg(PLUGIN_MINOR).arg(revision).arg(PLUGIN_BUILD));
 	layout()->setSizeConstraint(QLayout::SetFixedSize);
-	QFormLayout* mainLayout = new QFormLayout(this);
+	QFormLayout* mainLayout = new QFormLayout();
 
 
 	advancedWidget = new QWidget();
-	QHBoxLayout* advancedLayoutOuter = new QHBoxLayout(this);
+	QHBoxLayout* advancedLayoutOuter = new QHBoxLayout();
 	advancedLayoutOuter->addWidget(advancedWidget);
-	QFormLayout* advancedLayout = new QFormLayout(this);
+	QFormLayout* advancedLayout = new QFormLayout();
 	advancedWidget->setLayout(advancedLayout);
 
 	// Asset Name
@@ -77,7 +78,7 @@ DzUnrealDialog::DzUnrealDialog(QWidget *parent) :
 	assetNameEdit->setValidator(new QRegExpValidator(QRegExp("[A-Za-z0-9_]*"), this));
 
 	// Intermediate Folder
-	QHBoxLayout* intermediateFolderLayout = new QHBoxLayout(this);
+	QHBoxLayout* intermediateFolderLayout = new QHBoxLayout();
 	intermediateFolderEdit = new QLineEdit(this);
 	intermediateFolderButton = new QPushButton("...", this);
 	connect(intermediateFolderButton, SIGNAL(released()), this, SLOT( HandleSelectIntermediateFolderButton() ));
@@ -94,7 +95,7 @@ DzUnrealDialog::DzUnrealDialog(QWidget *parent) :
 	assetTypeCombo->addItem("Pose");
 
 	// Morphs
-	QHBoxLayout* morphsLayout = new QHBoxLayout(this);
+	QHBoxLayout* morphsLayout = new QHBoxLayout();
 	morphsButton = new QPushButton("Choose Morphs", this);
 	connect(morphsButton, SIGNAL(released()), this, SLOT(HandleChooseMorphsButton()));
 	morphsEnabledCheckBox = new QCheckBox("", this);
@@ -104,7 +105,7 @@ DzUnrealDialog::DzUnrealDialog(QWidget *parent) :
 	connect(morphsEnabledCheckBox, SIGNAL(stateChanged(int)), this, SLOT(HandleMorphsCheckBoxChange(int)));
 
 	// Subdivision
-	QHBoxLayout* subdivisionLayout = new QHBoxLayout(this);
+	QHBoxLayout* subdivisionLayout = new QHBoxLayout();
 	subdivisionButton = new QPushButton("Choose Subdivisions", this);
 	connect(subdivisionButton, SIGNAL(released()), this, SLOT(HandleChooseSubdivisionsButton()));
 	subdivisionEnabledCheckBox = new QCheckBox("", this);
@@ -173,6 +174,9 @@ DzUnrealDialog::DzUnrealDialog(QWidget *parent) :
 	showFbxDialogCheckBox->setWhatsThis("Checking this will show the FBX Dialog for adjustments before export.");
 	exportMaterialPropertyCSVCheckBox->setWhatsThis("Checking this will write out a CSV of all the material properties.  Useful for reference when changing materials.");
 
+	// Set Defaults
+	resetToDefaults();
+
 	// Load Settings
 	if (!settings->value("IntermediatePath").isNull())
 	{
@@ -217,6 +221,10 @@ DzUnrealDialog::DzUnrealDialog(QWidget *parent) :
 		}
 	}
 
+}
+
+void DzUnrealDialog::resetToDefaults()
+{
 	// Set Defaults
 	DzNode* Selection = dzScene->getPrimarySelection();
 	if (dzScene->getFilename().length() > 0)
@@ -224,7 +232,7 @@ DzUnrealDialog::DzUnrealDialog(QWidget *parent) :
 		QFileInfo fileInfo = QFileInfo(dzScene->getFilename());
 		assetNameEdit->setText(fileInfo.baseName().remove(QRegExp("[^A-Za-z0-9_]")));
 	}
-	else if(dzScene->getPrimarySelection())
+	else if (dzScene->getPrimarySelection())
 	{
 		assetNameEdit->setText(Selection->getLabel().remove(QRegExp("[^A-Za-z0-9_]")));
 	}
@@ -237,6 +245,15 @@ DzUnrealDialog::DzUnrealDialog(QWidget *parent) :
 	{
 		assetTypeCombo->setCurrentIndex(1);
 	}
+
+	QString DefaultPath = QDesktopServices::storageLocation(QDesktopServices::DocumentsLocation) + QDir::separator() + "DazToUnreal";
+	intermediateFolderEdit->setText(DefaultPath);
+
+	subdivisionEnabledCheckBox->setChecked(false);
+	morphsEnabledCheckBox->setChecked(false);
+	showFbxDialogCheckBox->setChecked(false);
+	exportMaterialPropertyCSVCheckBox->setChecked(false);
+
 }
 
 void DzUnrealDialog::HandleSelectIntermediateFolderButton()

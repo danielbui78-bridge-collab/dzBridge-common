@@ -17,17 +17,19 @@ class QGridLayout;
 
 class DzUnrealSubdivisionDialog : public DzBasicDialog {
 	Q_OBJECT
+	Q_PROPERTY(QObjectList aSubdivisionCombos READ getSubdivisionCombos)
 public:
+	QObjectList getSubdivisionCombos();
 
 	/** Constructor **/
-	 DzUnrealSubdivisionDialog(QWidget *parent);
+	DzUnrealSubdivisionDialog(QWidget *parent=nullptr);
 
-	void PrepareDialog();
+	Q_INVOKABLE void PrepareDialog();
 
 	/** Destructor **/
 	virtual ~DzUnrealSubdivisionDialog() {}
 
-	static DzUnrealSubdivisionDialog* Get(QWidget* Parent)
+	Q_INVOKABLE static DzUnrealSubdivisionDialog* Get(QWidget* Parent)
 	{
 		if (singleton == nullptr)
 		{
@@ -39,9 +41,11 @@ public:
 
 	QGridLayout* subdivisionItemsGrid;
 
-	void LockSubdivisionProperties(bool subdivisionEnabled);
-	void WriteSubdivisions(DzJsonWriter& Writer);
-	DzNode* FindObject(DzNode* Node, QString Name);
+	Q_INVOKABLE void LockSubdivisionProperties(bool subdivisionEnabled);
+	Q_INVOKABLE void WriteSubdivisions(DzJsonWriter& Writer);
+	Q_INVOKABLE DzNode* FindObject(DzNode* Node, QString Name);
+
+	Q_INVOKABLE bool setSubdivisionLevelByNode(DzNode* Node, int level);
 
 public slots:
 	void HandleSubdivisionLevelChanged(const QString& text);

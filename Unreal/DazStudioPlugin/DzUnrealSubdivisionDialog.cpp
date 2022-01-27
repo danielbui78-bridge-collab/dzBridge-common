@@ -68,10 +68,10 @@ DzUnrealSubdivisionDialog::DzUnrealSubdivisionDialog(QWidget *parent) :
 	presetsFolder = QDesktopServices::storageLocation(QDesktopServices::DocumentsLocation) + QDir::separator() + "DazToUnreal" + QDir::separator() + "Presets";
 
 
-	QVBoxLayout* mainLayout = new QVBoxLayout(this);
+	QVBoxLayout* mainLayout = new QVBoxLayout();
 	mainLayout->addWidget(new QLabel("Subdivision can greatly increase transfer time."));
 
-	subdivisionItemsGrid = new QGridLayout(this);
+	subdivisionItemsGrid = new QGridLayout();
 	subdivisionItemsGrid->addWidget(new QLabel("Object Name"), 0, 0);
 	subdivisionItemsGrid->addWidget(new QLabel("Subdivision Level"), 0, 1);
 	subdivisionItemsGrid->addWidget(new QLabel("Base Vert Count"), 0, 2);
@@ -83,7 +83,7 @@ DzUnrealSubdivisionDialog::DzUnrealSubdivisionDialog(QWidget *parent) :
 	setFixedWidth(width());
 	setFixedHeight(height());
 
-
+	SubdivisionCombos.clear();
 }
 
 QSize DzUnrealSubdivisionDialog::minimumSizeHint() const
@@ -209,6 +209,27 @@ DzNode* DzUnrealSubdivisionDialog::FindObject(DzNode* Node, QString Name)
 	return NULL;
 }
 
+bool DzUnrealSubdivisionDialog::setSubdivisionLevelByNode(DzNode* Node, int level)
+{
+	DzNode* selection = dzScene->getPrimarySelection();
+	QString searchName = Node->getName();
+	foreach(QComboBox * combo, SubdivisionCombos)
+	{
+		QString name = combo->property("Object").toString();
+		if (name == searchName)
+		{
+			int maxLevel = combo->count() - 1;
+			if (level > maxLevel)
+				return false;
+
+			combo->setCurrentIndex(level);
+			return true;
+		}
+	}
+
+	return false;
+}
+
 void DzUnrealSubdivisionDialog::LockSubdivisionProperties(bool subdivisionEnabled)
 {
 	DzNode* Selection = dzScene->getPrimarySelection();
@@ -270,6 +291,16 @@ void DzUnrealSubdivisionDialog::WriteSubdivisions(DzJsonWriter& Writer)
 		Writer.finishObject();
 		//stream << "1, " << Name << ", " << targetValue << endl;
 	}
+}
+
+QObjectList DzUnrealSubdivisionDialog::getSubdivisionCombos()
+{
+	QObjectList *returnList = new QObjectList();
+	foreach(QComboBox * combo, SubdivisionCombos)
+	{
+		returnList->append(qobject_cast<QWidget*>(combo));
+	}
+	return *returnList;
 }
 
 #include "moc_DzUnrealSubdivisionDialog.cpp"

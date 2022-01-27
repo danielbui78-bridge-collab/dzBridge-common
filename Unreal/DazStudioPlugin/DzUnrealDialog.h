@@ -11,17 +11,35 @@ class QGroupBox;
 
 class DzUnrealDialog : public DzBasicDialog {
 	Q_OBJECT
+	Q_PROPERTY(QWidget* wAssetNameEdit READ getAssetNameEdit)
+	Q_PROPERTY(QWidget* wIntermediateFolderEdit READ getIntermediateFolderEdit)
+	Q_PROPERTY(QWidget* wAssetTypeCombo READ getAssetTypeCombo)
+	Q_PROPERTY(QWidget* wMorphsEnabledCheckBox READ getMorphsEnabledCheckBox)
+	Q_PROPERTY(QWidget* wSubdivisionEnabledCheckBox READ getSubdivisionEnabledCheckBox)
+	Q_PROPERTY(QWidget* wAdvancedSettingsGroupBox READ getAdvancedSettingsGroupBox)
+	Q_PROPERTY(QWidget* wFbxVersionCombo READ getFbxVersionCombo)
+	Q_PROPERTY(QWidget* wShowFbxDialogCheckBox READ getShowFbxDialogCheckBox)
+	Q_PROPERTY(QWidget* wExportMaterialPropertyCSVCheckBox READ getExportMaterialPropertyCSVCheckBox)
 public:
+	QLineEdit* getAssetNameEdit() { return assetNameEdit; }
+	QLineEdit* getIntermediateFolderEdit() { return intermediateFolderEdit; }
+	QComboBox* getAssetTypeCombo() { return assetTypeCombo; }
+	QCheckBox* getMorphsEnabledCheckBox() { return morphsEnabledCheckBox; }
+	QCheckBox* getSubdivisionEnabledCheckBox() { return subdivisionEnabledCheckBox; }
+	QGroupBox* getAdvancedSettingsGroupBox() { return advancedSettingsGroupBox; }
+	QComboBox* getFbxVersionCombo() { return fbxVersionCombo; }
+	QCheckBox* getShowFbxDialogCheckBox() { return showFbxDialogCheckBox; }
+	QCheckBox* getExportMaterialPropertyCSVCheckBox() { return exportMaterialPropertyCSVCheckBox; }
 
 	/** Constructor **/
-	 DzUnrealDialog(QWidget *parent);
+	 DzUnrealDialog(QWidget *parent=nullptr);
 
 	/** Destructor **/
 	virtual ~DzUnrealDialog() {}
 
 	QLineEdit* assetNameEdit;
-	QLineEdit* projectEdit;
-	QPushButton* projectButton;
+//	QLineEdit* projectEdit;
+//	QPushButton* projectButton;
 	QComboBox* assetTypeCombo;
 	QLineEdit* portEdit;
 	QLineEdit* intermediateFolderEdit;
@@ -37,10 +55,12 @@ public:
 	QCheckBox* exportMaterialPropertyCSVCheckBox;
 
 	// Pass so the DazTRoUnrealAction can access it from the morph dialog
-	QString GetMorphString();
+	Q_INVOKABLE QString GetMorphString();
 
 	// Pass so the DazTRoUnrealAction can access it from the morph dialog
-	QMap<QString,QString> GetMorphMapping() { return morphMapping; }
+	Q_INVOKABLE QMap<QString,QString> GetMorphMapping() { return morphMapping; }
+
+	Q_INVOKABLE void resetToDefaults();
 
 	void Accepted();
 private slots:
