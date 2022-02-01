@@ -13,9 +13,9 @@ set(LIB_SRCS
 	DzBridgeDialog.cpp
 )
 
-add_library(common STATIC ${LIB_SRCS})
+add_library(dzbridge STATIC ${LIB_SRCS})
 
-target_link_libraries(common
+target_link_libraries(dzbridge
 	PRIVATE 
 	dzcore
 	${DZSDK_QT_CORE_TARGET}
@@ -23,3 +23,4 @@ target_link_libraries(common
 	${DZSDK_QT_SCRIPT_TARGET}
 	${DZSDK_QT_NETWORK_TARGET}
 )
+
