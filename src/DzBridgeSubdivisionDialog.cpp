@@ -47,13 +47,13 @@
 /*****************************
 Local definitions
 *****************************/
-#define DAZ_TO_UNREAL_PLUGIN_NAME		"DazToUnreal"
+#define DAZ_BRIDGE_LIBRARY_NAME "Daz Bridge"
 
 
 DLLExport DzBridgeSubdivisionDialog* DzBridgeSubdivisionDialog::singleton = nullptr;
 
 DzBridgeSubdivisionDialog::DzBridgeSubdivisionDialog(QWidget *parent) :
-	DzBasicDialog(parent, DAZ_TO_UNREAL_PLUGIN_NAME)
+	DzBasicDialog(parent, DAZ_BRIDGE_LIBRARY_NAME)
 {
 	 subdivisionItemsGrid = NULL;
 	//settings = new QSettings("Code Wizards", "DazToUnreal");

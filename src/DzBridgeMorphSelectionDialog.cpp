@@ -47,7 +47,7 @@
 /*****************************
 Local definitions
 *****************************/
-#define DAZ_TO_UNREAL_PLUGIN_NAME		"DazToUnreal"
+#define DAZ_BRIDGE_LIBRARY_NAME "Daz Bridge"
 
 
 DLLExport DzBridgeMorphSelectionDialog* DzBridgeMorphSelectionDialog::singleton = nullptr;
@@ -67,7 +67,7 @@ public:
 };
 
 DzBridgeMorphSelectionDialog::DzBridgeMorphSelectionDialog(QWidget *parent) :
-	DzBasicDialog(parent, DAZ_TO_UNREAL_PLUGIN_NAME)
+	DzBasicDialog(parent, DAZ_BRIDGE_LIBRARY_NAME)
 {
 	 settings = new QSettings("Daz 3D", "DazToUnreal");
 
