@@ -13,9 +13,12 @@
 
 #undef DLLExport
 #define DLLExport Q_DECL_IMPORT
-#ifdef EXPORTING
+#ifdef DZ_BRIDGE_SHARED
 	#undef DLLExport
 	#define DLLExport Q_DECL_EXPORT
+#elif DZ_BRIDGE_STATIC
+	#undef DLLExport
+	#define DLLExport
 #endif
 
 //class DzBridgeSubdivisionDialog;

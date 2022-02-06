@@ -63,3 +63,13 @@ set_target_properties (dzbridge
 	FOLDER ""
 	PROJECT_LABEL "DzBridge DLL"
 )
+
+target_compile_definitions(dzbridge
+	PUBLIC
+	DZ_BRIDGE_SHARED
+)
+
+target_compile_definitions(dzbridge-static
+	PUBLIC
+	DZ_BRIDGE_STATIC
+)
