@@ -8,6 +8,12 @@
 #include "QtCore/qfile.h"
 #include "QtCore/qtextstream.h"
 
+#include "DzBridgeSubdivisionDialog.h"
+#include "DzBridgeMorphSelectionDialog.h"
+
+//class DzBridgeSubdivisionDialog;
+//class DzBridgeMorphSelectionDialog;
+
 // Struct to remember attachment info
 struct AttachmentInfo
 {
@@ -28,6 +34,8 @@ class DzRuntimePluginAction : public DzAction {
 	Q_PROPERTY(bool bUseRelativePaths READ getUseRelativePaths WRITE setUseRelativePaths)
 	Q_PROPERTY(bool bUndoNormalMaps READ getUndoNormalMaps WRITE setUndoNormalMaps)
 	Q_PROPERTY(QString sExportFbx READ getExportFbx WRITE setExportFbx)
+	Q_PROPERTY(DzBasicDialog* wSubdivisionDialog READ getSubdivisionDialog WRITE setSubdivisionDialog)
+	Q_PROPERTY(DzBasicDialog* wMorphSelectionDialog READ getMorphSelectionDialog WRITE setMorphSelectionDialog)
 public:
 
 	 DzRuntimePluginAction(const QString& text = QString::null, const QString& desc = QString::null);
@@ -51,6 +59,9 @@ public slots:
 	bool undoGenerateMissingNormalMaps();
 
 protected:
+	DzBridgeSubdivisionDialog* m_subdivisionDialog;
+	DzBridgeMorphSelectionDialog* m_morphSelectionDialog;
+
 	int NonInteractiveMode;
 	 QString CharacterName; // Exported filename without extension
 	 QString RootFolder; // The destination Root Folder

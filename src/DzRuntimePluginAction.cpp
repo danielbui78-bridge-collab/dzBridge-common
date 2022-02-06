@@ -45,6 +45,9 @@
 DzRuntimePluginAction::DzRuntimePluginAction(const QString& text, const QString& desc) :
 	 DzAction(text, desc)
 {
+	m_subdivisionDialog = nullptr;
+	m_morphSelectionDialog = nullptr;
+
 	 ExportMorphs = false;
 	 ExportSubdivisions = false;
 	 ShowFbxDialog = false;
@@ -1421,6 +1424,52 @@ QStringList DzRuntimePluginAction::getActiveMorphs(DzNode* Node)
 	}
 
 	return newMorphList;
+}
+
+bool DzRuntimePluginAction::setSubdivisionDialog(DzBasicDialog* arg_dlg)
+{ 
+	m_subdivisionDialog = qobject_cast<DzBridgeSubdivisionDialog*>(arg_dlg);
+
+	if (m_subdivisionDialog == nullptr)
+	{
+		if (arg_dlg == nullptr)
+			return true;
+
+		if (arg_dlg->inherits("DzBridgeSubdivisionDialog"))
+		{
+			m_subdivisionDialog = (DzBridgeSubdivisionDialog*)arg_dlg;
+			// WARNING
+			printf("WARNING: DzBridge version mismatch detected! Crashes may occur.");
+		}
+
+		// return false to signal version mismatch
+		return false;
+	}
+
+	return true;
+}
+
+bool DzRuntimePluginAction::setMorphSelectionDialog(DzBasicDialog* arg_dlg)
+{ 
+	m_morphSelectionDialog = qobject_cast<DzBridgeMorphSelectionDialog*>(arg_dlg); 
+
+	if (m_morphSelectionDialog == nullptr)
+	{
+		if (arg_dlg == nullptr)
+			return true;
+
+		if (arg_dlg->inherits("DzBridgeMorphSelectionDialog"))
+		{
+			m_morphSelectionDialog = (DzBridgeMorphSelectionDialog*)arg_dlg;
+			// WARNING
+			printf("WARNING: DzBridge version mismatch detected! Crashes may occur.");
+		}
+
+		// return false to signal version mismatch
+		return false;
+	}		
+
+	return true;
 }
 
 #include "moc_DzRuntimePluginAction.cpp"
