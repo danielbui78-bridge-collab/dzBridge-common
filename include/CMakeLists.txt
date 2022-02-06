@@ -6,10 +6,10 @@ set(COMMON_LIB_INCLUDE_DIR ${COMMON_LIB_INCLUDE_DIR} PARENT_SCOPE)
 
 include_directories(${COMMON_LIB_INCLUDE_DIR})
 set(LIB_SRCS
-	${LIB_SRCS}
-	DzRuntimePluginAction.h
-	DzBridgeMorphSelectionDialog.h
-	DzBridgeSubdivisionDialog.h
-	DzBridgeDialog.h
-	common_version.h
+	../include/DzRuntimePluginAction.h
+	../include/DzBridgeMorphSelectionDialog.h
+	../include/DzBridgeSubdivisionDialog.h
+	../include/DzBridgeDialog.h
+	../include/common_version.h
 )
+set(LIB_SRCS ${LIB_SRCS} PARENT_SCOPE)
