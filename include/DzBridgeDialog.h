@@ -21,14 +21,14 @@ class DzBridgeDialog : public DzBasicDialog {
 	Q_PROPERTY(QWidget* wShowFbxDialogCheckBox READ getShowFbxDialogCheckBox)
 	Q_PROPERTY(QWidget* wExportMaterialPropertyCSVCheckBox READ getExportMaterialPropertyCSVCheckBox)
 public:
-	QLineEdit* getAssetNameEdit() { return assetNameEdit; }
-	QComboBox* getAssetTypeCombo() { return assetTypeCombo; }
-	QCheckBox* getMorphsEnabledCheckBox() { return morphsEnabledCheckBox; }
-	QCheckBox* getSubdivisionEnabledCheckBox() { return subdivisionEnabledCheckBox; }
-	QGroupBox* getAdvancedSettingsGroupBox() { return advancedSettingsGroupBox; }
-	QComboBox* getFbxVersionCombo() { return fbxVersionCombo; }
-	QCheckBox* getShowFbxDialogCheckBox() { return showFbxDialogCheckBox; }
-	QCheckBox* getExportMaterialPropertyCSVCheckBox() { return exportMaterialPropertyCSVCheckBox; }
+	Q_INVOKABLE QLineEdit* getAssetNameEdit() { return assetNameEdit; }
+	Q_INVOKABLE QComboBox* getAssetTypeCombo() { return assetTypeCombo; }
+	Q_INVOKABLE QCheckBox* getMorphsEnabledCheckBox() { return morphsEnabledCheckBox; }
+	Q_INVOKABLE QCheckBox* getSubdivisionEnabledCheckBox() { return subdivisionEnabledCheckBox; }
+	Q_INVOKABLE QGroupBox* getAdvancedSettingsGroupBox() { return advancedSettingsGroupBox; }
+	Q_INVOKABLE QComboBox* getFbxVersionCombo() { return fbxVersionCombo; }
+	Q_INVOKABLE QCheckBox* getShowFbxDialogCheckBox() { return showFbxDialogCheckBox; }
+	Q_INVOKABLE QCheckBox* getExportMaterialPropertyCSVCheckBox() { return exportMaterialPropertyCSVCheckBox; }
 
 	/** Constructor **/
 	 DzBridgeDialog(QWidget *parent=nullptr, const QString &windowTitle="");

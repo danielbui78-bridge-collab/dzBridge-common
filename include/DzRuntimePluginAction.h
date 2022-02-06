@@ -123,26 +123,32 @@ protected:
 	 // Need to be able to move asset instances to origin during environment export
 	 void UnlockTranform(DzNode* NodeToUnlock);
 
-	 QString getAssetType() { return this->AssetType; };
-	 void setAssetType(QString arg_AssetType) { this->AssetType = arg_AssetType; };
-	 QString getExportFilename() { return this->CharacterName; };
-	 void setExportFilename(QString arg_Filename) { this->CharacterName = arg_Filename; };
+	 // Getter/Setter methods
+	 Q_INVOKABLE DzBridgeSubdivisionDialog* getSubdivisionDialog() { return m_subdivisionDialog; }
+	 Q_INVOKABLE bool setSubdivisionDialog(DzBasicDialog* arg_dlg);
+	 Q_INVOKABLE DzBridgeMorphSelectionDialog* getMorphSelectionDialog() { return m_morphSelectionDialog; }
+	 Q_INVOKABLE bool setMorphSelectionDialog(DzBasicDialog* arg_dlg);
 
-	 QString getExportFolder() { return this->ExportFolder; };
-	 void setExportFolder(QString arg_Folder) { this->ExportFolder = arg_Folder; };
-	 QString getRootFolder() { return this->RootFolder; };
-	 void setRootFolder(QString arg_Root) { this->RootFolder = arg_Root; };
+	 Q_INVOKABLE QString getAssetType() { return this->AssetType; };
+	 Q_INVOKABLE void setAssetType(QString arg_AssetType) { this->AssetType = arg_AssetType; };
+	 Q_INVOKABLE QString getExportFilename() { return this->CharacterName; };
+	 Q_INVOKABLE void setExportFilename(QString arg_Filename) { this->CharacterName = arg_Filename; };
 
-	 QString getProductName() { return this->ProductName; };
-	 void setProductName(QString arg_ProductName) { this->ProductName = arg_ProductName; };
-	 QString getProductComponentName() { return this->ProductComponentName; };
-	 void setProductComponentName(QString arg_ProductComponentName) { this->ProductComponentName = arg_ProductComponentName; };
+	 Q_INVOKABLE QString getExportFolder() { return this->ExportFolder; };
+	 Q_INVOKABLE void setExportFolder(QString arg_Folder) { this->ExportFolder = arg_Folder; };
+	 Q_INVOKABLE QString getRootFolder() { return this->RootFolder; };
+	 Q_INVOKABLE void setRootFolder(QString arg_Root) { this->RootFolder = arg_Root; };
 
-	 QStringList getMorphList() { return ScriptOnly_MorphList; };
-	 void setMorphList(QStringList arg_MorphList) { this->ScriptOnly_MorphList = arg_MorphList; };
+	 Q_INVOKABLE QString getProductName() { return this->ProductName; };
+	 Q_INVOKABLE void setProductName(QString arg_ProductName) { this->ProductName = arg_ProductName; };
+	 Q_INVOKABLE QString getProductComponentName() { return this->ProductComponentName; };
+	 Q_INVOKABLE void setProductComponentName(QString arg_ProductComponentName) { this->ProductComponentName = arg_ProductComponentName; };
 
-	 bool getUseRelativePaths() { return this->UseRelativePaths; };
-	 void setUseRelativePaths(bool arg_UseRelativePaths) { this->UseRelativePaths = arg_UseRelativePaths; };
+	 Q_INVOKABLE QStringList getMorphList() { return ScriptOnly_MorphList; };
+	 Q_INVOKABLE void setMorphList(QStringList arg_MorphList) { this->ScriptOnly_MorphList = arg_MorphList; };
+
+	 Q_INVOKABLE bool getUseRelativePaths() { return this->UseRelativePaths; };
+	 Q_INVOKABLE void setUseRelativePaths(bool arg_UseRelativePaths) { this->UseRelativePaths = arg_UseRelativePaths; };
 
 	 bool isTemporaryFile(QString sFilename);
 	 QString exportWithDTU(QString sFilename, QString sAssetMaterialName = "");
@@ -150,14 +156,14 @@ protected:
 	 void writeJSON_Property_Texture(DzJsonWriter& Writer, QString sName, double dValue, QString sType, QString sTexture);
 	 QString makeUniqueFilename(QString sFilename);
 
-	 bool getUndoNormalMaps() { return this->m_bUndoNormalMaps; };
-	 void setUndoNormalMaps(bool arg_UndoNormalMaps) { this->m_bUndoNormalMaps = arg_UndoNormalMaps; };
+	 Q_INVOKABLE bool getUndoNormalMaps() { return this->m_bUndoNormalMaps; };
+	 Q_INVOKABLE void setUndoNormalMaps(bool arg_UndoNormalMaps) { this->m_bUndoNormalMaps = arg_UndoNormalMaps; };
 
-	 int getNonInteractiveMode() { return this->NonInteractiveMode; };
-	 void setNonInteractiveMode(int arg_Mode) { this->NonInteractiveMode = arg_Mode; };
+	 Q_INVOKABLE int getNonInteractiveMode() { return this->NonInteractiveMode; };
+	 Q_INVOKABLE void setNonInteractiveMode(int arg_Mode) { this->NonInteractiveMode = arg_Mode; };
 
-	 QString getExportFbx() { return this->m_sExportFbx; };
-	 void setExportFbx(QString arg_FbxName) { this->m_sExportFbx = arg_FbxName; };
+	 Q_INVOKABLE QString getExportFbx() { return this->m_sExportFbx; };
+	 Q_INVOKABLE void setExportFbx(QString arg_FbxName) { this->m_sExportFbx = arg_FbxName; };
 
 private:
 	 // Undo data structures
