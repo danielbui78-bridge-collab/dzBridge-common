@@ -11,6 +11,15 @@
 #include "DzBridgeSubdivisionDialog.h"
 #include "DzBridgeMorphSelectionDialog.h"
 
+#undef DLLExport
+#define DLLExport __declspec( dllimport )
+#ifdef EXPORTING
+	#ifdef WIN32
+		#undef DLLExport
+		#define DLLExport __declspec( dllexport )
+	#endif
+#endif
+
 //class DzBridgeSubdivisionDialog;
 //class DzBridgeMorphSelectionDialog;
 
@@ -21,7 +30,7 @@ struct AttachmentInfo
 	DzNode* Child;
 };
 
-class DzRuntimePluginAction : public DzAction {
+class DLLExport DzRuntimePluginAction : public DzAction {
 	Q_OBJECT
 	Q_PROPERTY(int nNonInteractiveMode READ getNonInteractiveMode WRITE setNonInteractiveMode)
 	Q_PROPERTY(QString sAssetType READ getAssetType WRITE setAssetType)

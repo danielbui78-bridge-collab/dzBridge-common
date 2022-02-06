@@ -6,7 +6,25 @@
 #include "DzBridgeMorphSelectionDialog.h"
 #include "DzBridgeSubdivisionDialog.h"
 
-DZ_PLUGIN_DEFINITION("DazBridge");
+//DZ_PLUGIN_DEFINITION("DazBridge");
+BOOL WINAPI DllMain(HINSTANCE hinstDLL, ULONG fdwReason, LPVOID lpvReserved)	
+{	
+	switch (fdwReason) {
+	case DLL_PROCESS_ATTACH:
+			break;
+	case DLL_THREAD_ATTACH:
+			break;
+	case DLL_THREAD_DETACH:
+			break;
+	case DLL_PROCESS_DETACH:
+			break;
+	}
+	return TRUE;
+}
+static DzPlugin s_pluginDef("DazBridge"); 
+extern "C" __declspec(dllexport) DzVersion getSDKVersion() { return DZ_SDK_VERSION; }
+extern "C" __declspec(dllexport) DzPlugin * getPluginDefinition() { return &s_pluginDef; }
+
 
 DZ_PLUGIN_AUTHOR("Daz 3D, Inc");
 

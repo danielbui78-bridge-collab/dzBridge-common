@@ -50,7 +50,7 @@ Local definitions
 #define DAZ_TO_UNREAL_PLUGIN_NAME		"DazToUnreal"
 
 
-DzBridgeMorphSelectionDialog* DzBridgeMorphSelectionDialog::singleton = nullptr;
+DLLExport DzBridgeMorphSelectionDialog* DzBridgeMorphSelectionDialog::singleton = nullptr;
 
 // For sorting the lists
 class SortingListItem : public QListWidgetItem {

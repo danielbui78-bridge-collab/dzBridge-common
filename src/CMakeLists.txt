@@ -8,7 +8,7 @@ include_directories(${COMMON_LIB_INCLUDE_DIR})
 
 if(WIN32)
 	set(OS_SOURCES
-		DzBridge.def
+#		DzBridge.def
 	)
 elseif(APPLE)	
 	set(OS_SOURCES "")

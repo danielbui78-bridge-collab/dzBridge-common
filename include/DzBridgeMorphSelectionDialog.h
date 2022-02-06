@@ -6,6 +6,15 @@
 #include <QtCore/qsettings.h>
 #include "dznode.h"
 
+#undef DLLExport
+#define DLLExport __declspec( dllimport )
+#ifdef EXPORTING
+	#ifdef WIN32
+		#undef DLLExport
+		#define DLLExport __declspec( dllexport )
+	#endif
+#endif
+
 class QListWidget;
 class QListWidgetItem;
 class QTreeWidget;
@@ -54,7 +63,7 @@ struct JointLinkInfo
 	QList<JointLinkKey> Keys;
 };
 
-class DzBridgeMorphSelectionDialog : public DzBasicDialog {
+class DLLExport DzBridgeMorphSelectionDialog : public DzBasicDialog {
 	 Q_OBJECT
 public:
 

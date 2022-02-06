@@ -50,8 +50,7 @@ Local definitions
 #define DAZ_TO_UNREAL_PLUGIN_NAME		"DazToUnreal"
 
 
-DzBridgeSubdivisionDialog* DzBridgeSubdivisionDialog::singleton = nullptr;
-
+DLLExport DzBridgeSubdivisionDialog* DzBridgeSubdivisionDialog::singleton = nullptr;
 
 DzBridgeSubdivisionDialog::DzBridgeSubdivisionDialog(QWidget *parent) :
 	DzBasicDialog(parent, DAZ_TO_UNREAL_PLUGIN_NAME)

@@ -6,6 +6,15 @@
 #include "dznode.h"
 #include <dzjsonwriter.h>
 
+#undef DLLExport
+#define DLLExport __declspec( dllimport )
+#ifdef EXPORTING
+	#ifdef WIN32
+		#undef DLLExport
+		#define DLLExport __declspec( dllexport )
+	#endif
+#endif
+
 class QListWidget;
 class QListWidgetItem;
 class QTreeWidget;
@@ -15,7 +24,7 @@ class QComboBox;
 class QGridLayout;
 
 
-class DzBridgeSubdivisionDialog : public DzBasicDialog {
+class DLLExport DzBridgeSubdivisionDialog : public DzBasicDialog {
 	Q_OBJECT
 	Q_PROPERTY(QObjectList aSubdivisionCombos READ getSubdivisionCombos)
 public:

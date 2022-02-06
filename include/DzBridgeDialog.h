@@ -10,7 +10,16 @@ class QComboBox;
 class QGroupBox;
 class QFormLayout;
 
-class DzBridgeDialog : public DzBasicDialog {
+#undef DLLExport
+#define DLLExport __declspec( dllimport )
+#ifdef EXPORTING
+	#ifdef WIN32
+		#undef DLLExport
+		#define DLLExport __declspec( dllexport )
+	#endif
+#endif
+
+class DLLExport DzBridgeDialog : public DzBasicDialog {
 	Q_OBJECT
 	Q_PROPERTY(QWidget* wAssetNameEdit READ getAssetNameEdit)
 	Q_PROPERTY(QWidget* wAssetTypeCombo READ getAssetTypeCombo)
