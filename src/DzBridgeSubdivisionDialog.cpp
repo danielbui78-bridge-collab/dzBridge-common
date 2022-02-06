@@ -84,6 +84,8 @@ DzBridgeSubdivisionDialog::DzBridgeSubdivisionDialog(QWidget *parent) :
 	setFixedHeight(height());
 
 	SubdivisionCombos.clear();
+
+	PrepareDialog();
 }
 
 QSize DzBridgeSubdivisionDialog::minimumSizeHint() const

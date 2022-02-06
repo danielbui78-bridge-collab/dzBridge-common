@@ -19,7 +19,7 @@ class DzBridgeSubdivisionDialog : public DzBasicDialog {
 	Q_OBJECT
 	Q_PROPERTY(QObjectList aSubdivisionCombos READ getSubdivisionCombos)
 public:
-	QObjectList getSubdivisionCombos();
+	Q_INVOKABLE QObjectList getSubdivisionCombos();
 
 	/** Constructor **/
 	DzBridgeSubdivisionDialog(QWidget *parent=nullptr);
@@ -35,7 +35,10 @@ public:
 		{
 			singleton = new DzBridgeSubdivisionDialog(Parent);
 		}
-		singleton->PrepareDialog();
+		else
+		{
+			singleton->PrepareDialog();
+		}
 		return singleton;
 	}
 

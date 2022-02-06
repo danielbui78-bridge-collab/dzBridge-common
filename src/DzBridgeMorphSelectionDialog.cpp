@@ -203,6 +203,7 @@ DzBridgeMorphSelectionDialog::DzBridgeMorphSelectionDialog(QWidget *parent) :
 	connect(morphTreeWidget, SIGNAL(itemSelectionChanged()),
 		this, SLOT(ItemSelectionChanged()));
 
+	PrepareDialog();
 }
 
 QSize DzBridgeMorphSelectionDialog::minimumSizeHint() const

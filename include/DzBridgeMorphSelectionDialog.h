@@ -71,7 +71,10 @@ public:
 		  {
 				singleton = new DzBridgeMorphSelectionDialog(Parent);
 		  }
-		  singleton->PrepareDialog();
+		  else
+		  {
+			  singleton->PrepareDialog();
+		  }
 		  return singleton;
 	 }
 
