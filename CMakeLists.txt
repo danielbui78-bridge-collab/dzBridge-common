@@ -17,6 +17,21 @@
 
 cmake_minimum_required(VERSION 3.4.0)
 
+#if (NOT EXISTS ${CMAKE_BINARY_DIR}/CMakeCache.txt)
+#  if (NOT CMAKE_BUILD_TYPE)
+#    set(CMAKE_BUILD_TYPE "Release" CACHE STRING "" FORCE)
+#  endif()
+#endif()
+#set(CMAKE_CONFIGURATION_TYPES
+#	"Release"
+#	"MinSizeRel"
+#	"RelWithDebInfo"
+#	"Debug"
+#)
+set(CMAKE_CONFIGURATION_TYPES ${CMAKE_CONFIGURATION_TYPES} "MinSizeRel;RelWithDebInfo;Debug;Release")
+set(CMAKE_BUILD_TYPE "Release" CACHE STRING "" FORCE)
+
+
 if(APPLE)
 	if(NOT CMAKE_OSX_ARCHITECTURES)
   		message( FATAL_ERROR "Mac needs CMAKE_OSX_ARCHITECTURES, set to i386 or x86_64" )	
@@ -24,7 +39,7 @@ if(APPLE)
 	endif()
 endif(APPLE)
 
-project("DazRunTimePlugins")
+project("DzBridge")
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
@@ -138,11 +153,14 @@ elseif(APPLE)
 	set(DAZ_SDK_QTCORE_LIBRARY "${DAZ_SDK_DIR}/lib/${DZ_MIXED_PLATFORM}/QtCore.framework")
 endif()
 
+set(QT_BINARY_DIR_DEFAULT "${DAZ_SDK_DIR}/bin/${DZ_MIXED_PLATFORM}")
+set(QT_IMPORTS_DIR "${DAZ_SDK_DIR}/lib/${DZ_MIXED_PLATFORM}")
+
 set(QT_QTCORE_LIBRARY_RELEASE ${DAZ_SDK_QTCORE_LIBRARY})
-set(QT_BINARY_DIR "${QT_BINARY_DIR_DEFAULT}")
-set(QT_QMAKE_EXECUTABLE "${QT_BINARY_DIR_DEFAULT}/qmake${UTIL_EXT}")
-#set(QT_QMAKE_EXECUTABLE "${DAZ_SDK_DIR}/bin/${DZ_MIXED_PLATFORM}/qmake${UTIL_EXT}")
-#set(QT_BINARY_DIR "${DAZ_SDK_DIR}/bin/${DZ_MIXED_PLATFORM}")
+#set(QT_BINARY_DIR "${QT_BINARY_DIR_DEFAULT}")
+#set(QT_QMAKE_EXECUTABLE "${QT_BINARY_DIR_DEFAULT}/qmake${UTIL_EXT}")
+set(QT_QMAKE_EXECUTABLE "${DAZ_SDK_DIR}/bin/${DZ_MIXED_PLATFORM}/qmake${UTIL_EXT}")
+set(QT_BINARY_DIR "${DAZ_SDK_DIR}/bin/${DZ_MIXED_PLATFORM}")
 set(QT_HEADERS_DIR "${DAZ_SDK_DIR}/include")
 set(QT_QTCORE_INCLUDE_DIR "${DAZ_SDK_DIR}/include/QtCore")
 
@@ -164,7 +182,13 @@ list(APPEND CMAKE_AUTOMOC_MOC_OPTIONS -i)
 
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+
+# if building a plugin and you want the compiled result placed in the Daz Studio ./plugins directory
+if(DAZ_STUDIO_EXE_DIR)
+	set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${DAZ_STUDIO_EXE_DIR}/plugins)
+#	set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${DAZ_STUDIO_EXE_DIR}/plugins)
+endif()
 
 add_subdirectory("include")
 add_subdirectory("src")
