@@ -12,12 +12,10 @@
 #include "DzBridgeMorphSelectionDialog.h"
 
 #undef DLLExport
-#define DLLExport __declspec( dllimport )
+#define DLLExport Q_DECL_IMPORT
 #ifdef EXPORTING
-	#ifdef WIN32
-		#undef DLLExport
-		#define DLLExport __declspec( dllexport )
-	#endif
+	#undef DLLExport
+	#define DLLExport Q_DECL_EXPORT
 #endif
 
 //class DzBridgeSubdivisionDialog;
