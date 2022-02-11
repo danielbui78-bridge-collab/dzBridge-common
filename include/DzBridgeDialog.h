@@ -46,20 +46,6 @@ public:
 	/** Destructor **/
 	virtual ~DzBridgeDialog() {}
 
-	QLineEdit* assetNameEdit;
-//	QLineEdit* projectEdit;
-//	QPushButton* projectButton;
-	QComboBox* assetTypeCombo;
-	QPushButton* morphsButton;
-	QCheckBox* morphsEnabledCheckBox;
-	QPushButton* subdivisionButton;
-	QCheckBox* subdivisionEnabledCheckBox;
-	QGroupBox* advancedSettingsGroupBox;
-	QWidget* advancedWidget;
-	QComboBox* fbxVersionCombo;
-	QCheckBox* showFbxDialogCheckBox;
-	QCheckBox* exportMaterialPropertyCSVCheckBox;
-
 	// Pass so the DazTRoUnrealAction can access it from the morph dialog
 	Q_INVOKABLE QString GetMorphString();
 
@@ -89,4 +75,22 @@ protected:
 	// These are clumsy leftovers from before the dialog were singletons
 	QString morphString;
 	QMap<QString,QString> morphMapping;
+
+	QFormLayout* mainLayout;
+	QFormLayout* advancedLayout;
+	QLineEdit* assetNameEdit;
+	//	QLineEdit* projectEdit;
+	//	QPushButton* projectButton;
+	QComboBox* assetTypeCombo;
+	QPushButton* morphsButton;
+	QCheckBox* morphsEnabledCheckBox;
+	QPushButton* subdivisionButton;
+	QCheckBox* subdivisionEnabledCheckBox;
+	QGroupBox* advancedSettingsGroupBox;
+	QWidget* advancedWidget;
+	QComboBox* fbxVersionCombo;
+	QCheckBox* showFbxDialogCheckBox;
+	QCheckBox* exportMaterialPropertyCSVCheckBox;
+
+
 };

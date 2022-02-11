@@ -61,13 +61,12 @@ DzBridgeDialog::DzBridgeDialog(QWidget *parent, const QString &windowTitle) :
 	int revision = COMMON_REV % 1000;
 	setWindowTitle(tr("DazBridge v%1.%2 Pre-Release Build %3.%4").arg(COMMON_MAJOR).arg(COMMON_MINOR).arg(revision).arg(COMMON_BUILD));
 	layout()->setSizeConstraint(QLayout::SetFixedSize);
-	QFormLayout* mainLayout = new QFormLayout();
-
+	mainLayout = new QFormLayout();
 
 	advancedWidget = new QWidget();
 	QHBoxLayout* advancedLayoutOuter = new QHBoxLayout();
 	advancedLayoutOuter->addWidget(advancedWidget);
-	QFormLayout* advancedLayout = new QFormLayout();
+	advancedLayout = new QFormLayout();
 	advancedWidget->setLayout(advancedLayout);
 
 	// Asset Name
