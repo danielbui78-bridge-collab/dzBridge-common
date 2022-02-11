@@ -254,6 +254,12 @@ void DzBridgeSubdivisionDialog::LockSubdivisionProperties(bool subdivisionEnable
 					QString propName = property->getName();
 					if (propName == "SubDIALevel" && numericProperty)
 					{
+						// DB 2021-09-02: Record data to Unlock/Undo changes
+						UndoData undo_data;
+						undo_data.originalLockState = numericProperty->isLocked();
+						undo_data.originalValue = numericProperty->getDoubleValue();
+						UndoSubdivisionOverrides.insert(numericProperty, undo_data);
+
 						numericProperty->lock(false);
 						if (subdivisionEnabled)
 						{
@@ -272,6 +278,28 @@ void DzBridgeSubdivisionDialog::LockSubdivisionProperties(bool subdivisionEnable
 			}
 		}
 	}
+}
+
+// DB 2021-09-02: Unlock/Undo Subdivision Property Changes
+void DzBridgeSubdivisionDialog::UnlockSubdivisionProperties()
+{
+	QMap<DzProperty*, UndoData>::iterator undoIterator = UndoSubdivisionOverrides.begin();
+	while (undoIterator != UndoSubdivisionOverrides.end())
+	{
+		DzProperty* undoKey = undoIterator.key();
+		DzNumericProperty* numericProperty = qobject_cast<DzNumericProperty*>(undoKey);
+		if (numericProperty)
+		{
+			UndoData undo_data = undoIterator.value();
+			numericProperty->lock(false);
+			numericProperty->setDoubleValue(undo_data.originalValue);
+			numericProperty->lock(undo_data.originalLockState);
+		}
+		undoIterator++;
+	}
+
+	// Clear subdivision map after processing undo
+	UndoSubdivisionOverrides.clear();
 }
 
 void DzBridgeSubdivisionDialog::WriteSubdivisions(DzJsonWriter& Writer)
@@ -302,6 +330,22 @@ QObjectList DzBridgeSubdivisionDialog::getSubdivisionCombos()
 		returnList->append(qobject_cast<QWidget*>(combo));
 	}
 	return *returnList;
+}
+
+std::map<std::string, int>* DzBridgeSubdivisionDialog::GetLookupTable()
+{
+	std::map<std::string, int>* pLookupTable = new std::map<std::string, int>();
+
+	foreach(QComboBox * combo, SubdivisionCombos)
+	{
+		std::string name(combo->property("Object").toString().toLocal8Bit().data());
+		name = name + ".Shape";
+		int targetValue = combo->currentText().toInt();
+		(*pLookupTable)[name] = targetValue;
+
+	}
+
+	return pLookupTable;
 }
 
 #include "moc_DzBridgeSubdivisionDialog.cpp"

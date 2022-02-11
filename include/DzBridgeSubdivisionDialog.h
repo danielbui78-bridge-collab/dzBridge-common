@@ -60,6 +60,9 @@ public:
 
 	Q_INVOKABLE bool setSubdivisionLevelByNode(DzNode* Node, int level);
 
+	Q_INVOKABLE void UnlockSubdivisionProperties();
+	std::map<std::string, int>* GetLookupTable();
+
 public slots:
 	void HandleSubdivisionLevelChanged(const QString& text);
 
@@ -77,4 +80,12 @@ private:
 	QMap<QString, int> SubdivisionLevels;
 
 	static DzBridgeSubdivisionDialog* singleton;
+
+	struct UndoData
+	{
+		bool originalLockState;
+		double originalValue;
+	};
+	QMap<DzProperty*, UndoData> UndoSubdivisionOverrides;
+
 };

@@ -806,22 +806,11 @@ void DzRuntimePluginAction::ExportNode(DzNode* Node)
 
 		  SetExportOptions(ExportOptions);
 
-		  if (ExportSubdivisions)
+		  if (ExportSubdivisions && ExportBaseMesh)
 		  {
-			  if (ExportBaseMesh)
-			  {
-				  QString CharacterBaseFBX = this->CharacterFBX;
-				  CharacterBaseFBX.replace(".fbx", "_base.fbx");
-				  Exporter->writeFile(CharacterBaseFBX, &ExportOptions);
-			  }
-			  else
-			  {
-				  QString CharacterHDFBX = this->CharacterFBX;
-				  CharacterHDFBX.replace(".fbx", "_HD.fbx");
-				  Exporter->writeFile(CharacterHDFBX, &ExportOptions);
-
-				  WriteConfiguration();
-			  }
+			  QString CharacterBaseFBX = this->CharacterFBX;
+			  CharacterBaseFBX.replace(".fbx", "_base.fbx");
+			  Exporter->writeFile(CharacterBaseFBX, &ExportOptions);
 		  }
 		  else
 		  {
