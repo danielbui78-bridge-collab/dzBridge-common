@@ -121,10 +121,6 @@ DzBridgeDialog::DzBridgeDialog(QWidget *parent, const QString &windowTitle) :
 	showFbxDialogCheckBox = new QCheckBox("", this);
 	connect(showFbxDialogCheckBox, SIGNAL(stateChanged(int)), this, SLOT(HandleShowFbxDialogCheckBoxChange(int)));
 	
-	// Export Material Property CSV option
-	exportMaterialPropertyCSVCheckBox = new QCheckBox("", this);
-	connect(exportMaterialPropertyCSVCheckBox, SIGNAL(stateChanged(int)), this, SLOT(HandleExportMaterialPropertyCSVCheckBoxChange(int)));
-
 	// Add the widget to the basic dialog
 	mainLayout->addRow("Asset Name", assetNameEdit);
 	mainLayout->addRow("Asset Type", assetTypeCombo);
@@ -132,7 +128,7 @@ DzBridgeDialog::DzBridgeDialog(QWidget *parent, const QString &windowTitle) :
 	mainLayout->addRow("Enable Subdivision", subdivisionLayout);
 	advancedLayout->addRow("FBX Version", fbxVersionCombo);
 	advancedLayout->addRow("Show FBX Dialog", showFbxDialogCheckBox);
-	advancedLayout->addRow("Export Material CSV", exportMaterialPropertyCSVCheckBox);
+
 	addLayout(mainLayout);
 
 	// Advanced
@@ -150,7 +146,6 @@ DzBridgeDialog::DzBridgeDialog(QWidget *parent, const QString &windowTitle) :
 	assetTypeCombo->setWhatsThis("Skeletal Mesh for something with moving parts, like a character\nStatic Mesh for things like props\nAnimation for a character animation.");
 	fbxVersionCombo->setWhatsThis("The version of FBX to use when exporting assets.");
 	showFbxDialogCheckBox->setWhatsThis("Checking this will show the FBX Dialog for adjustments before export.");
-	exportMaterialPropertyCSVCheckBox->setWhatsThis("Checking this will write out a CSV of all the material properties.  Useful for reference when changing materials.");
 
 	connect(dzScene, SIGNAL(nodeSelectionListChanged()), this, SLOT(handleSceneSelectionChanged()));
 
@@ -177,10 +172,6 @@ bool DzBridgeDialog::loadSavedSettings()
 	if (!settings->value("ShowFBXDialog").isNull())
 	{
 		showFbxDialogCheckBox->setChecked(settings->value("ShowFBXDialog").toBool());
-	}
-	if (!settings->value("ExportMaterialPropertyCSV").isNull())
-	{
-		exportMaterialPropertyCSVCheckBox->setChecked(settings->value("ExportMaterialPropertyCSV").toBool());
 	}
 	if (!settings->value("ShowAdvancedSettings").isNull())
 	{
@@ -231,7 +222,6 @@ void DzBridgeDialog::resetToDefaults()
 	subdivisionEnabledCheckBox->setChecked(false);
 	morphsEnabledCheckBox->setChecked(false);
 	showFbxDialogCheckBox->setChecked(false);
-	exportMaterialPropertyCSVCheckBox->setChecked(false);
 
 }
 
