@@ -175,6 +175,7 @@ protected:
 	 Q_INVOKABLE QString getExportFbx() { return this->m_sExportFbx; };
 	 Q_INVOKABLE void setExportFbx(QString arg_FbxName) { this->m_sExportFbx = arg_FbxName; };
 
+	 Q_INVOKABLE void readGUI(DzBridgeDialog*);
 private:
 	 // Undo data structures
 	 QMap<DzMaterial*, QString> m_undoTable_DuplicateMaterialRename;

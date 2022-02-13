@@ -1190,6 +1190,36 @@ void DzRuntimePluginAction::writeJSON_Property_Texture(DzJsonWriter& Writer, QSt
 
 }
 
+void DzRuntimePluginAction::readGUI(DzBridgeDialog* BridgeDialog)
+{
+
+	// Collect the values from the dialog fields
+	if (CharacterName == "" || NonInteractiveMode == 0) CharacterName = BridgeDialog->getAssetNameEdit()->text();
+	if (RootFolder == "" || NonInteractiveMode == 0) RootFolder = BridgeDialog->getRootFolder();
+	if (ExportFolder == "" || NonInteractiveMode == 0) ExportFolder = CharacterName;
+	DestinationPath = RootFolder + "/" + ExportFolder + "/";
+	if (m_sExportFbx == "" || NonInteractiveMode == 0) m_sExportFbx = CharacterName;
+	CharacterFBX = DestinationPath + m_sExportFbx + ".fbx";
+
+	if (NonInteractiveMode == 0)
+	{
+		// TODO: consider removing once findData( ) method above is completely implemented
+		AssetType = cleanString(BridgeDialog->getAssetTypeCombo()->currentText());
+
+		MorphString = BridgeDialog->GetMorphString();
+		MorphMapping = BridgeDialog->GetMorphMapping();
+		ExportMorphs = BridgeDialog->getMorphsEnabledCheckBox()->isChecked();
+	}
+
+	ExportSubdivisions = BridgeDialog->getSubdivisionEnabledCheckBox()->isChecked();
+	ShowFbxDialog = BridgeDialog->getShowFbxDialogCheckBox()->isChecked();
+	if (m_subdivisionDialog == nullptr)
+	{
+		m_subdivisionDialog = DzBridgeSubdivisionDialog::Get(BridgeDialog);
+	}
+	FBXVersion = BridgeDialog->getFbxVersionCombo()->currentText();
+
+}
 
 // ------------------------------------------------
 // PixelIntensity
