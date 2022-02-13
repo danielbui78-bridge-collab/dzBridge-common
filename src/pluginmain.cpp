@@ -5,6 +5,7 @@
 #include "DzBridgeDialog.h"
 #include "DzBridgeMorphSelectionDialog.h"
 #include "DzBridgeSubdivisionDialog.h"
+#include "OpenFBXInterface.h"
 
 //DZ_PLUGIN_DEFINITION("DazBridge");
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, ULONG fdwReason, LPVOID lpvReserved)	
@@ -39,6 +40,7 @@ Bridge Collaboration Project<br><br>\
 DZ_PLUGIN_CUSTOM_CLASS_GUID(DzBridgeDialog, dd6c7283-95b6-4309-9bc0-0f93140b8243);
 DZ_PLUGIN_CUSTOM_CLASS_GUID(DzBridgeMorphSelectionDialog, 321916ba-0bcc-45d9-8c7e-ebbe80dea51c);
 DZ_PLUGIN_CUSTOM_CLASS_GUID(DzBridgeSubdivisionDialog, a2342e17-db3b-4032-a576-75b5843fa893);
+DZ_PLUGIN_CLASS_GUID(OpenFBXInterface, 9aaaf080-28c1-4e0f-a3e9-a0205e91a154);
 
 static QWidget* GetParentArg0(const QVariantList& args)
 {

@@ -1468,4 +1468,54 @@ bool DzRuntimePluginAction::setMorphSelectionDialog(DzBasicDialog* arg_dlg)
 	return true;
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// SUBDIVISION
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+#ifdef __APPLE__
+#define USING_LIBSTDCPP 1
+#endif
+#include "OpenFBXInterface.h"
+#include "OpenSubdivInterface.h"
+
+
+bool DzRuntimePluginAction::upgradeToHD(QString baseFilePath, QString hdFilePath, QString outFilePath, std::map<std::string, int>* pLookupTable)
+{
+	OpenFBXInterface* openFBX = OpenFBXInterface::GetInterface();
+	FbxScene* baseMeshScene = openFBX->CreateScene("Base Mesh Scene");
+	if (openFBX->LoadScene(baseMeshScene, baseFilePath.toLocal8Bit().data()) == false)
+	{
+		if (NonInteractiveMode == 0) QMessageBox::warning(0, "Error",
+			"An error occurred while loading the base scene...", QMessageBox::Ok);
+		printf("\n\nAn error occurred while loading the base scene...");
+		return false;
+	}
+	SubdivideFbxScene subdivider = SubdivideFbxScene(baseMeshScene, pLookupTable);
+	subdivider.ProcessScene();
+	FbxScene* hdMeshScene = openFBX->CreateScene("HD Mesh Scene");
+	if (openFBX->LoadScene(hdMeshScene, hdFilePath.toLocal8Bit().data()) == false)
+	{
+		if (NonInteractiveMode == 0) QMessageBox::warning(0, "Error",
+			"An error occurred while loading the base scene...", QMessageBox::Ok);
+		printf("\n\nAn error occurred while loading the base scene...");
+		return false;
+	}
+	subdivider.SaveClustersToScene(hdMeshScene);
+	if (openFBX->SaveScene(hdMeshScene, outFilePath.toLocal8Bit().data()) == false)
+	{
+		if (NonInteractiveMode == 0) QMessageBox::warning(0, "Error",
+			"An error occurred while saving the scene...", QMessageBox::Ok);
+
+		printf("\n\nAn error occurred while saving the scene...");
+		return false;
+	}
+
+	return true;
+
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// SUBDIVISION
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
 #include "moc_DzRuntimePluginAction.cpp"

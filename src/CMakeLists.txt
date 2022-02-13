@@ -14,6 +14,16 @@ elseif(APPLE)
 	set(OS_SOURCES "")
 endif()
 
+set(OFBXI_SOURCES
+	OpenFBXInterface.cpp
+	../include/OpenFBXInterface.h
+)
+
+set(OSDI_SOURCES
+	OpenSubdivInterface.cpp
+	../include/OpenSubdivInterface.h
+)
+
 set(LIB_SRCS
 	${LIB_SRCS}
 	DzRuntimePluginAction.cpp
@@ -25,6 +35,12 @@ set(LIB_SRCS
 add_library(dzbridge-static 
 	STATIC 
 	${LIB_SRCS}
+)
+
+target_include_directories(dzbridge-static
+	PUBLIC 
+	${FBX_SDK_INCLUDE}
+	${OPENSUBDIV_INCLUDE}
 )
 
 target_link_libraries(dzbridge-static
@@ -47,6 +63,14 @@ add_library(dzbridge
 	${LIB_SRCS}
 	pluginmain.cpp
 	${OS_SOURCES}
+	${OFBXI_SOURCES}
+	${OSDI_SOURCES}
+)
+
+target_include_directories(dzbridge
+	PUBLIC 
+	${FBX_SDK_INCLUDE}
+	${OPENSUBDIV_INCLUDE}
 )
 
 target_link_libraries(dzbridge
@@ -56,6 +80,8 @@ target_link_libraries(dzbridge
 	${DZSDK_QT_GUI_TARGET}
 	${DZSDK_QT_SCRIPT_TARGET}
 	${DZSDK_QT_NETWORK_TARGET}
+	${FBX_IMPORT_LIBS}
+	${OPENSUBDIV_LIB}
 )
 
 set_target_properties (dzbridge
