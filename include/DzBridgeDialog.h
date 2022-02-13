@@ -46,13 +46,14 @@ public:
 
 	// Pass so the DazTRoUnrealAction can access it from the morph dialog
 	Q_INVOKABLE QString GetMorphString();
-
 	// Pass so the DazTRoUnrealAction can access it from the morph dialog
 	Q_INVOKABLE QMap<QString,QString> GetMorphMapping() { return morphMapping; }
-
 	Q_INVOKABLE virtual void resetToDefaults();
 
 	void Accepted();
+
+	Q_INVOKABLE virtual QString getRootFolder()=0;
+
 protected slots:
 	void handleSceneSelectionChanged();
 	void HandleChooseMorphsButton();
