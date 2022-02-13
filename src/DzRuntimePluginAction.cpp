@@ -46,20 +46,18 @@
 DzRuntimePluginAction::DzRuntimePluginAction(const QString& text, const QString& desc) :
 	 DzAction(text, desc)
 {
+	resetToDefaults();
+
 	m_subdivisionDialog = nullptr;
 	m_morphSelectionDialog = nullptr;
+	m_bGenerateNormalMaps = false;
 
-	 ExportMorphs = false;
-	 ExportSubdivisions = false;
-	 ShowFbxDialog = false;
-	 ControllersToDisconnect.append("facs_bs_MouthClose_div2");
-	 UseRelativePaths = false;
 #ifdef _DEBUG
 	 m_bUndoNormalMaps = false;
 #else
 	 m_bUndoNormalMaps = true;
 #endif
-	 m_sExportFbx = "";
+
 }
 
 DzRuntimePluginAction::~DzRuntimePluginAction()
@@ -176,7 +174,8 @@ bool DzRuntimePluginAction::preProcessScene(DzNode* parentNode)
 					/////////////////
 					// Generate Missing Normal Maps
 					/////////////////
-					generateMissingNormalMap(material);
+					if (m_bGenerateNormalMaps)
+						generateMissingNormalMap(material);
 				}
 			}
 		}
@@ -511,6 +510,74 @@ bool DzRuntimePluginAction::undoRenameDuplicateMaterials()
 	m_undoTable_DuplicateMaterialRename.clear();
 
 	return true;
+
+}
+
+void DzRuntimePluginAction::exportHD(DzProgress* exportProgress)
+{
+	bool bLocalDzProgress = false;
+	if (!exportProgress)
+	{
+		bLocalDzProgress = true;
+		exportProgress = new DzProgress("DazBridge: Exporting FBX/DTU", 4);
+	}
+
+	if (ExportSubdivisions)
+	{
+		m_subdivisionDialog->LockSubdivisionProperties(false);
+		ExportBaseMesh = true;
+		Export();
+		m_subdivisionDialog->UnlockSubdivisionProperties();
+		if (exportProgress)
+			exportProgress->step();
+
+	}
+
+	m_subdivisionDialog->LockSubdivisionProperties(ExportSubdivisions);
+	ExportBaseMesh = false;
+	Export();
+	if (exportProgress)
+		exportProgress->step();
+
+	if (ExportSubdivisions)
+	{
+		std::map<std::string, int>* pLookupTable = m_subdivisionDialog->GetLookupTable();
+		QString BaseCharacterFBX = DestinationPath + CharacterName + "_base.fbx";
+		// DB 2021-10-02: Upgrade HD
+		if (upgradeToHD(BaseCharacterFBX, CharacterFBX, CharacterFBX, pLookupTable) == false)
+		{
+			if (NonInteractiveMode == 0) QMessageBox::warning(0, tr("Error"),
+				tr("There was an error during the Subdivision Surface refinement operation, the exported Daz model may not work correctly."), QMessageBox::Ok);
+		}
+		else
+		{
+			// remove intermediate base character fbx
+			// Sanity Check
+			if (QFile::exists(BaseCharacterFBX))
+			{
+//				QFile::remove(BaseCharacterFBX);
+			}
+		}
+		delete(pLookupTable);
+		if (exportProgress)
+			exportProgress->step();
+
+	}
+
+	// DB 2021-09-02: Unlock and Undo subdivision changes
+	m_subdivisionDialog->UnlockSubdivisionProperties();
+
+	if (bLocalDzProgress)
+	{
+		exportProgress->finish();
+		// 2022-02-13 (DB): Generic messagebox "Export Complete"
+		if (NonInteractiveMode == 0)
+		{
+			QMessageBox::information(0, "DazBridge",
+				tr("Export phase from Daz Studio complete. Please switch to Unity to begin Import phase."), QMessageBox::Ok);
+		}
+
+	}
 
 }
 
@@ -1111,7 +1178,7 @@ bool DzRuntimePluginAction::isTemporaryFile(QString sFilename)
 	return false;
 }
 
-QString DzRuntimePluginAction::exportWithDTU(QString sFilename, QString sAssetMaterialName)
+QString DzRuntimePluginAction::exportAssetWithDTU(QString sFilename, QString sAssetMaterialName)
 {
 	if (sFilename.isEmpty())
 		return sFilename;

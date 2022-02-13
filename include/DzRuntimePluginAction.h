@@ -10,6 +10,7 @@
 
 #include "DzBridgeSubdivisionDialog.h"
 #include "DzBridgeMorphSelectionDialog.h"
+#include "DzBridgeDialog.h"
 
 #undef DLLExport
 #define DLLExport Q_DECL_IMPORT
@@ -21,8 +22,11 @@
 	#define DLLExport
 #endif
 
+class DzProgress;
+
 //class DzBridgeSubdivisionDialog;
 //class DzBridgeMorphSelectionDialog;
+//class DzBridgeDialog;
 
 // Struct to remember attachment info
 struct AttachmentInfo
@@ -92,6 +96,7 @@ protected:
 	 QString ProductComponentName; // Friendly name of Component of Daz Store Product, can contain spaces and special characters
 	 QStringList ScriptOnly_MorphList; // overrides Morph Selection Dialog
 	 bool UseRelativePaths;
+	 bool m_bGenerateNormalMaps;
 	 bool m_bUndoNormalMaps;
 	 QString m_sExportFbx;
 
@@ -179,7 +184,7 @@ protected:
 	 Q_INVOKABLE void setUseRelativePaths(bool arg_UseRelativePaths) { this->UseRelativePaths = arg_UseRelativePaths; };
 
 	 bool isTemporaryFile(QString sFilename);
-	 QString exportWithDTU(QString sFilename, QString sAssetMaterialName = "");
+	 QString exportAssetWithDTU(QString sFilename, QString sAssetMaterialName = "");
 	 void writeJSON_Property_Texture(DzJsonWriter& Writer, QString sName, QString sValue, QString sType, QString sTexture);
 	 void writeJSON_Property_Texture(DzJsonWriter& Writer, QString sName, double dValue, QString sType, QString sTexture);
 	 QString makeUniqueFilename(QString sFilename);
@@ -194,6 +199,8 @@ protected:
 	 Q_INVOKABLE void setExportFbx(QString arg_FbxName) { this->m_sExportFbx = arg_FbxName; };
 
 	 Q_INVOKABLE void readGUI(DzBridgeDialog*);
+	 Q_INVOKABLE void exportHD(DzProgress* exportProgress = nullptr);
+	 Q_INVOKABLE bool upgradeToHD(QString baseFilePath, QString hdFilePath, QString outFilePath, std::map<std::string, int>* pLookupTable);
 private:
 	 // Undo data structures
 	 QMap<DzMaterial*, QString> m_undoTable_DuplicateMaterialRename;
