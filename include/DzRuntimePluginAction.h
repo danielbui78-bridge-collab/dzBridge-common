@@ -111,6 +111,24 @@ protected:
 	 virtual void WriteConfiguration() = 0;
 	 virtual void SetExportOptions(DzFileIOSettings &ExportOptions) = 0;
 
+	 Q_INVOKABLE virtual void writeDTUHeader(DzJsonWriter& writer);
+
+	 Q_INVOKABLE virtual void writeAllMaterials(DzNode* Node, DzJsonWriter& Writer, QTextStream* CVSStream = nullptr, bool bRecursive = false);
+	 Q_INVOKABLE virtual void startMaterialBlock(DzNode* Node, DzJsonWriter& Writer, QTextStream* pCVSStream, DzMaterial* Material);
+	 Q_INVOKABLE virtual void finishMaterialBlock(DzJsonWriter& Writer);
+	 Q_INVOKABLE virtual void writeMaterialProperty(DzNode* Node, DzJsonWriter& Writer, QTextStream* pCVSStream, DzMaterial* Material, DzProperty* Property);
+
+	 Q_INVOKABLE virtual void writeAllMorphs(DzJsonWriter& Writer);
+	 Q_INVOKABLE virtual void writeMorphProperties(DzJsonWriter& writer, const QString& key, const QString& value);
+	 Q_INVOKABLE virtual void writeMorphJointLinkInfo(DzJsonWriter& writer, const JointLinkInfo& linkInfo);
+
+	 Q_INVOKABLE virtual void writeAllSubdivisions(DzJsonWriter& Writer);
+	 Q_INVOKABLE virtual void writeSubdivisionProperties(DzJsonWriter& writer, const QString& Name, int targetValue);
+
+	 Q_INVOKABLE virtual void writeAllDForceInfo(DzNode* Node, DzJsonWriter& Writer, QTextStream* pCVSStream = nullptr, bool bRecursive = false);
+	 Q_INVOKABLE virtual void writeDforceMaterialProperties(DzJsonWriter& Writer, DzMaterial* Material, DzShape* Shape);
+	 Q_INVOKABLE virtual void writeDforceModifiers(const QList<DzModifier*>& dforceModifierList, DzJsonWriter& Writer, DzShape* Shape);
+
 	 // Need to temporarily rename surfaces if there is a name collision
 	 void RenameDuplicateMaterials(DzNode* Node, QList<QString>& MaterialNames, QMap<DzMaterial*, QString>& OriginalMaterialNames);
 	 void UndoRenameDuplicateMaterials(DzNode* Node, QList<QString>& MaterialNames, QMap<DzMaterial*, QString>& OriginalMaterialNames);

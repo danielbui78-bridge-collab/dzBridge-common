@@ -38,6 +38,7 @@
 #include <QtNetwork/qabstractsocket.h>
 #include <QtGui/qcheckbox.h>
 #include <QtGui/QMessageBox>
+#include "QtCore/qmetaobject.h"
 
 #include "DzRuntimePluginAction.h"
 
@@ -1188,6 +1189,437 @@ void DzRuntimePluginAction::writeJSON_Property_Texture(DzJsonWriter& Writer, QSt
 	Writer.addMember("Texture", sTexture);
 	Writer.finishObject();
 
+}
+
+void DzRuntimePluginAction::writeDTUHeader(DzJsonWriter& writer)
+{
+	writer.addMember("DTU Version", 3);
+	writer.addMember("Asset Name", CharacterName);
+	writer.addMember("Asset Type", AssetType);
+	writer.addMember("FBX File", CharacterFBX);
+	QString CharacterBaseFBX = CharacterFBX;
+	CharacterBaseFBX.replace(".fbx", "_base.fbx");
+	writer.addMember("Base FBX File", CharacterBaseFBX);
+	QString CharacterHDFBX = CharacterFBX;
+	CharacterHDFBX.replace(".fbx", "_HD.fbx");
+	writer.addMember("HD FBX File", CharacterHDFBX);
+	writer.addMember("Import Folder", DestinationPath);
+	// DB Dec-21-2021: additional metadata
+	writer.addMember("Product Name", ProductName);
+	writer.addMember("Product Component Name", ProductComponentName);
+
+}
+
+// Write out all the surface properties
+void DzRuntimePluginAction::writeAllMaterials(DzNode* Node, DzJsonWriter& Writer, QTextStream* pCVSStream, bool bRecursive)
+{
+	if (!bRecursive)
+		Writer.startMemberArray("Materials", true);
+
+	DzObject* Object = Node->getObject();
+	DzShape* Shape = Object ? Object->getCurrentShape() : nullptr;
+
+	if (Shape)
+	{
+		for (int i = 0; i < Shape->getNumMaterials(); i++)
+		{
+			DzMaterial* Material = Shape->getMaterial(i);
+			if (Material)
+			{
+				auto propertyList = Material->propertyListIterator();
+				startMaterialBlock(Node, Writer, pCVSStream, Material);
+				while (propertyList.hasNext())
+				{
+					writeMaterialProperty(Node, Writer, pCVSStream, Material, propertyList.next());
+				}
+				finishMaterialBlock(Writer);
+			}
+		}
+	}
+
+	DzNodeListIterator Iterator = Node->nodeChildrenIterator();
+	while (Iterator.hasNext())
+	{
+		DzNode* Child = Iterator.next();
+		writeAllMaterials(Child, Writer, pCVSStream, true);
+	}
+
+	if (!bRecursive)
+		Writer.finishArray();
+}
+
+void DzRuntimePluginAction::startMaterialBlock(DzNode* Node, DzJsonWriter& Writer, QTextStream* pCVSStream, DzMaterial* Material)
+{
+	Writer.startObject(true);
+	Writer.addMember("Version", 3);
+	Writer.addMember("Asset Name", Node->getLabel());
+	Writer.addMember("Material Name", Material->getName());
+	Writer.addMember("Material Type", Material->getMaterialName());
+
+	DzPresentation* presentation = Node->getPresentation();
+	if (presentation)
+	{
+		const QString presentationType = presentation->getType();
+		Writer.addMember("Value", presentationType);
+	}
+	else
+	{
+		Writer.addMember("Value", QString("Unknown"));
+	}
+
+	Writer.startMemberArray("Properties", true);
+	// Presentation node is stored as first element in Property array for compatibility with UE plugin's basematerial search algorithm
+	if (presentation)
+	{
+		const QString presentationType = presentation->getType();
+		Writer.startObject(true);
+		Writer.addMember("Name", QString("Asset Type"));
+		Writer.addMember("Value", presentationType);
+		Writer.addMember("Data Type", QString("String"));
+		Writer.addMember("Texture", QString(""));
+		Writer.finishObject();
+
+		if (ExportMaterialPropertiesCSV && pCVSStream)
+		{
+			*pCVSStream << "2, " << Node->getLabel() << ", " << Material->getName() << ", " << Material->getMaterialName() << ", " << "Asset Type" << ", " << presentationType << ", " << "String" << ", " << "" << endl;
+		}
+	}
+}
+
+void DzRuntimePluginAction::finishMaterialBlock(DzJsonWriter& Writer)
+{
+	// replace with Section Stack
+	Writer.finishArray();
+	Writer.finishObject();
+
+}
+
+void DzRuntimePluginAction::writeMaterialProperty(DzNode* Node, DzJsonWriter& Writer, QTextStream* pCVSStream, DzMaterial* Material, DzProperty* Property)
+{
+	QString Name = Property->getName();
+	QString TextureName = "";
+	QString dtuPropType = "";
+	QString dtuPropValue = "";
+	double dtuPropNumericValue = 0.0;
+	bool bUseNumeric = false;
+
+	DzImageProperty* ImageProperty = qobject_cast<DzImageProperty*>(Property);
+	DzNumericProperty* NumericProperty = qobject_cast<DzNumericProperty*>(Property);
+	DzColorProperty* ColorProperty = qobject_cast<DzColorProperty*>(Property);
+	if (ImageProperty)
+	{
+		if (ImageProperty->getValue())
+		{
+			TextureName = ImageProperty->getValue()->getFilename();
+		}
+		dtuPropValue = Material->getDiffuseColor().name();
+		dtuPropType = QString("Texture");
+
+		// Check if this is a Normal Map with Strength stored in lookup table
+		if (m_imgPropertyTable_NormalMapStrength.contains(ImageProperty))
+		{
+			dtuPropType = QString("Double");
+			dtuPropNumericValue = m_imgPropertyTable_NormalMapStrength[ImageProperty];
+			bUseNumeric = true;
+		}
+	}
+	// DzColorProperty is subclass of DzNumericProperty
+	else if (ColorProperty)
+	{
+		if (ColorProperty->getMapValue())
+		{
+			TextureName = ColorProperty->getMapValue()->getFilename();
+		}
+		dtuPropValue = ColorProperty->getColorValue().name();
+		dtuPropType = QString("Color");
+	}
+	else if (NumericProperty)
+	{
+		if (NumericProperty->getMapValue())
+		{
+			TextureName = NumericProperty->getMapValue()->getFilename();
+		}
+		dtuPropType = QString("Double");
+		dtuPropNumericValue = NumericProperty->getDoubleValue();
+		bUseNumeric = true;
+	}
+	else
+	{
+		// unsupported property type
+		return;
+	}
+
+	QString dtuTextureName = TextureName;
+	if (TextureName != "")
+	{
+		if (this->UseRelativePaths)
+		{
+			dtuTextureName = dzApp->getContentMgr()->getRelativePath(TextureName, true);
+		}
+		if (isTemporaryFile(TextureName))
+		{
+			dtuTextureName = exportAssetWithDTU(TextureName, Node->getLabel() + "_" + Material->getName());
+		}
+	}
+	if (bUseNumeric)
+		writeJSON_Property_Texture(Writer, Name, dtuPropNumericValue, dtuPropType, dtuTextureName);
+	else
+		writeJSON_Property_Texture(Writer, Name, dtuPropValue, dtuPropType, dtuTextureName);
+
+	if (ExportMaterialPropertiesCSV && pCVSStream)
+	{
+		if (bUseNumeric)
+			*pCVSStream << "2, " << Node->getLabel() << ", " << Material->getName() << ", " << Material->getMaterialName() << ", " << Name << ", " << dtuPropNumericValue << ", " << dtuPropType << ", " << TextureName << endl;
+		else
+			*pCVSStream << "2, " << Node->getLabel() << ", " << Material->getName() << ", " << Material->getMaterialName() << ", " << Name << ", " << dtuPropValue << ", " << dtuPropType << ", " << TextureName << endl;
+	}
+	return;
+
+}
+
+void DzRuntimePluginAction::writeAllMorphs(DzJsonWriter& writer)
+{
+	writer.startMemberArray("Morphs", true);
+	if (ExportMorphs)
+	{
+		for (QMap<QString, QString>::iterator i = MorphMapping.begin(); i != MorphMapping.end(); ++i)
+		{
+			//writer.startObject(true);
+			//writer.addMember("Name", i.key());
+			//writer.addMember("Label", i.value());
+			//writer.finishObject();
+			writeMorphProperties(writer, i.key(), i.value());
+
+		}
+	}
+	writer.finishArray();
+
+	if (ExportMorphs)
+	{
+		if (m_morphSelectionDialog->IsAutoJCMEnabled())
+		{
+			writer.startMemberArray("JointLinks", true);
+			QList<JointLinkInfo> JointLinks = m_morphSelectionDialog->GetActiveJointControlledMorphs(Selection);
+			foreach(JointLinkInfo linkInfo, JointLinks)
+			{
+				writeMorphJointLinkInfo(writer, linkInfo);
+			}
+			writer.finishArray();
+		}
+	}
+
+}
+
+void DzRuntimePluginAction::writeMorphProperties(DzJsonWriter& writer, const QString& key, const QString& value)
+{
+	writer.startObject(true);
+	writer.addMember("Name", key);
+	writer.addMember("Label", value);
+	writer.finishObject();
+}
+
+void DzRuntimePluginAction::writeMorphJointLinkInfo(DzJsonWriter& writer, const JointLinkInfo& linkInfo)
+{
+	writer.startObject(true);
+	writer.addMember("Bone", linkInfo.Bone);
+	writer.addMember("Axis", linkInfo.Axis);
+	writer.addMember("Morph", linkInfo.Morph);
+	writer.addMember("Scalar", linkInfo.Scalar);
+	writer.addMember("Alpha", linkInfo.Alpha);
+	if (linkInfo.Keys.count() > 0)
+	{
+		writer.startMemberArray("Keys", true);
+		foreach(JointLinkKey key, linkInfo.Keys)
+		{
+			writer.startObject(true);
+			writer.addMember("Angle", key.Angle);
+			writer.addMember("Value", key.Value);
+			writer.finishObject();
+		}
+		writer.finishArray();
+	}
+	writer.finishObject();
+}
+
+void DzRuntimePluginAction::writeAllSubdivisions(DzJsonWriter& writer)
+{
+	writer.startMemberArray("Subdivisions", true);
+	if (ExportSubdivisions)
+	{
+		//stream << "Version, Object, Subdivision" << endl;
+		QObjectList objList = m_subdivisionDialog->getSubdivisionCombos();
+		foreach(QObject* obj, objList)
+		{
+			QComboBox* combo = (QComboBox*) obj;
+			QString Name = combo->property("Object").toString() + ".Shape";
+			int targetValue = combo->currentText().toInt();
+
+			writeSubdivisionProperties(writer, Name, targetValue);
+			//stream << "1, " << Name << ", " << targetValue << endl;
+		}
+
+	}
+
+	writer.finishArray();
+
+}
+
+void DzRuntimePluginAction::writeSubdivisionProperties(DzJsonWriter& writer, const QString& Name, int targetValue)
+{
+	writer.startObject(true);
+	writer.addMember("Version", 1);
+	writer.addMember("Asset Name", Name);
+	writer.addMember("Value", targetValue);
+	writer.finishObject();
+}
+
+void DzRuntimePluginAction::writeAllDForceInfo(DzNode* Node, DzJsonWriter& Writer, QTextStream* pCVSStream, bool bRecursive)
+{
+	if (!bRecursive)
+		Writer.startMemberArray("DForce", true);
+
+	DzObject* Object = Node->getObject();
+	DzShape* Shape = Object ? Object->getCurrentShape() : nullptr;
+
+	bool bDForceSettingsAvailable = false;
+	if (Shape)
+	{
+		QList<DzModifier*> dforceModifierList;
+		DzModifierIterator modIter = Object->modifierIterator();
+		int modifierCount = 0;
+		while (modIter.hasNext())
+		{
+			DzModifier* modifier = modIter.next();
+			QString mod_Class = modifier->className();
+			if (mod_Class.toLower().contains("dforce"))
+			{
+				bDForceSettingsAvailable = true;
+				dforceModifierList.append(modifier);
+				modifierCount++;
+			}
+		}
+
+		if (bDForceSettingsAvailable)
+		{
+			Writer.startObject(true);
+			Writer.addMember("Version", 4);
+			Writer.addMember("Asset Name", Node->getLabel());
+			Writer.addMember("Modifier Count", modifierCount);
+			Writer.addMember("Material Count", Shape->getNumMaterials());
+
+			writeDforceModifiers(dforceModifierList, Writer, Shape);
+
+			Writer.startMemberArray("DForce-Materials", true);
+			for (int i = 0; i < Shape->getNumMaterials(); i++)
+			{
+				DzMaterial* Material = Shape->getMaterial(i);
+				if (Material)
+				{
+					Writer.startObject(true);
+					Writer.addMember("Version", 3);
+					Writer.addMember("Asset Name", Node->getLabel());
+					Writer.addMember("Material Name", Material->getName());
+					Writer.addMember("Material Type", Material->getMaterialName());
+					DzPresentation* presentation = Node->getPresentation();
+					if (presentation != nullptr)
+					{
+						const QString presentationType = presentation->getType();
+						Writer.addMember("Value", presentationType);
+					}
+					else
+					{
+						Writer.addMember("Value", QString("Unknown"));
+					}
+
+					writeDforceMaterialProperties(Writer, Material, Shape);
+					
+					Writer.finishObject();
+
+				}
+			}
+			Writer.finishArray();
+			Writer.finishObject();
+
+		}
+	}
+
+	DzNodeListIterator Iterator = Node->nodeChildrenIterator();
+	while (Iterator.hasNext())
+	{
+		DzNode* Child = Iterator.next();
+		writeAllDForceInfo(Child, Writer, pCVSStream, true);
+	}
+
+	if (!bRecursive)
+		Writer.finishArray();
+}
+
+void DzRuntimePluginAction::writeDforceModifiers(const QList<DzModifier*>& dforceModifierList, DzJsonWriter& Writer, DzShape* Shape)
+{
+	Writer.startMemberArray("DForce-Modifiers", true);
+
+	foreach(auto modifier, dforceModifierList)
+	{
+		Writer.startObject(true);
+		Writer.addMember("Modifier Name", modifier->getName());
+		Writer.addMember("Modifier Class", modifier->className());
+		/////////////////////////////////////
+		// TODO: DUMP MODIFIER PROPERTIES
+		/////////////////////////////////////
+		Writer.finishObject();
+	}
+
+	Writer.finishArray();
+}
+
+void DzRuntimePluginAction::writeDforceMaterialProperties(DzJsonWriter& Writer, DzMaterial* Material, DzShape* Shape)
+{
+	Writer.startMemberArray("Properties", true);
+
+	DzElement* elSimulationSettingsProvider;
+	bool ret = false;
+	int methodIndex = -1;
+	methodIndex = Shape->metaObject()->indexOfMethod(QMetaObject::normalizedSignature("findSimulationSettingsProvider(QString)"));
+	if (methodIndex != -1)
+	{
+		QMetaMethod method = Shape->metaObject()->method(methodIndex);
+		QGenericReturnArgument returnArgument(
+			method.typeName(),
+			&elSimulationSettingsProvider
+		);
+		ret = method.invoke(Shape, returnArgument, Q_ARG(QString, Material->getName()));
+		if (elSimulationSettingsProvider)
+		{
+			int numProperties = elSimulationSettingsProvider->getNumProperties();
+			DzPropertyListIterator propIter = elSimulationSettingsProvider->propertyListIterator();
+			QString propString = "";
+			int propIndex = 0;
+			while (propIter.hasNext())
+			{
+				DzProperty* Property = propIter.next();
+				DzNumericProperty* NumericProperty = qobject_cast<DzNumericProperty*>(Property);
+				if (NumericProperty)
+				{
+					QString Name = Property->getName();
+					QString TextureName = "";
+					if (NumericProperty->getMapValue())
+					{
+						TextureName = NumericProperty->getMapValue()->getFilename();
+					}
+					Writer.startObject(true);
+					Writer.addMember("Name", Name);
+					Writer.addMember("Value", QString::number(NumericProperty->getDoubleValue()));
+					Writer.addMember("Data Type", QString("Double"));
+					Writer.addMember("Texture", TextureName);
+					Writer.finishObject();
+				}
+			}
+
+		}
+
+	}
+
+	Writer.finishArray();
 }
 
 void DzRuntimePluginAction::readGUI(DzBridgeDialog* BridgeDialog)
