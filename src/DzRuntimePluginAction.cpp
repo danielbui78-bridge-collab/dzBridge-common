@@ -32,6 +32,13 @@
 #include <dztexture.h>
 #include <dzimagemgr.h>
 
+#include "dzgeometry.h"
+#include "dzweightmap.h"
+#include "dzfacetshape.h"
+#include "dzfacetmesh.h"
+#include "dzfacegroup.h"
+#include "dzmaterial.h"
+
 #include <QtCore/qdir.h>
 #include <QtGui/qlineedit.h>
 #include <QtNetwork/qudpsocket.h>
@@ -1451,12 +1458,7 @@ void DzRuntimePluginAction::writeAllMorphs(DzJsonWriter& writer)
 	{
 		for (QMap<QString, QString>::iterator i = MorphMapping.begin(); i != MorphMapping.end(); ++i)
 		{
-			//writer.startObject(true);
-			//writer.addMember("Name", i.key());
-			//writer.addMember("Label", i.value());
-			//writer.finishObject();
 			writeMorphProperties(writer, i.key(), i.value());
-
 		}
 	}
 	writer.finishArray();
@@ -1998,7 +2000,313 @@ bool DzRuntimePluginAction::setMorphSelectionDialog(DzBasicDialog* arg_dlg)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// SUBDIVISION
+// START: DFORCE WEIGHTMAPS
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Write weightmaps - recursively traverse parent/children, and export all associated weightmaps
+void DzRuntimePluginAction::WriteWeightMaps(DzNode* Node, DzJsonWriter& Writer)
+{
+	DzObject* Object = Node->getObject();
+	DzShape* Shape = Object ? Object->getCurrentShape() : NULL;
+
+	bool bDForceSettingsAvailable = false;
+
+	if (Shape && Shape->inherits("DzFacetShape"))
+	{
+		DzModifier* dforceModifier;
+		DzModifierIterator modIter = Object->modifierIterator();
+		while (modIter.hasNext())
+		{
+			DzModifier* modifier = modIter.next();
+			QString mod_Class = modifier->className();
+			if (mod_Class.toLower().contains("dforce"))
+			{
+				bDForceSettingsAvailable = true;
+				dforceModifier = modifier;
+				break;
+			}
+		}
+
+		if (bDForceSettingsAvailable)
+		{
+			///////////////////////////////////////////////
+			// Method for obtaining weightmaps, grab directly from dForce Modifier Node
+			///////////////////////////////////////////////
+			int methodIndex = dforceModifier->metaObject()->indexOfMethod(QMetaObject::normalizedSignature("getInfluenceWeights()"));
+			if (methodIndex != -1)
+			{
+				QMetaMethod method = dforceModifier->metaObject()->method(methodIndex);
+				DzWeightMap* weightMap;
+				QGenericReturnArgument returnArg(
+					method.typeName(),
+					&weightMap
+				);
+				int result = method.invoke((QObject*)dforceModifier, returnArg);
+				if (result != -1)
+				{
+					if (weightMap)
+					{
+						int numVerts = Shape->getAssemblyGeometry()->getNumVertices();
+						unsigned short* daz_weights = weightMap->getWeights();
+						int byte_length = numVerts * sizeof(unsigned short);
+
+						char* buffer = new char[byte_length];
+						unsigned short* unity_weights = (unsigned short*)buffer;
+
+						// load material groups to remap weights to unity's vertex order
+						DzFacetMesh* facetMesh = dynamic_cast<DzFacetShape*>(Shape)->getFacetMesh();
+						if (facetMesh)
+						{
+							// sanity check
+							if (numVerts != facetMesh->getNumVertices())
+							{
+								// throw error if needed
+								dzApp->log("DazBridge: ERROR Exporting Weight Map to file.");
+								return;
+							}
+							int numMaterials = facetMesh->getNumMaterialGroups();
+							std::list<MaterialGroupExportOrderMetaData> exportQueue;
+							DzFacet* facetPtr = facetMesh->getFacetsPtr();
+
+							// generate export order queue
+							// first, populate export queue with materialgroups
+							for (int i = 0; i < numMaterials; i++)
+							{
+								DzMaterialFaceGroup* materialGroup = facetMesh->getMaterialGroup(i);
+								int numFaces = materialGroup->count();
+								const int* indexPtr = materialGroup->getIndicesPtr();
+								int offset = facetPtr[indexPtr[0]].m_vertIdx[0];
+								int count = -1;
+								MaterialGroupExportOrderMetaData* metaData = new MaterialGroupExportOrderMetaData(i, offset);
+								exportQueue.push_back(*metaData);
+							}
+
+							// sort: uses operator< to order by vertex_offset
+							exportQueue.sort();
+
+							/////////////////////////////////////////
+							// for building vertex index lookup tables
+							/////////////////////////////////////////
+							int material_vertex_count = 0;
+							int material_vertex_offset = 0;
+							int* DazToUnityLookup = new int[numVerts];
+							for (int i = 0; i < numVerts; i++) { DazToUnityLookup[i] = -1; }
+							int* UnityToDazLookup = new int[numVerts];
+							for (int i = 0; i < numVerts; i++) { UnityToDazLookup[i] = -1; }
+
+							int unity_weightmap_vertexindex = 0;
+							// iterate through sorted material groups...
+							for (std::list<MaterialGroupExportOrderMetaData>::iterator export_iter = exportQueue.begin(); export_iter != exportQueue.end(); export_iter++)
+							{
+								// update the vert_offset for each materialGroup
+								material_vertex_offset = material_vertex_offset + material_vertex_count;
+								material_vertex_count = 0;
+								int check_offset = export_iter->vertex_offset;
+
+								// retrieve material group based on sorted material index list
+								int materialGroupIndex = export_iter->materialIndex;
+								DzMaterialFaceGroup* materialGroup = facetMesh->getMaterialGroup(materialGroupIndex);
+								int numFaces = materialGroup->count();
+								// pointer for faces in materialGroup
+								const int* indexPtr = materialGroup->getIndicesPtr();
+
+								// get each face in materialGroup, then iterate through all vertex indices in the face
+								// copy out weights into buffer using material group's vertex ordering, but cross-referenced with internal vertex array indices
+
+								// get the i-th index into the index array of faces, then retrieve the j-th index into the vertex index array
+								// i is 0 to number of faces (aka facets), j is 0 to number of vertices in the face
+								for (int i = 0; i < numFaces; i++)
+								{
+									int vertsPerFacet = (facetPtr->isQuad()) ? 4 : 3;
+									for (int j = 0; j < vertsPerFacet; j++)
+									{
+										// retrieve vertex index into daz internal vertex array (probably a BST in array format)
+										int vert_index = facetPtr[indexPtr[i]].m_vertIdx[j];
+
+										///////////////////////////////////
+										// NOTE: Since the faces will often share/re-use the same vertex, we need to skip
+										// any vertex that has already been recorded, since we want ONLY unique vertices
+										// in weightmap.  This is done by creating checking back into a DazToUnity vertex index lookup table
+										///////////////////////////////////
+										// unique vertices will not yet be written and have default -1 value
+										if (DazToUnityLookup[vert_index] == -1)
+										{
+											// This vertex is unique, record into the daztounity lookup table and proceed with other operations
+											// to be performend on unqiue verts.
+											DazToUnityLookup[vert_index] = unity_weightmap_vertexindex;
+
+											// use the vertex index to cross-reference to the corresponding weightmap value and copy out to buffer for exporting
+											// (only do this for unique verts)
+											unity_weights[unity_weightmap_vertexindex] = weightMap->getWeight(vert_index);
+											//unity_weights[unity_weightmap_vertexindex] = daz_weights[vert_index];
+
+											// Create the unity to daz vertex lookup table (only do this for unique verts)
+											UnityToDazLookup[unity_weightmap_vertexindex] = vert_index;
+
+											// increment the unity weightmap vertex index (only do this for unique verts)
+											unity_weightmap_vertexindex++;
+										}
+									} //for (int j = 0; j < vertsPerFace; j++)
+								} // for (int i = 0; i < numFaces; i++)
+							} // for (std::list<MaterialGroupExportOrderMetaData>::iterator export_iter = exportQueue.begin(); export_iter != exportQueue.end(); export_iter++)
+
+							// export to dforce_weightmap file
+							QString filename = QString("%1.dforce_weightmap.bytes").arg(cleanString(Node->getLabel()));
+							QFile rawWeight(DestinationPath + filename);
+							if (rawWeight.open(QIODevice::WriteOnly))
+							{
+								int bytesWritten = rawWeight.write(buffer, byte_length);
+								if (bytesWritten != byte_length)
+								{
+									// write error
+									QString errString = rawWeight.errorString();
+									if (NonInteractiveMode == 0) QMessageBox::warning(0,
+										tr("Error writing dforce weightmap. Incorrect number of bytes written."),
+										errString, QMessageBox::Ok);
+								}
+								rawWeight.close();
+
+								// Write entry into DTU for weightmap lookup
+								Writer.startObject(true);
+								Writer.addMember("Asset Name", Node->getLabel());
+								Writer.addMember("Weightmap Filename", filename);
+								Writer.finishObject();
+
+							}
+
+						} // if (facetMesh) /** facetMesh null? */
+					} // if (weightMap) /** weightmap null? */
+				} // if (result != -1) /** invokeMethod failed? */
+			} // if (methodIndex != -1) /** findMethod failed? */
+		} // if (bDForceSettingsAvailable) /** no dforce data found */
+	} // if (Shape)
+
+	DzNodeListIterator Iterator = Node->nodeChildrenIterator();
+	while (Iterator.hasNext())
+	{
+		DzNode* Child = Iterator.next();
+		WriteWeightMaps(Child, Writer);
+	}
+
+}
+
+// OLD Method for obtaining weightmap, relying on dForce Weight Modifier Node
+DzWeightMapPtr DzRuntimePluginAction::getWeightMapPtr(DzNode* Node)
+{
+	// 1. check if weightmap modifier present
+	DzNodeListIterator Iterator = Node->nodeChildrenIterator();
+	while (Iterator.hasNext())
+	{
+		DzNode* Child = Iterator.next();
+		if (Child->className().contains("DzDForceModifierWeightNode"))
+		{
+			QObject* handler;
+			if (metaInvokeMethod(Child, "getWeightMapHandler()", (void**)&handler))
+			{
+				QObject* weightGroup;
+				if (metaInvokeMethod(handler, "currentWeightGroup()", (void**)&weightGroup))
+				{
+					QObject* context;
+					if (metaInvokeMethod(weightGroup, "currentWeightContext()", (void**)&context))
+					{
+						DzWeightMapPtr weightMap;
+						// DzWeightMapPtr
+						QMetaMethod metaMethod = context->metaObject()->method(30); // getWeightMap()
+						QGenericReturnArgument returnArgument(
+							metaMethod.typeName(),
+							&weightMap
+						);
+						int result = metaMethod.invoke((QObject*)context, returnArgument);
+						if (result != -1)
+						{
+							return weightMap;
+						}
+					}
+				}
+			}
+		}
+
+	}
+
+	return NULL;
+
+}
+
+bool DzRuntimePluginAction::metaInvokeMethod(QObject* object, const char* methodSig, void** returnPtr)
+{
+	if (object == NULL)
+	{
+		return false;
+	}
+
+	//////////////////////////////////////////////////////////////////
+	// REFERENCE Signatures obtained by QMetaObject->method() query
+	//////////////////////////////////////////////////////////////////
+	//
+	// DzDForceModifierWeightNode::getWeightMapHandler() = 372
+	//
+	// DzDForceModifierWeightHandler::getWeightGroup(int) = 18
+	// DzDForceModifierWeightHandler::currentWeightGroup() = 20
+	//
+	// DzDForceModifierWeightGroup::getWeightMapContext(int) = 19
+	// DzDForceModifierWeightGroup::currentWeightContext() = 22
+	//
+	// DzDForceModiferMapContext::getWeightMap() = 30
+	/////////////////////////////////////////////////////////////////////////
+
+	// find the metamethod
+	const QMetaObject* metaObject = object->metaObject();
+	int methodIndex = metaObject->indexOfMethod(QMetaObject::normalizedSignature(methodSig));
+	if (methodIndex == -1)
+	{
+		// use fuzzy search
+		// look up all methods, find closest match for methodSig
+		int searchResult = -1;
+		QString fuzzySig = QString(QMetaObject::normalizedSignature(methodSig)).toLower().remove("()");
+		for (int i = 0; i < metaObject->methodCount(); i++)
+		{
+			const char* sig = metaObject->method(i).signature();
+			if (QString(sig).toLower().contains(fuzzySig))
+			{
+				searchResult = i;
+				break;
+			}
+		}
+		if (searchResult == -1)
+		{
+			return false;
+		}
+		else
+		{
+			methodIndex = searchResult;
+		}
+
+	}
+
+	// invoke metamethod
+	QMetaMethod metaMethod = metaObject->method(methodIndex);
+	void* returnVal;
+	QGenericReturnArgument returnArgument(
+		metaMethod.typeName(),
+		&returnVal
+	);
+	int result = metaMethod.invoke((QObject*)object, returnArgument);
+	if (result)
+	{
+		// set returnvalue
+		*returnPtr = returnVal;
+
+		return true;
+	}
+
+	return false;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// END: DFORCE WEIGHTMAPS
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// START: SUBDIVISION
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #ifdef __APPLE__
 #define USING_LIBSTDCPP 1
@@ -2043,8 +2351,72 @@ bool DzRuntimePluginAction::upgradeToHD(QString baseFilePath, QString hdFilePath
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// SUBDIVISION
+// END: SUBDIVISION
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+QString DzRuntimePluginAction::GetMD5(const QString& path)
+{
+	auto algo = QCryptographicHash::Md5;
+	QFile sourceFile(path);
+	qint64 fileSize = sourceFile.size();
+	const qint64 bufferSize = 10240;
+
+	if (sourceFile.open(QIODevice::ReadOnly))
+	{
+		char buffer[bufferSize];
+		int bytesRead;
+		int readSize = qMin(fileSize, bufferSize);
+
+		QCryptographicHash hash(algo);
+		while (readSize > 0 && (bytesRead = sourceFile.read(buffer, readSize)) > 0)
+		{
+			fileSize -= bytesRead;
+			hash.addData(buffer, bytesRead);
+			readSize = qMin(fileSize, bufferSize);
+		}
+
+		sourceFile.close();
+		return QString(hash.result().toHex());
+	}
+	return QString();
+}
+
+bool DzRuntimePluginAction::CopyFile(QFile* file, QString* dst, bool replace, bool compareFiles)
+{
+	bool dstExists = QFile::exists(*dst);
+
+	if (replace)
+	{
+		if (compareFiles && dstExists)
+		{
+			auto srcFileMD5 = GetMD5(file->fileName());
+			auto dstFileMD5 = GetMD5(*dst);
+
+			if (srcFileMD5.length() > 0 && dstFileMD5.length() > 0 && srcFileMD5.compare(dstFileMD5) == 0)
+			{
+				return false;
+			}
+		}
+
+		if (dstExists)
+		{
+			QFile::remove(*dst);
+		}
+	}
+
+	auto result = file->copy(*dst);
+
+	if (QFile::exists(*dst))
+	{
+#if __APPLE__
+		QFile::setPermissions(*dst, QFile::ReadOwner | QFile::WriteOwner | QFile::ReadUser | QFile::ReadGroup | QFile::ReadOther);
+#else
+		QFile::setPermissions(*dst, QFile::ReadOther | QFile::WriteOther);
+#endif
+	}
+
+	return result;
+}
 
 
 #include "moc_DzRuntimePluginAction.cpp"

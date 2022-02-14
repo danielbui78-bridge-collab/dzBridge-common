@@ -4,6 +4,7 @@
 #include <DzFileIOSettings.h>
 #include <dzjsonwriter.h>
 #include <dzimageproperty.h>
+#include <dzweightmap.h>
 
 #include "QtCore/qfile.h"
 #include "QtCore/qtextstream.h"
@@ -201,7 +202,41 @@ protected:
 	 Q_INVOKABLE void readGUI(DzBridgeDialog*);
 	 Q_INVOKABLE void exportHD(DzProgress* exportProgress = nullptr);
 	 Q_INVOKABLE bool upgradeToHD(QString baseFilePath, QString hdFilePath, QString outFilePath, std::map<std::string, int>* pLookupTable);
+	 Q_INVOKABLE void WriteWeightMaps(DzNode* Node, DzJsonWriter& Stream);
+
+	 Q_INVOKABLE bool metaInvokeMethod(QObject* object, const char* methodSig, void** returnPtr);
+	 Q_INVOKABLE bool CopyFile(QFile* file, QString* dst, bool replace = true, bool compareFiles = true);
+	 Q_INVOKABLE QString GetMD5(const QString& path);
+
 private:
+	class MaterialGroupExportOrderMetaData
+	{
+	public:
+		int materialIndex;
+		int vertex_offset;
+		int vertex_count;
+
+		MaterialGroupExportOrderMetaData(int a_index, int a_offset)
+		{
+			materialIndex = a_index;
+			vertex_offset = a_offset;
+			vertex_count = -1;
+		}
+
+		bool operator< (MaterialGroupExportOrderMetaData b) const
+		{
+			if (vertex_offset < b.vertex_offset)
+			{
+				return true;
+			}
+			else
+			{
+				return false;
+			}
+		}
+
+	};
+
 	 // Undo data structures
 	 QMap<DzMaterial*, QString> m_undoTable_DuplicateMaterialRename;
 	 QMap<DzMaterial*, DzProperty*> m_undoTable_GenerateMissingNormalMap;
@@ -215,5 +250,7 @@ private:
 	 bool isHeightMapPresent(DzMaterial* material);
 	 QString getHeightMapFilename(DzMaterial* material);
 	 double getHeightMapStrength(DzMaterial* material);
+
+	 DzWeightMapPtr getWeightMapPtr(DzNode* Node);
 
 };
