@@ -139,6 +139,7 @@ DzBridgeMorphSelectionDialog::DzBridgeMorphSelectionDialog(QWidget *parent) :
 	QPushButton* ARKit81Button = new QPushButton("ARKit (Genesis8.1)");
 	QPushButton* FaceFX8Button = new QPushButton("FaceFX (Genesis8)");
 	autoJCMCheckBox = new QCheckBox("Auto JCM");
+	autoJCMCheckBox->setChecked(false);
 	((QGridLayout*)JCMGroupBox->layout())->addWidget(ArmsJCMButton, 0, 0);
 	((QGridLayout*)JCMGroupBox->layout())->addWidget(LegsJCMButton, 0, 1);
 	((QGridLayout*)JCMGroupBox->layout())->addWidget(TorsoJCMButton, 0, 2);
@@ -197,8 +198,7 @@ DzBridgeMorphSelectionDialog::DzBridgeMorphSelectionDialog(QWidget *parent) :
 	setFixedHeight(height());
 	RefreshPresetsCombo();
 
-	connect(morphListWidget, SIGNAL(itemChanged(QListWidgetItem*)),
-		this, SLOT(ItemChanged(QListWidgetItem*)));
+//	connect(morphListWidget, SIGNAL(itemChanged(QListWidgetItem*)), this, SLOT(ItemChanged(QListWidgetItem*)));
 
 	connect(morphTreeWidget, SIGNAL(itemSelectionChanged()),
 		this, SLOT(ItemSelectionChanged()));
