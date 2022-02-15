@@ -527,6 +527,7 @@ void DzRuntimePluginAction::exportHD(DzProgress* exportProgress)
 	{
 		bLocalDzProgress = true;
 		exportProgress = new DzProgress("DazBridge: Exporting FBX/DTU", 4);
+		exportProgress->step();
 	}
 
 	if (ExportSubdivisions)
