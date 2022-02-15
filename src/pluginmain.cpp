@@ -8,7 +8,7 @@
 #include "OpenFBXInterface.h"
 
 #ifdef __APPLE__
-DZ_PLUGIN_DEFINITION("DazBridge");
+DZ_PLUGIN_DEFINITION("Daz Bridges Common Library");
 #else
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, ULONG fdwReason, LPVOID lpvReserved)	
 {	
@@ -24,7 +24,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, ULONG fdwReason, LPVOID lpvReserved)
 	}
 	return TRUE;
 }
-static DzPlugin s_pluginDef("DazBridge"); 
+static DzPlugin s_pluginDef("Daz Bridges Common Library"); 
 extern "C" __declspec(dllexport) DzVersion getSDKVersion() { return DZ_SDK_VERSION; }
 extern "C" __declspec(dllexport) DzPlugin * getPluginDefinition() { return &s_pluginDef; }
 #endif
