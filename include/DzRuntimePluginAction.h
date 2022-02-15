@@ -24,6 +24,7 @@
 #endif
 
 class DzProgress;
+class DzGeometry;
 
 //class DzBridgeSubdivisionDialog;
 //class DzBridgeMorphSelectionDialog;
@@ -134,6 +135,12 @@ protected:
 	 Q_INVOKABLE virtual void writeAllDForceInfo(DzNode* Node, DzJsonWriter& Writer, QTextStream* pCVSStream = nullptr, bool bRecursive = false);
 	 Q_INVOKABLE virtual void writeDforceMaterialProperties(DzJsonWriter& Writer, DzMaterial* Material, DzShape* Shape);
 	 Q_INVOKABLE virtual void writeDforceModifiers(const QList<DzModifier*>& dforceModifierList, DzJsonWriter& Writer, DzShape* Shape);
+
+	 Q_INVOKABLE virtual void writeEnvironment(DzJsonWriter& writer);
+	 Q_INVOKABLE virtual void writeInstances(DzNode* Node, DzJsonWriter& Writer, QMap<QString, DzMatrix3>& WritenInstances, QList<DzGeometry*>& ExportedGeometry, QUuid ParentID = QUuid());
+	 Q_INVOKABLE virtual QUuid writeInstance(DzNode* Node, DzJsonWriter& Writer, QUuid ParentID);
+
+	 Q_INVOKABLE virtual void writeAllPoses(DzJsonWriter& writer);
 
 	 // Need to temporarily rename surfaces if there is a name collision
 	 void RenameDuplicateMaterials(DzNode* Node, QList<QString>& MaterialNames, QMap<DzMaterial*, QString>& OriginalMaterialNames);
