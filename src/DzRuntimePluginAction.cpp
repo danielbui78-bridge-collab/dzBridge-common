@@ -1545,7 +1545,7 @@ void DzRuntimePluginAction::writeSubdivisionProperties(DzJsonWriter& writer, con
 void DzRuntimePluginAction::writeAllDForceInfo(DzNode* Node, DzJsonWriter& Writer, QTextStream* pCVSStream, bool bRecursive)
 {
 	if (!bRecursive)
-		Writer.startMemberArray("DForce", true);
+		Writer.startMemberArray("dForce", true);
 
 	DzObject* Object = Node->getObject();
 	DzShape* Shape = Object ? Object->getCurrentShape() : nullptr;
@@ -1575,10 +1575,9 @@ void DzRuntimePluginAction::writeAllDForceInfo(DzNode* Node, DzJsonWriter& Write
 			Writer.addMember("Asset Name", Node->getLabel());
 			Writer.addMember("Modifier Count", modifierCount);
 			Writer.addMember("Material Count", Shape->getNumMaterials());
-
 			writeDforceModifiers(dforceModifierList, Writer, Shape);
 
-			Writer.startMemberArray("DForce-Materials", true);
+			Writer.startMemberArray("dForce-Materials", true);
 			for (int i = 0; i < Shape->getNumMaterials(); i++)
 			{
 				DzMaterial* Material = Shape->getMaterial(i);
@@ -1599,16 +1598,12 @@ void DzRuntimePluginAction::writeAllDForceInfo(DzNode* Node, DzJsonWriter& Write
 					{
 						Writer.addMember("Value", QString("Unknown"));
 					}
-
 					writeDforceMaterialProperties(Writer, Material, Shape);
-					
 					Writer.finishObject();
-
 				}
 			}
 			Writer.finishArray();
 			Writer.finishObject();
-
 		}
 	}
 
@@ -1620,7 +1615,19 @@ void DzRuntimePluginAction::writeAllDForceInfo(DzNode* Node, DzJsonWriter& Write
 	}
 
 	if (!bRecursive)
+	{
+		if (AssetType == "SkeletalMesh")
+		{
+			bool ExportDForce = true;
+			Writer.startMemberArray("dForce-WeightMaps", true);
+			if (ExportDForce)
+			{
+				WriteWeightMaps(Selection, Writer);
+			}
+			Writer.finishArray();
+		}
 		Writer.finishArray();
+	}
 }
 
 void DzRuntimePluginAction::writeDforceModifiers(const QList<DzModifier*>& dforceModifierList, DzJsonWriter& Writer, DzShape* Shape)
