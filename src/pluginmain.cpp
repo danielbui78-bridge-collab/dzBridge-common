@@ -7,7 +7,9 @@
 #include "DzBridgeSubdivisionDialog.h"
 #include "OpenFBXInterface.h"
 
-//DZ_PLUGIN_DEFINITION("DazBridge");
+#ifdef __APPLE__
+DZ_PLUGIN_DEFINITION("DazBridge");
+#else
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, ULONG fdwReason, LPVOID lpvReserved)	
 {	
 	switch (fdwReason) {
@@ -25,7 +27,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, ULONG fdwReason, LPVOID lpvReserved)
 static DzPlugin s_pluginDef("DazBridge"); 
 extern "C" __declspec(dllexport) DzVersion getSDKVersion() { return DZ_SDK_VERSION; }
 extern "C" __declspec(dllexport) DzPlugin * getPluginDefinition() { return &s_pluginDef; }
-
+#endif
 
 DZ_PLUGIN_AUTHOR("Daz 3D, Inc");
 
