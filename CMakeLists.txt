@@ -33,8 +33,9 @@ set(CMAKE_BUILD_TYPE "Release" CACHE STRING "" FORCE)
 
 
 if(APPLE)
+	set(CMAKE_OSX_ARCHITECTURES "x86_64" CACHE STRING "" FORCE)
 	if(NOT CMAKE_OSX_ARCHITECTURES)
-  		message( FATAL_ERROR "Mac needs CMAKE_OSX_ARCHITECTURES, set to i386 or x86_64" )	
+  		message( FATAL_ERROR "Mac needs CMAKE_OSX_ARCHITECTURES, set to i386 or x86_64" )
 		return()
 	endif()
 endif(APPLE)
@@ -69,7 +70,7 @@ if(WIN32)
 elseif(APPLE)
 	set(DZ_LIB_SUFFIX ".dylib")
 	set(DZ_BIN_SUFFIX ".dylib")
-	set(DZ_LIB_PREFIX "lib")	
+	set(DZ_LIB_PREFIX "lib")
 	set(UTIL_EXT "")
 	if(CMAKE_SIZEOF_VOID_P EQUAL 4)
 		set(DZ_PLATFORM x86)
@@ -78,15 +79,15 @@ elseif(APPLE)
 	elseif(CMAKE_SIZEOF_VOID_P EQUAL 8)
 		set(DZ_PLATFORM x64)
 		set(DZ_MIXED_PLATFORM Mac64)
-		set(DZ_OS_PLATFORM Mac64)	
+		set(DZ_OS_PLATFORM Mac64)
 	else()
-		message(FATAL_ERROR "Unknown architecture")		
+		message(FATAL_ERROR "Unknown architecture")
 	endif()
 	set(CMAKE_MACOSX_RPATH TRUE)
 	set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
 	SET(CMAKE_CXX_FLAGS "-std=gnu++11 ${CMAKE_CXX_FLAGS}")
 else()
-	message(FATAL_ERROR "Unknown architecture")	
+	message(FATAL_ERROR "Unknown architecture")
 endif(WIN32)
 
 set(DAZ_SDK_DIR_DEFAULT "")
@@ -116,7 +117,7 @@ if(NOT QT_BINARY_DIR_DEFAULT)
 	return()
 endif()
 
-find_package(OpenGL REQUIRED)	
+find_package(OpenGL REQUIRED)
 
 #we only have release libraries for dzcore/qt so make sure even in debug they we use MD and undef debug
 if(WIN32)
@@ -222,15 +223,15 @@ if(WIN32)
 	set(FBX_PLATFORM "vs2017/x64/release")
 	set(FBX_SDK_LIB "${FBX_SDK_DIR}/lib/${FBX_PLATFORM}/libfbxsdk-md.lib" CACHE FILEPATH "Path to FBX SDK static library (libfbx-md.lib)" )
 	set(FBX_SDK_XMLLIB "${FBX_SDK_DIR}/lib/${FBX_PLATFORM}/libxml2-md.lib" CACHE FILEPATH "Path to FBX SDK XML library (libxml2-md.lib)" )
-	set(FBX_IMPORT_LIBS 
-		${FBX_SDK_LIB} 
+	set(FBX_IMPORT_LIBS
+		${FBX_SDK_LIB}
 		${FBX_SDK_XMLLIB}
 		${FBX_LINKER_FLAGS})
 elseif(APPLE)
 #	set(FBX_PLATFORM "clang/libstdcpp/release")
     set(FBX_PLATFORM "clang/release")
 	set(FBX_SDK_LIB "${FBX_SDK_DIR}/lib/${FBX_PLATFORM}/libfbxsdk.a" CACHE FILEPATH "Path to FBX SDK static library (libfbxsdk.a)" )
-	set(FBX_IMPORT_LIBS 
+	set(FBX_IMPORT_LIBS
 		${FBX_SDK_LIB}
 		${FBX_LINKER_FLAGS})
 endif()
