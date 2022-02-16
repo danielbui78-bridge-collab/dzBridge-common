@@ -17,14 +17,32 @@
 
 cmake_minimum_required(VERSION 3.4.0)
 
+#if (NOT EXISTS ${CMAKE_BINARY_DIR}/CMakeCache.txt)
+#  if (NOT CMAKE_BUILD_TYPE)
+#    set(CMAKE_BUILD_TYPE "Release" CACHE STRING "" FORCE)
+#  endif()
+#endif()
+#set(CMAKE_CONFIGURATION_TYPES
+#	"Release"
+#	"MinSizeRel"
+#	"RelWithDebInfo"
+#	"Debug"
+#)
+set(CMAKE_CONFIGURATION_TYPES ${CMAKE_CONFIGURATION_TYPES} "MinSizeRel;RelWithDebInfo;Debug;Release")
+set(CMAKE_BUILD_TYPE "Release" CACHE STRING "" FORCE)
+
+
 if(APPLE)
+	set(CMAKE_OSX_ARCHITECTURES "x86_64" CACHE STRING "" FORCE)
 	if(NOT CMAKE_OSX_ARCHITECTURES)
-  		message( FATAL_ERROR "Mac needs CMAKE_OSX_ARCHITECTURES, set to i386 or x86_64" )	
+  		message( FATAL_ERROR "Mac needs CMAKE_OSX_ARCHITECTURES, set to i386 or x86_64" )
 		return()
 	endif()
 endif(APPLE)
 
-project("DazRunTimePlugins")
+project("DzBridge")
+set(FBX_SDK_DIR "" CACHE PATH "Path to FBX SDK" )
+set(OPENSUBDIV_DIR "" CACHE PATH "Path to Opensubdiv folder" )
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
@@ -52,7 +70,7 @@ if(WIN32)
 elseif(APPLE)
 	set(DZ_LIB_SUFFIX ".dylib")
 	set(DZ_BIN_SUFFIX ".dylib")
-	set(DZ_LIB_PREFIX "lib")	
+	set(DZ_LIB_PREFIX "lib")
 	set(UTIL_EXT "")
 	if(CMAKE_SIZEOF_VOID_P EQUAL 4)
 		set(DZ_PLATFORM x86)
@@ -61,15 +79,15 @@ elseif(APPLE)
 	elseif(CMAKE_SIZEOF_VOID_P EQUAL 8)
 		set(DZ_PLATFORM x64)
 		set(DZ_MIXED_PLATFORM Mac64)
-		set(DZ_OS_PLATFORM Mac64)	
+		set(DZ_OS_PLATFORM Mac64)
 	else()
-		message(FATAL_ERROR "Unknown architecture")		
+		message(FATAL_ERROR "Unknown architecture")
 	endif()
 	set(CMAKE_MACOSX_RPATH TRUE)
 	set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
 	SET(CMAKE_CXX_FLAGS "-std=gnu++11 ${CMAKE_CXX_FLAGS}")
 else()
-	message(FATAL_ERROR "Unknown architecture")	
+	message(FATAL_ERROR "Unknown architecture")
 endif(WIN32)
 
 set(DAZ_SDK_DIR_DEFAULT "")
@@ -99,7 +117,7 @@ if(NOT QT_BINARY_DIR_DEFAULT)
 	return()
 endif()
 
-find_package(OpenGL REQUIRED)	
+find_package(OpenGL REQUIRED)
 
 #we only have release libraries for dzcore/qt so make sure even in debug they we use MD and undef debug
 if(WIN32)
@@ -138,11 +156,14 @@ elseif(APPLE)
 	set(DAZ_SDK_QTCORE_LIBRARY "${DAZ_SDK_DIR}/lib/${DZ_MIXED_PLATFORM}/QtCore.framework")
 endif()
 
+set(QT_BINARY_DIR_DEFAULT "${DAZ_SDK_DIR}/bin/${DZ_MIXED_PLATFORM}")
+set(QT_IMPORTS_DIR "${DAZ_SDK_DIR}/lib/${DZ_MIXED_PLATFORM}")
+
 set(QT_QTCORE_LIBRARY_RELEASE ${DAZ_SDK_QTCORE_LIBRARY})
-set(QT_BINARY_DIR "${QT_BINARY_DIR_DEFAULT}")
-set(QT_QMAKE_EXECUTABLE "${QT_BINARY_DIR_DEFAULT}/qmake${UTIL_EXT}")
-#set(QT_QMAKE_EXECUTABLE "${DAZ_SDK_DIR}/bin/${DZ_MIXED_PLATFORM}/qmake${UTIL_EXT}")
-#set(QT_BINARY_DIR "${DAZ_SDK_DIR}/bin/${DZ_MIXED_PLATFORM}")
+#set(QT_BINARY_DIR "${QT_BINARY_DIR_DEFAULT}")
+#set(QT_QMAKE_EXECUTABLE "${QT_BINARY_DIR_DEFAULT}/qmake${UTIL_EXT}")
+set(QT_QMAKE_EXECUTABLE "${DAZ_SDK_DIR}/bin/${DZ_MIXED_PLATFORM}/qmake${UTIL_EXT}")
+set(QT_BINARY_DIR "${DAZ_SDK_DIR}/bin/${DZ_MIXED_PLATFORM}")
 set(QT_HEADERS_DIR "${DAZ_SDK_DIR}/include")
 set(QT_QTCORE_INCLUDE_DIR "${DAZ_SDK_DIR}/include/QtCore")
 
@@ -162,6 +183,84 @@ set(DZSDK_QT_XML_TARGET	Qt4::QtXml)
 
 list(APPEND CMAKE_AUTOMOC_MOC_OPTIONS -i)
 
-add_subdirectory("Common")
-#add_subdirectory("Unity")
-add_subdirectory("Unreal")
+
+############################
+# FBX SETTINGS
+############################
+IF(NOT WIN32)
+	set(FBX_ARCH "x64")
+	SET(CMAKE_CXX_FLAGS "-m64 ${CMAKE_CXX_FLAGS}")
+	SET(CMAKE_C_FLAGS "-m64 ${CMAKE_C_FLAGS}")
+	SET(FBX_TMP_TARGET_LIBS ${FBX_TMP_TARGET_LIBS} dl pthread)
+	SET(CMAKE_CXX_FLAGS "-D_NDEBUG -Os ${CMAKE_CXX_FLAGS}")
+	SET(CMAKE_C_FLAGS "-D_NDEBUG -Os ${CMAKE_C_FLAGS}")
+	SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall")
+	SET(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -Wall")
+
+	IF(APPLE)
+		set(FBX_LINKER_FLAGS "-lz -lxml2 -liconv")
+		IF(NOT FBX_CLANG)
+			SET(FBX_LINKER_FLAGS "-framework Carbon -framework SystemConfiguration ${FBX_LINKER_FLAGS}")
+		ELSE(NOT FBX_CLANG)
+			SET(FBX_LINKER_FLAGS "-framework CoreFoundation -framework SystemConfiguration ${FBX_LINKER_FLAGS}")
+		ENDIF(NOT FBX_CLANG)
+		SET(FBX_TMP_TARGET_LIBS ${FBX_TMP_TARGET_LIBS} iconv)
+	ENDIF()
+
+#	SET(CMAKE_CXX_FLAGS "-std=c++11 -stdlib\=libstdc++ ${CMAKE_CXX_FLAGS}")
+    SET(CMAKE_CXX_FLAGS "-std=gnu++11 ${CMAKE_CXX_FLAGS}")
+
+ENDIF(NOT WIN32)
+
+#set(FBX_SDK_DIR "" CACHE PATH "Path to FBX SDK" )
+if(NOT FBX_SDK_DIR)
+	message(FATAL_ERROR "Missing path to FBX SDK folder")
+	return()
+endif()
+
+set(FBX_SDK_INCLUDE "${FBX_SDK_DIR}/include" CACHE PATH "Path to FBX SDK Includes" )
+if(WIN32)
+	set(FBX_PLATFORM "vs2017/x64/release")
+	set(FBX_SDK_LIB "${FBX_SDK_DIR}/lib/${FBX_PLATFORM}/libfbxsdk-md.lib" CACHE FILEPATH "Path to FBX SDK static library (libfbx-md.lib)" )
+	set(FBX_SDK_XMLLIB "${FBX_SDK_DIR}/lib/${FBX_PLATFORM}/libxml2-md.lib" CACHE FILEPATH "Path to FBX SDK XML library (libxml2-md.lib)" )
+	set(FBX_IMPORT_LIBS
+		${FBX_SDK_LIB}
+		${FBX_SDK_XMLLIB}
+		${FBX_LINKER_FLAGS})
+elseif(APPLE)
+#	set(FBX_PLATFORM "clang/libstdcpp/release")
+    set(FBX_PLATFORM "clang/release")
+	set(FBX_SDK_LIB "${FBX_SDK_DIR}/lib/${FBX_PLATFORM}/libfbxsdk.a" CACHE FILEPATH "Path to FBX SDK static library (libfbxsdk.a)" )
+	set(FBX_IMPORT_LIBS
+		${FBX_SDK_LIB}
+		${FBX_LINKER_FLAGS})
+endif()
+
+############################
+# Opensubdiv SETTINGS
+############################
+#set(OPENSUBDIV_DIR "" CACHE PATH "Path to Opensubdiv folder" )
+if(NOT OPENSUBDIV_DIR)
+	message(FATAL_ERROR "Missing path to Opensubdiv folder")
+	return()
+endif()
+set(OPENSUBDIV_INCLUDE "${OPENSUBDIV_DIR}" CACHE PATH "Path to Opensubdiv include folder (usually same as root folder)" )
+if(WIN32)
+	set(OPENSUBDIV_LIB "${OPENSUBDIV_DIR}/build/lib/Release/osdCPU.lib" CACHE FILEPATH "Path to Opensubdiv CPU static library (osdCPU.lib)" )
+elseif(APPLE)
+	set(OPENSUBDIV_LIB "${OPENSUBDIV_DIR}/build/lib/Release/libosdCPU.a" CACHE FILEPATH "Path to Opensubdiv CPU static library (libosdCPU.a)" )
+endif()
+
+
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+
+# if building a plugin and you want the compiled result placed in the Daz Studio ./plugins directory
+if(DAZ_STUDIO_EXE_DIR)
+	set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${DAZ_STUDIO_EXE_DIR}/plugins)
+#	set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${DAZ_STUDIO_EXE_DIR}/plugins)
+endif()
+
+add_subdirectory("include")
+add_subdirectory("src")
