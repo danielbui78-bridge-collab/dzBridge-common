@@ -52,8 +52,6 @@ public:
 
 	void Accepted();
 
-	Q_INVOKABLE virtual QString getRootFolder()=0;
-
 protected slots:
 	void handleSceneSelectionChanged();
 	void HandleChooseMorphsButton();

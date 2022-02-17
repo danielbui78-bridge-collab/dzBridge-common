@@ -117,6 +117,7 @@ protected:
 
 	 virtual void WriteConfiguration() = 0;
 	 virtual void SetExportOptions(DzFileIOSettings &ExportOptions) = 0;
+	 virtual QString readGUIRootFolder() = 0;
 
 	 Q_INVOKABLE virtual void writeDTUHeader(DzJsonWriter& writer);
 
