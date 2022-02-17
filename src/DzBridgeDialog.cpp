@@ -59,7 +59,12 @@ DzBridgeDialog::DzBridgeDialog(QWidget *parent, const QString &windowTitle) :
 
 	// Set the dialog title
 	int revision = COMMON_REV % 1000;
-	setWindowTitle(tr("DazBridge v%1.%2 Pre-Release Build %3.%4").arg(COMMON_MAJOR).arg(COMMON_MINOR).arg(revision).arg(COMMON_BUILD));
+	QString workingTitle;
+	if (windowTitle != "")
+		workingTitle = windowTitle + QString(tr(" v%1.%2 Pre-Release Build %3.%4")).arg(COMMON_MAJOR).arg(COMMON_MINOR).arg(revision).arg(COMMON_BUILD);
+	else
+		workingTitle = QString(tr("DazBridge v%1.%2 Pre-Release Build %3.%4").arg(COMMON_MAJOR).arg(COMMON_MINOR).arg(revision).arg(COMMON_BUILD));
+	setWindowTitle(workingTitle);
 	layout()->setSizeConstraint(QLayout::SetFixedSize);
 	mainLayout = new QFormLayout();
 
@@ -280,8 +285,9 @@ void DzBridgeDialog::HandleExportMaterialPropertyCSVCheckBoxChange(int state)
 
 void DzBridgeDialog::HandleShowAdvancedSettingsCheckBoxChange(bool checked)
 {
+	advancedWidget->setHidden(!checked);
+
 	if (settings == nullptr) return;
 	settings->setValue("ShowAdvancedSettings", checked);
-	advancedWidget->setHidden(!checked);
 }
 #include "moc_DzBridgeDialog.cpp"
