@@ -88,3 +88,16 @@ QObject* DzBridgeSubdivisionDialogFactory::createInstance() const
 {
 	return (QObject*) new DzBridgeSubdivisionDialog(nullptr);
 }
+
+#ifdef UNITTEST_DZBRIDGE
+#include "UnitTest_DzBridgeScriptableAction.h"
+#include "UnitTest_DzBridgeDialog.h"
+#include "UnitTest_DzBridgeMorphSelectionDialog.h"
+#include "UnitTest_DzBridgeSubdivisionDialog.h"
+
+DZ_PLUGIN_CLASS_GUID(UnitTest_DzBridgeScriptableAction, 1ae818ba-d745-4db7-afb9-b1cb5e7700db);
+DZ_PLUGIN_CLASS_GUID(UnitTest_DzBridgeDialog, 15bdc1cf-fbe6-4085-b729-fcb5e428fe71);
+DZ_PLUGIN_CLASS_GUID(UnitTest_DzBridgeMorphSelectionDialog, 8d4ba27a-bb2a-4d69-95da-c8dc1b095bcc);
+DZ_PLUGIN_CLASS_GUID(UnitTest_DzBridgeSubdivisionDialog, fc3a8f28-fef2-44ed-ac99-25aadb91e3d5);
+
+#endif

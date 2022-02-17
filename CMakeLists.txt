@@ -263,4 +263,5 @@ if(DAZ_STUDIO_EXE_DIR)
 endif()
 
 add_subdirectory("include")
+add_subdirectory("Test/UnitTests")
 add_subdirectory("src")
