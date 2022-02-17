@@ -6,7 +6,7 @@ set(COMMON_LIB_INCLUDE_DIR ${COMMON_LIB_INCLUDE_DIR} PARENT_SCOPE)
 
 include_directories(${COMMON_LIB_INCLUDE_DIR})
 set(LIB_HEADERS
-	${CMAKE_CURRENT_SOURCE_DIR}/DzRuntimePluginAction.h
+	${CMAKE_CURRENT_SOURCE_DIR}/DzBridgeAction.h
 	${CMAKE_CURRENT_SOURCE_DIR}/DzBridgeMorphSelectionDialog.h
 	${CMAKE_CURRENT_SOURCE_DIR}/DzBridgeSubdivisionDialog.h
 	${CMAKE_CURRENT_SOURCE_DIR}/DzBridgeDialog.h

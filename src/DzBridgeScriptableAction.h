@@ -7,24 +7,19 @@
 #include <QtCore/qfile.h>
 #include <QtCore/qtextstream.h>
 #include <QUuid.h>
-#include <DzRuntimePluginAction.h>
+#include <DzBridgeAction.h>
 
 class DzBridgeDialog;
 
-class DzBridgeScriptableAction : public DzRuntimePluginAction {
+class DzBridgeScriptableAction : public DzBridgeAction {
 	Q_OBJECT
-	Q_PROPERTY(DzBasicDialog* wBridgeDialog READ getBridgeDialog WRITE setBridgeDialog)
 public:
 	DzBridgeScriptableAction();
 
-	 Q_INVOKABLE DzBridgeDialog* getBridgeDialog() { return BridgeDialog; }
-	 Q_INVOKABLE bool setBridgeDialog(DzBasicDialog* arg_dlg);
-
 	 Q_INVOKABLE void resetToDefaults();
 	 QString readGUIRootFolder();
-protected:
-	 DzBridgeDialog *BridgeDialog;
 
+protected:
 	 void executeAction();
 	 Q_INVOKABLE void WriteConfiguration();
 	 void SetExportOptions(DzFileIOSettings& ExportOptions);

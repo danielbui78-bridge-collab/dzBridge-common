@@ -26,7 +26,7 @@ set(OSDI_SOURCES
 
 set(LIB_SRCS
 	${LIB_HEADERS}
-	DzRuntimePluginAction.cpp
+	DzBridgeAction.cpp
 	DzBridgeMorphSelectionDialog.cpp
 	DzBridgeSubdivisionDialog.cpp
 	DzBridgeDialog.cpp

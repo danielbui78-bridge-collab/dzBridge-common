@@ -24,12 +24,13 @@
 #include "dzuri.h"
 
 #include "DzBridgeScriptableAction.h"
+#include "DzBridgeDialog.h"
 #include "DzBridgeMorphSelectionDialog.h"
+#include "DzBridgeSubdivisionDialog.h"
 
 DzBridgeScriptableAction::DzBridgeScriptableAction() :
-	 DzRuntimePluginAction(tr("Daz &Scriptable Bridge"), tr("Send the selected node to Daz Scriptable Bridge."))
+	 DzBridgeAction(tr("Daz &Scriptable Bridge"), tr("Send the selected node to Daz Scriptable Bridge."))
 {
-	 BridgeDialog = nullptr;
      NonInteractiveMode = 0;
 	 AssetType = QString("SkeletalMesh");
 	 //Setup Icon
@@ -71,15 +72,15 @@ void DzBridgeScriptableAction::executeAction()
     }
 
     // Create the dialog
-	if (BridgeDialog == nullptr)
+	if (m_bridgeDialog == nullptr)
 	{
-		BridgeDialog = new DzBridgeDialog(mw, QString(tr("Daz Scriptable Bridge")));
+		m_bridgeDialog = new DzBridgeDialog(mw, QString(tr("Daz Scriptable Bridge")));
 	}
 
 	// Prepare member variables when not using GUI
 	if (NonInteractiveMode == 1)
 	{
-//		if (RootFolder != "") BridgeDialog->getIntermediateFolderEdit()->setText(RootFolder);
+//		if (RootFolder != "") m_bridgeDialog->getIntermediateFolderEdit()->setText(RootFolder);
 
 		if (ScriptOnly_MorphList.isEmpty() == false)
 		{
@@ -88,7 +89,7 @@ void DzBridgeScriptableAction::executeAction()
 			MorphString += "\n1\n.CTRLVS\n2\nAnything\n0";
 			if (m_morphSelectionDialog == nullptr)
 			{
-				m_morphSelectionDialog = DzBridgeMorphSelectionDialog::Get(BridgeDialog);
+				m_morphSelectionDialog = DzBridgeMorphSelectionDialog::Get(m_bridgeDialog);
 			}
 			MorphMapping.clear();
 			foreach(QString morphName, ScriptOnly_MorphList)
@@ -110,12 +111,12 @@ void DzBridgeScriptableAction::executeAction()
     int dialog_choice = -1;
 	if (NonInteractiveMode == 0)
 	{
-		dialog_choice = BridgeDialog->exec();
+		dialog_choice = m_bridgeDialog->exec();
 	}
     if (NonInteractiveMode == 1 || dialog_choice == QDialog::Accepted)
     {
 		// Read in Common GUI values
-		readGUI(BridgeDialog);
+		readGUI(m_bridgeDialog);
 
 		exportHD();
     }
@@ -173,15 +174,15 @@ void DzBridgeScriptableAction::SetExportOptions(DzFileIOSettings& ExportOptions)
 // Resets Default Values but Ignores any saved settings
 void DzBridgeScriptableAction::resetToDefaults()
 {
-	DzRuntimePluginAction::resetToDefaults();
+	DzBridgeAction::resetToDefaults();
 
-	// Must Instantiate BridgeDialog so that we can override any saved states
-	if (BridgeDialog == nullptr)
+	// Must Instantiate m_bridgeDialog so that we can override any saved states
+	if (m_bridgeDialog == nullptr)
 	{
 		DzMainWindow* mw = dzApp->getInterface();
-		BridgeDialog = new DzBridgeDialog(mw);
+		m_bridgeDialog = new DzBridgeDialog(mw);
 	}
-	BridgeDialog->resetToDefaults();
+	m_bridgeDialog->resetToDefaults();
 
 	if (m_subdivisionDialog != nullptr)
 	{
@@ -195,18 +196,6 @@ void DzBridgeScriptableAction::resetToDefaults()
 	// reset morph selection
 	//DzBridgeMorphSelectionDialog::Get(nullptr)->PrepareDialog();
 
-}
-
-bool DzBridgeScriptableAction::setBridgeDialog(DzBasicDialog* arg_dlg)
-{
-	BridgeDialog = qobject_cast<DzBridgeDialog*>(arg_dlg);
-
-	if (BridgeDialog == nullptr && arg_dlg != nullptr)
-	{
-		return false;
-	}
-
-	return true;
 }
 
 QString DzBridgeScriptableAction::readGUIRootFolder()

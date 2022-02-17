@@ -47,14 +47,16 @@
 #include <QtGui/QMessageBox>
 #include "QtCore/qmetaobject.h"
 
-#include "DzRuntimePluginAction.h"
+#include "DzBridgeAction.h"
+#include "DzBridgeDialog.h"
+#include "DzBridgeSubdivisionDialog.h"
+#include "DzBridgeMorphSelectionDialog.h"
 
-
-DzRuntimePluginAction::DzRuntimePluginAction(const QString& text, const QString& desc) :
+DzBridgeAction::DzBridgeAction(const QString& text, const QString& desc) :
 	 DzAction(text, desc)
 {
 	resetToDefaults();
-
+	m_bridgeDialog = nullptr;
 	m_subdivisionDialog = nullptr;
 	m_morphSelectionDialog = nullptr;
 	m_bGenerateNormalMaps = false;
@@ -67,11 +69,11 @@ DzRuntimePluginAction::DzRuntimePluginAction(const QString& text, const QString&
 
 }
 
-DzRuntimePluginAction::~DzRuntimePluginAction()
+DzBridgeAction::~DzBridgeAction()
 {
 }
 
-void DzRuntimePluginAction::resetToDefaults()
+void DzBridgeAction::resetToDefaults()
 {
 	ExportMorphs = false;
 	ExportSubdivisions = false;
@@ -129,7 +131,7 @@ void DzRuntimePluginAction::resetToDefaults()
 
 }
 
-bool DzRuntimePluginAction::preProcessScene(DzNode* parentNode)
+bool DzBridgeAction::preProcessScene(DzNode* parentNode)
 {
 	DzProgress preProcessProgress = DzProgress("Daz Bridge Pre-Processing...", 0, false, true);
 
@@ -193,7 +195,7 @@ bool DzRuntimePluginAction::preProcessScene(DzNode* parentNode)
 	return true;
 }
 
-bool DzRuntimePluginAction::generateMissingNormalMap(DzMaterial* material)
+bool DzBridgeAction::generateMissingNormalMap(DzMaterial* material)
 {
 	// Check if normal map missing
 	if (isNormalMapMissing(material))
@@ -292,7 +294,7 @@ bool DzRuntimePluginAction::generateMissingNormalMap(DzMaterial* material)
 	return true;
 }
 
-bool DzRuntimePluginAction::undoGenerateMissingNormalMaps()
+bool DzBridgeAction::undoGenerateMissingNormalMaps()
 {
 	QMap<DzMaterial*, DzProperty*>::iterator iter;
 	for (iter = m_undoTable_GenerateMissingNormalMap.begin(); iter != m_undoTable_GenerateMissingNormalMap.end(); ++iter)
@@ -315,7 +317,7 @@ bool DzRuntimePluginAction::undoGenerateMissingNormalMaps()
 	return true;
 }
 
-double DzRuntimePluginAction::getHeightMapStrength(DzMaterial* material)
+double DzBridgeAction::getHeightMapStrength(DzMaterial* material)
 {
 	QString propertyName = "bump strength";
 	DzProperty* heightMapProp = material->findProperty(propertyName, false);
@@ -341,7 +343,7 @@ double DzRuntimePluginAction::getHeightMapStrength(DzMaterial* material)
 
 }
 
-QString DzRuntimePluginAction::getHeightMapFilename(DzMaterial* material)
+QString DzBridgeAction::getHeightMapFilename(DzMaterial* material)
 {
 	QString propertyName = "bump strength";
 	DzProperty* heightMapProp = material->findProperty(propertyName, false);
@@ -385,7 +387,7 @@ QString DzRuntimePluginAction::getHeightMapFilename(DzMaterial* material)
 }
 
 // Only returns true if "Normal Map" property exists, but is not set to a filename
-bool DzRuntimePluginAction::isNormalMapMissing(DzMaterial* material)
+bool DzBridgeAction::isNormalMapMissing(DzMaterial* material)
 {
 	QString propertyName = "normal map";
 	DzProperty* normalMapProp = material->findProperty(propertyName, false);
@@ -457,7 +459,7 @@ bool DzRuntimePluginAction::isNormalMapMissing(DzMaterial* material)
 	return false;
 }
 
-bool DzRuntimePluginAction::isHeightMapPresent(DzMaterial* material)
+bool DzBridgeAction::isHeightMapPresent(DzMaterial* material)
 {
 	QString propertyName = "bump strength";
 	DzProperty* heightMapProp = material->findProperty(propertyName, false);
@@ -470,7 +472,7 @@ bool DzRuntimePluginAction::isHeightMapPresent(DzMaterial* material)
 	return false;
 }
 
-bool DzRuntimePluginAction::undoPreProcessScene()
+bool DzBridgeAction::undoPreProcessScene()
 {
 	bool bResult = true;
 
@@ -488,7 +490,7 @@ bool DzRuntimePluginAction::undoPreProcessScene()
 	return bResult;
 }
 
-bool DzRuntimePluginAction::renameDuplicateMaterial(DzMaterial *material, QList<QString>* existingMaterialNameList)
+bool DzBridgeAction::renameDuplicateMaterial(DzMaterial *material, QList<QString>* existingMaterialNameList)
 {
 	int nameIndex = 0;
 	QString newMaterialName = material->getName();
@@ -507,7 +509,7 @@ bool DzRuntimePluginAction::renameDuplicateMaterial(DzMaterial *material, QList<
 	return true;
 }
 
-bool DzRuntimePluginAction::undoRenameDuplicateMaterials()
+bool DzBridgeAction::undoRenameDuplicateMaterials()
 {
 	QMap<DzMaterial*, QString>::iterator iter;
 	for (iter = m_undoTable_DuplicateMaterialRename.begin(); iter != m_undoTable_DuplicateMaterialRename.end(); ++iter)
@@ -520,7 +522,7 @@ bool DzRuntimePluginAction::undoRenameDuplicateMaterials()
 
 }
 
-void DzRuntimePluginAction::exportHD(DzProgress* exportProgress)
+void DzBridgeAction::exportHD(DzProgress* exportProgress)
 {
 	bool bLocalDzProgress = false;
 	if (!exportProgress)
@@ -589,7 +591,7 @@ void DzRuntimePluginAction::exportHD(DzProgress* exportProgress)
 
 }
 
-void DzRuntimePluginAction::Export()
+void DzBridgeAction::Export()
 {
 	// FBX Export
 	Selection = dzScene->getPrimarySelection();
@@ -758,7 +760,7 @@ void DzRuntimePluginAction::Export()
 	}
 }
 
-void DzRuntimePluginAction::DisconnectNode(DzNode* Node, QList<AttachmentInfo>& AttachmentList)
+void DzBridgeAction::DisconnectNode(DzNode* Node, QList<AttachmentInfo>& AttachmentList)
 {
 	AttachmentInfo ParentAttachment;
 	if (Node->getNodeParent())
@@ -798,7 +800,7 @@ void DzRuntimePluginAction::DisconnectNode(DzNode* Node, QList<AttachmentInfo>& 
 	}
 }
 
-void DzRuntimePluginAction::ReconnectNodes(QList<AttachmentInfo>& AttachmentList)
+void DzBridgeAction::ReconnectNodes(QList<AttachmentInfo>& AttachmentList)
 {
 	foreach(AttachmentInfo Attachment, AttachmentList)
 	{
@@ -807,7 +809,7 @@ void DzRuntimePluginAction::ReconnectNodes(QList<AttachmentInfo>& AttachmentList
 }
 
 
-void DzRuntimePluginAction::ExportNode(DzNode* Node)
+void DzBridgeAction::ExportNode(DzNode* Node)
 {
 	dzScene->selectAllNodes(false);
 	 dzScene->setPrimarySelection(Node);
@@ -906,7 +908,7 @@ void DzRuntimePluginAction::ExportNode(DzNode* Node)
 }
 
 // If there are duplicate material names, save off the original and rename one
-void DzRuntimePluginAction::RenameDuplicateMaterials(DzNode* Node, QList<QString>& MaterialNames, QMap<DzMaterial*, QString>& OriginalMaterialNames)
+void DzBridgeAction::RenameDuplicateMaterials(DzNode* Node, QList<QString>& MaterialNames, QMap<DzMaterial*, QString>& OriginalMaterialNames)
 {
 	 DzObject* Object = Node->getObject();
 	 DzShape* Shape = Object ? Object->getCurrentShape() : NULL;
@@ -936,7 +938,7 @@ void DzRuntimePluginAction::RenameDuplicateMaterials(DzNode* Node, QList<QString
 }
 
 // Restore the original material names
-void DzRuntimePluginAction::UndoRenameDuplicateMaterials(DzNode* Node, QList<QString>& MaterialNames, QMap<DzMaterial*, QString>& OriginalMaterialNames)
+void DzBridgeAction::UndoRenameDuplicateMaterials(DzNode* Node, QList<QString>& MaterialNames, QMap<DzMaterial*, QString>& OriginalMaterialNames)
 {
 	 QMap<DzMaterial*, QString>::iterator iter;
 	 for (iter = OriginalMaterialNames.begin(); iter != OriginalMaterialNames.end(); ++iter)
@@ -945,7 +947,7 @@ void DzRuntimePluginAction::UndoRenameDuplicateMaterials(DzNode* Node, QList<QSt
 	 }
 }
 
-void DzRuntimePluginAction::GetScenePropList(DzNode* Node, QMap<QString, DzNode*>& Types)
+void DzBridgeAction::GetScenePropList(DzNode* Node, QMap<QString, DzNode*>& Types)
 {
 	DzObject* Object = Node->getObject();
 	DzShape* Shape = Object ? Object->getCurrentShape() : NULL;
@@ -988,7 +990,7 @@ void DzRuntimePluginAction::GetScenePropList(DzNode* Node, QMap<QString, DzNode*
 	}
 }
 
-QList<QString> DzRuntimePluginAction::DisconnectOverrideControllers()
+QList<QString> DzBridgeAction::DisconnectOverrideControllers()
 {
 	QList<QString> ModifiedList;
 	DzNode* Selection = dzScene->getPrimarySelection();
@@ -1044,7 +1046,7 @@ QList<QString> DzRuntimePluginAction::DisconnectOverrideControllers()
 	return ModifiedList;
 }
 
-void DzRuntimePluginAction::ReconnectOverrideControllers(QList<QString>& DisconnetedControllers)
+void DzBridgeAction::ReconnectOverrideControllers(QList<QString>& DisconnetedControllers)
 {
 	DzNode* Selection = dzScene->getPrimarySelection();
 	int poseIndex = 0;
@@ -1095,7 +1097,7 @@ void DzRuntimePluginAction::ReconnectOverrideControllers(QList<QString>& Disconn
 	}
 }
 
-bool DzRuntimePluginAction::CheckIfPoseExportIsDestructive()
+bool DzBridgeAction::CheckIfPoseExportIsDestructive()
 {
 	DzNode* Selection = dzScene->getPrimarySelection();
 	int poseIndex = 0;
@@ -1148,7 +1150,7 @@ bool DzRuntimePluginAction::CheckIfPoseExportIsDestructive()
 	return false;
 }
 
-void DzRuntimePluginAction::UnlockTranform(DzNode* NodeToUnlock)
+void DzBridgeAction::UnlockTranform(DzNode* NodeToUnlock)
 {
 	DzFloatProperty* Property = nullptr;
 	Property = NodeToUnlock->getXPosControl();
@@ -1173,7 +1175,7 @@ void DzRuntimePluginAction::UnlockTranform(DzNode* NodeToUnlock)
 	Property->lock(false);
 }
 
-bool DzRuntimePluginAction::isTemporaryFile(QString sFilename)
+bool DzBridgeAction::isTemporaryFile(QString sFilename)
 {
 	QString cleanedFilename = sFilename.toLower().replace("\\", "/");
 	QString cleanedTempPath = dzApp->getTempPath().toLower().replace("\\", "/");
@@ -1186,7 +1188,7 @@ bool DzRuntimePluginAction::isTemporaryFile(QString sFilename)
 	return false;
 }
 
-QString DzRuntimePluginAction::exportAssetWithDTU(QString sFilename, QString sAssetMaterialName)
+QString DzBridgeAction::exportAssetWithDTU(QString sFilename, QString sAssetMaterialName)
 {
 	if (sFilename.isEmpty())
 		return sFilename;
@@ -1224,7 +1226,7 @@ QString DzRuntimePluginAction::exportAssetWithDTU(QString sFilename, QString sAs
 
 }
 
-QString DzRuntimePluginAction::makeUniqueFilename(QString sFilename)
+QString DzBridgeAction::makeUniqueFilename(QString sFilename)
 {
 	if (QFileInfo(sFilename).exists() != true)
 		return sFilename;
@@ -1244,7 +1246,7 @@ QString DzRuntimePluginAction::makeUniqueFilename(QString sFilename)
 
 }
 
-void DzRuntimePluginAction::writeJSON_Property_Texture(DzJsonWriter& Writer, QString sName, QString sValue, QString sType, QString sTexture)
+void DzBridgeAction::writeJSON_Property_Texture(DzJsonWriter& Writer, QString sName, QString sValue, QString sType, QString sTexture)
 {
 	Writer.startObject(true);
 	Writer.addMember("Name", sName);
@@ -1255,7 +1257,7 @@ void DzRuntimePluginAction::writeJSON_Property_Texture(DzJsonWriter& Writer, QSt
 
 }
 
-void DzRuntimePluginAction::writeJSON_Property_Texture(DzJsonWriter& Writer, QString sName, double dValue, QString sType, QString sTexture)
+void DzBridgeAction::writeJSON_Property_Texture(DzJsonWriter& Writer, QString sName, double dValue, QString sType, QString sTexture)
 {
 	Writer.startObject(true);
 	Writer.addMember("Name", sName);
@@ -1266,7 +1268,7 @@ void DzRuntimePluginAction::writeJSON_Property_Texture(DzJsonWriter& Writer, QSt
 
 }
 
-void DzRuntimePluginAction::writeDTUHeader(DzJsonWriter& writer)
+void DzBridgeAction::writeDTUHeader(DzJsonWriter& writer)
 {
 	writer.addMember("DTU Version", 3);
 	writer.addMember("Asset Name", CharacterName);
@@ -1286,7 +1288,7 @@ void DzRuntimePluginAction::writeDTUHeader(DzJsonWriter& writer)
 }
 
 // Write out all the surface properties
-void DzRuntimePluginAction::writeAllMaterials(DzNode* Node, DzJsonWriter& Writer, QTextStream* pCVSStream, bool bRecursive)
+void DzBridgeAction::writeAllMaterials(DzNode* Node, DzJsonWriter& Writer, QTextStream* pCVSStream, bool bRecursive)
 {
 	if (!bRecursive)
 		Writer.startMemberArray("Materials", true);
@@ -1323,7 +1325,7 @@ void DzRuntimePluginAction::writeAllMaterials(DzNode* Node, DzJsonWriter& Writer
 		Writer.finishArray();
 }
 
-void DzRuntimePluginAction::startMaterialBlock(DzNode* Node, DzJsonWriter& Writer, QTextStream* pCVSStream, DzMaterial* Material)
+void DzBridgeAction::startMaterialBlock(DzNode* Node, DzJsonWriter& Writer, QTextStream* pCVSStream, DzMaterial* Material)
 {
 	Writer.startObject(true);
 	Writer.addMember("Version", 3);
@@ -1361,7 +1363,7 @@ void DzRuntimePluginAction::startMaterialBlock(DzNode* Node, DzJsonWriter& Write
 	}
 }
 
-void DzRuntimePluginAction::finishMaterialBlock(DzJsonWriter& Writer)
+void DzBridgeAction::finishMaterialBlock(DzJsonWriter& Writer)
 {
 	// replace with Section Stack
 	Writer.finishArray();
@@ -1369,7 +1371,7 @@ void DzRuntimePluginAction::finishMaterialBlock(DzJsonWriter& Writer)
 
 }
 
-void DzRuntimePluginAction::writeMaterialProperty(DzNode* Node, DzJsonWriter& Writer, QTextStream* pCVSStream, DzMaterial* Material, DzProperty* Property)
+void DzBridgeAction::writeMaterialProperty(DzNode* Node, DzJsonWriter& Writer, QTextStream* pCVSStream, DzMaterial* Material, DzProperty* Property)
 {
 	QString Name = Property->getName();
 	QString TextureName = "";
@@ -1452,7 +1454,7 @@ void DzRuntimePluginAction::writeMaterialProperty(DzNode* Node, DzJsonWriter& Wr
 
 }
 
-void DzRuntimePluginAction::writeAllMorphs(DzJsonWriter& writer)
+void DzBridgeAction::writeAllMorphs(DzJsonWriter& writer)
 {
 	writer.startMemberArray("Morphs", true);
 	if (ExportMorphs)
@@ -1480,7 +1482,7 @@ void DzRuntimePluginAction::writeAllMorphs(DzJsonWriter& writer)
 
 }
 
-void DzRuntimePluginAction::writeMorphProperties(DzJsonWriter& writer, const QString& key, const QString& value)
+void DzBridgeAction::writeMorphProperties(DzJsonWriter& writer, const QString& key, const QString& value)
 {
 	writer.startObject(true);
 	writer.addMember("Name", key);
@@ -1488,7 +1490,7 @@ void DzRuntimePluginAction::writeMorphProperties(DzJsonWriter& writer, const QSt
 	writer.finishObject();
 }
 
-void DzRuntimePluginAction::writeMorphJointLinkInfo(DzJsonWriter& writer, const JointLinkInfo& linkInfo)
+void DzBridgeAction::writeMorphJointLinkInfo(DzJsonWriter& writer, const JointLinkInfo& linkInfo)
 {
 	writer.startObject(true);
 	writer.addMember("Bone", linkInfo.Bone);
@@ -1511,7 +1513,7 @@ void DzRuntimePluginAction::writeMorphJointLinkInfo(DzJsonWriter& writer, const 
 	writer.finishObject();
 }
 
-void DzRuntimePluginAction::writeAllSubdivisions(DzJsonWriter& writer)
+void DzBridgeAction::writeAllSubdivisions(DzJsonWriter& writer)
 {
 	writer.startMemberArray("Subdivisions", true);
 	if (ExportSubdivisions)
@@ -1534,7 +1536,7 @@ void DzRuntimePluginAction::writeAllSubdivisions(DzJsonWriter& writer)
 
 }
 
-void DzRuntimePluginAction::writeSubdivisionProperties(DzJsonWriter& writer, const QString& Name, int targetValue)
+void DzBridgeAction::writeSubdivisionProperties(DzJsonWriter& writer, const QString& Name, int targetValue)
 {
 	writer.startObject(true);
 	writer.addMember("Version", 1);
@@ -1543,7 +1545,7 @@ void DzRuntimePluginAction::writeSubdivisionProperties(DzJsonWriter& writer, con
 	writer.finishObject();
 }
 
-void DzRuntimePluginAction::writeAllDForceInfo(DzNode* Node, DzJsonWriter& Writer, QTextStream* pCVSStream, bool bRecursive)
+void DzBridgeAction::writeAllDForceInfo(DzNode* Node, DzJsonWriter& Writer, QTextStream* pCVSStream, bool bRecursive)
 {
 	if (!bRecursive)
 		Writer.startMemberArray("dForce", true);
@@ -1631,7 +1633,7 @@ void DzRuntimePluginAction::writeAllDForceInfo(DzNode* Node, DzJsonWriter& Write
 	}
 }
 
-void DzRuntimePluginAction::writeDforceModifiers(const QList<DzModifier*>& dforceModifierList, DzJsonWriter& Writer, DzShape* Shape)
+void DzBridgeAction::writeDforceModifiers(const QList<DzModifier*>& dforceModifierList, DzJsonWriter& Writer, DzShape* Shape)
 {
 	Writer.startMemberArray("DForce-Modifiers", true);
 
@@ -1649,7 +1651,7 @@ void DzRuntimePluginAction::writeDforceModifiers(const QList<DzModifier*>& dforc
 	Writer.finishArray();
 }
 
-void DzRuntimePluginAction::writeDforceMaterialProperties(DzJsonWriter& Writer, DzMaterial* Material, DzShape* Shape)
+void DzBridgeAction::writeDforceMaterialProperties(DzJsonWriter& Writer, DzMaterial* Material, DzShape* Shape)
 {
 	Writer.startMemberArray("Properties", true);
 
@@ -1699,7 +1701,7 @@ void DzRuntimePluginAction::writeDforceMaterialProperties(DzJsonWriter& Writer, 
 	Writer.finishArray();
 }
 
-void DzRuntimePluginAction::writeAllPoses(DzJsonWriter& writer)
+void DzBridgeAction::writeAllPoses(DzJsonWriter& writer)
 {
 	writer.startMemberArray("Poses", true);
 	for (QList<QString>::iterator i = PoseList.begin(); i != PoseList.end(); ++i)
@@ -1712,7 +1714,7 @@ void DzRuntimePluginAction::writeAllPoses(DzJsonWriter& writer)
 	writer.finishArray();
 }
 
-void DzRuntimePluginAction::writeEnvironment(DzJsonWriter& writer)
+void DzBridgeAction::writeEnvironment(DzJsonWriter& writer)
 {
 	writer.startMemberArray("Instances", true);
 	QMap<QString, DzMatrix3> WritingInstances;
@@ -1721,7 +1723,7 @@ void DzRuntimePluginAction::writeEnvironment(DzJsonWriter& writer)
 	writer.finishArray();
 }
 
-void DzRuntimePluginAction::writeInstances(DzNode* Node, DzJsonWriter& Writer, QMap<QString, DzMatrix3>& WritenInstances, QList<DzGeometry*>& ExportedGeometry, QUuid ParentID)
+void DzBridgeAction::writeInstances(DzNode* Node, DzJsonWriter& Writer, QMap<QString, DzMatrix3>& WritenInstances, QList<DzGeometry*>& ExportedGeometry, QUuid ParentID)
 {
 	DzObject* Object = Node->getObject();
 	DzShape* Shape = Object ? Object->getCurrentShape() : NULL;
@@ -1741,7 +1743,7 @@ void DzRuntimePluginAction::writeInstances(DzNode* Node, DzJsonWriter& Writer, Q
 	}
 }
 
-QUuid DzRuntimePluginAction::writeInstance(DzNode* Node, DzJsonWriter& Writer, QUuid ParentID)
+QUuid DzBridgeAction::writeInstance(DzNode* Node, DzJsonWriter& Writer, QUuid ParentID)
 {
 	QString Path = Node->getAssetFileInfo().getUri().getFilePath();
 	QFile File(Path);
@@ -1779,7 +1781,7 @@ QUuid DzRuntimePluginAction::writeInstance(DzNode* Node, DzJsonWriter& Writer, Q
 	return Uid;
 }
 
-void DzRuntimePluginAction::readGUI(DzBridgeDialog* BridgeDialog)
+void DzBridgeAction::readGUI(DzBridgeDialog* BridgeDialog)
 {
 
 	// Collect the values from the dialog fields
@@ -1813,7 +1815,7 @@ void DzRuntimePluginAction::readGUI(DzBridgeDialog* BridgeDialog)
 // ------------------------------------------------
 // PixelIntensity
 // ------------------------------------------------
-double DzRuntimePluginAction::getPixelIntensity(const  QRgb& pixel)
+double DzBridgeAction::getPixelIntensity(const  QRgb& pixel)
 {
 	const double r = double(qRed(pixel));
 	const double g = double(qGreen(pixel));
@@ -1825,7 +1827,7 @@ double DzRuntimePluginAction::getPixelIntensity(const  QRgb& pixel)
 // ------------------------------------------------
 // MapComponent
 // ------------------------------------------------
-uint8_t DzRuntimePluginAction::getNormalMapComponent(double pX)
+uint8_t DzBridgeAction::getNormalMapComponent(double pX)
 {
 	return (pX + 1.0) * (255.0 / 2.0);
 }
@@ -1833,7 +1835,7 @@ uint8_t DzRuntimePluginAction::getNormalMapComponent(double pX)
 // ------------------------------------------------
 // intclamp
 // ------------------------------------------------
-int DzRuntimePluginAction::getIntClamp(int x, int low, int high)
+int DzBridgeAction::getIntClamp(int x, int low, int high)
 {
 	if (x < low) { return low; }
 	else if (x > high) { return high; }
@@ -1843,7 +1845,7 @@ int DzRuntimePluginAction::getIntClamp(int x, int low, int high)
 // ------------------------------------------------
 // map_component
 // ------------------------------------------------
-QRgb DzRuntimePluginAction::getSafePixel(const QImage& img, int x, int y)
+QRgb DzBridgeAction::getSafePixel(const QImage& img, int x, int y)
 {
 	int ix = this->getIntClamp(x, 0, img.size().width() - 1);
 	int iy = this->getIntClamp(y, 0, img.size().height() - 1);
@@ -1853,7 +1855,7 @@ QRgb DzRuntimePluginAction::getSafePixel(const QImage& img, int x, int y)
 // ------------------------------------------------
 // makeNormalMapFromBumpMap
 // ------------------------------------------------
-QImage DzRuntimePluginAction::makeNormalMapFromHeightMap(QString heightMapFilename, double normalStrength)
+QImage DzBridgeAction::makeNormalMapFromHeightMap(QString heightMapFilename, double normalStrength)
 {
 	// load qimage
 	QImage image;
@@ -1939,7 +1941,7 @@ QImage DzRuntimePluginAction::makeNormalMapFromHeightMap(QString heightMapFilena
 	return result;
 }
 
-QStringList DzRuntimePluginAction::getAvailableMorphs(DzNode* Node)
+QStringList DzBridgeAction::getAvailableMorphs(DzNode* Node)
 {
 	QStringList newMorphList;
 
@@ -1986,7 +1988,7 @@ QStringList DzRuntimePluginAction::getAvailableMorphs(DzNode* Node)
 	return newMorphList;
 }
 
-QStringList DzRuntimePluginAction::getActiveMorphs(DzNode* Node)
+QStringList DzBridgeAction::getActiveMorphs(DzNode* Node)
 {
 	QStringList newMorphList;
 
@@ -2041,7 +2043,30 @@ QStringList DzRuntimePluginAction::getActiveMorphs(DzNode* Node)
 	return newMorphList;
 }
 
-bool DzRuntimePluginAction::setSubdivisionDialog(DzBasicDialog* arg_dlg)
+bool DzBridgeAction::setBridgeDialog(DzBasicDialog* arg_dlg)
+{
+	m_bridgeDialog = qobject_cast<DzBridgeDialog*>(arg_dlg);
+
+	if (m_bridgeDialog == nullptr)
+	{
+		if (arg_dlg == nullptr)
+			return true;
+
+		if (arg_dlg->inherits("DzBridgeDialog"))
+		{
+			m_bridgeDialog = (DzBridgeDialog*)arg_dlg;
+			// WARNING
+			printf("WARNING: DzBridge version mismatch detected! Crashes may occur.");
+		}
+
+		// return false to signal version mismatch
+		return false;
+	}
+
+	return true;
+}
+
+bool DzBridgeAction::setSubdivisionDialog(DzBasicDialog* arg_dlg)
 { 
 	m_subdivisionDialog = qobject_cast<DzBridgeSubdivisionDialog*>(arg_dlg);
 
@@ -2064,7 +2089,7 @@ bool DzRuntimePluginAction::setSubdivisionDialog(DzBasicDialog* arg_dlg)
 	return true;
 }
 
-bool DzRuntimePluginAction::setMorphSelectionDialog(DzBasicDialog* arg_dlg)
+bool DzBridgeAction::setMorphSelectionDialog(DzBasicDialog* arg_dlg)
 { 
 	m_morphSelectionDialog = qobject_cast<DzBridgeMorphSelectionDialog*>(arg_dlg); 
 
@@ -2091,7 +2116,7 @@ bool DzRuntimePluginAction::setMorphSelectionDialog(DzBasicDialog* arg_dlg)
 // START: DFORCE WEIGHTMAPS
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Write weightmaps - recursively traverse parent/children, and export all associated weightmaps
-void DzRuntimePluginAction::WriteWeightMaps(DzNode* Node, DzJsonWriter& Writer)
+void DzBridgeAction::WriteWeightMaps(DzNode* Node, DzJsonWriter& Writer)
 {
 	DzObject* Object = Node->getObject();
 	DzShape* Shape = Object ? Object->getCurrentShape() : NULL;
@@ -2278,7 +2303,7 @@ void DzRuntimePluginAction::WriteWeightMaps(DzNode* Node, DzJsonWriter& Writer)
 }
 
 // OLD Method for obtaining weightmap, relying on dForce Weight Modifier Node
-DzWeightMapPtr DzRuntimePluginAction::getWeightMapPtr(DzNode* Node)
+DzWeightMapPtr DzBridgeAction::getWeightMapPtr(DzNode* Node)
 {
 	// 1. check if weightmap modifier present
 	DzNodeListIterator Iterator = Node->nodeChildrenIterator();
@@ -2319,7 +2344,7 @@ DzWeightMapPtr DzRuntimePluginAction::getWeightMapPtr(DzNode* Node)
 
 }
 
-bool DzRuntimePluginAction::metaInvokeMethod(QObject* object, const char* methodSig, void** returnPtr)
+bool DzBridgeAction::metaInvokeMethod(QObject* object, const char* methodSig, void** returnPtr)
 {
 	if (object == NULL)
 	{
@@ -2403,7 +2428,7 @@ bool DzRuntimePluginAction::metaInvokeMethod(QObject* object, const char* method
 #include "OpenSubdivInterface.h"
 
 
-bool DzRuntimePluginAction::upgradeToHD(QString baseFilePath, QString hdFilePath, QString outFilePath, std::map<std::string, int>* pLookupTable)
+bool DzBridgeAction::upgradeToHD(QString baseFilePath, QString hdFilePath, QString outFilePath, std::map<std::string, int>* pLookupTable)
 {
 	OpenFBXInterface* openFBX = OpenFBXInterface::GetInterface();
 	FbxScene* baseMeshScene = openFBX->CreateScene("Base Mesh Scene");
@@ -2442,7 +2467,7 @@ bool DzRuntimePluginAction::upgradeToHD(QString baseFilePath, QString hdFilePath
 // END: SUBDIVISION
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-QString DzRuntimePluginAction::GetMD5(const QString& path)
+QString DzBridgeAction::GetMD5(const QString& path)
 {
 	auto algo = QCryptographicHash::Md5;
 	QFile sourceFile(path);
@@ -2469,7 +2494,7 @@ QString DzRuntimePluginAction::GetMD5(const QString& path)
 	return QString();
 }
 
-bool DzRuntimePluginAction::CopyFile(QFile* file, QString* dst, bool replace, bool compareFiles)
+bool DzBridgeAction::CopyFile(QFile* file, QString* dst, bool replace, bool compareFiles)
 {
 	bool dstExists = QFile::exists(*dst);
 
@@ -2507,4 +2532,4 @@ bool DzRuntimePluginAction::CopyFile(QFile* file, QString* dst, bool replace, bo
 }
 
 
-#include "moc_DzRuntimePluginAction.cpp"
+#include "moc_DzBridgeAction.cpp"

@@ -23,7 +23,7 @@
 #include "dzaction.h"
 #include "dzskeleton.h"
 
-#include "DzRuntimePluginAction.h"
+#include "DzBridgeAction.h"
 #include "DzBridgeDialog.h"
 #include "DzBridgeMorphSelectionDialog.h"
 #include "DzBridgeSubdivisionDialog.h"
