@@ -28,13 +28,19 @@ class DzBridgeSubdivisionDialog;
 class DzBridgeMorphSelectionDialog;
 class DzBridgeDialog;
 
-// Struct to remember attachment info
-struct AttachmentInfo
-{
-	DzNode* Parent;
-	DzNode* Child;
-};
-
+/// <summary>
+/// Abstract base class that manages exporting of assets to Target Software via FBX/DTU
+/// intermediate files.  Manages destination filepaths, morphs, subdivisions, animations, etc.
+/// 
+/// Usage: 
+/// Subclass and implement executeAction() to open m_bridgeDialog. Implement readGUIRootFolder()
+/// to read and return any custom UI widget containing destination root folder. Implement
+/// WriteConfiguration() to manage DTU file generation.  Implement SetExportOptions() to override
+/// FBX generation options.  
+/// 
+/// See also: 
+/// DzBridgeScriptableAction.h for Daz Script usage.
+/// </summary>
 class DLLExport DzBridgeAction : public DzAction {
 	Q_OBJECT
 	Q_PROPERTY(int nNonInteractiveMode READ getNonInteractiveMode WRITE setNonInteractiveMode)
@@ -74,6 +80,13 @@ public slots:
 	bool undoGenerateMissingNormalMaps();
 
 protected:
+	// Struct to remember attachment info
+	struct AttachmentInfo
+	{
+		DzNode* Parent;
+		DzNode* Child;
+	};
+
 	DzBridgeDialog* m_bridgeDialog;
 	DzBridgeSubdivisionDialog* m_subdivisionDialog;
 	DzBridgeMorphSelectionDialog* m_morphSelectionDialog;

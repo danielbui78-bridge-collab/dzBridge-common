@@ -52,6 +52,10 @@
 #include "DzBridgeSubdivisionDialog.h"
 #include "DzBridgeMorphSelectionDialog.h"
 
+
+/// <summary>
+/// Initializes general export data and settings.
+/// </summary>
 DzBridgeAction::DzBridgeAction(const QString& text, const QString& desc) :
 	 DzAction(text, desc)
 {
@@ -73,6 +77,9 @@ DzBridgeAction::~DzBridgeAction()
 {
 }
 
+/// <summary>
+/// Resets export settings to default values.
+/// </summary>
 void DzBridgeAction::resetToDefaults()
 {
 	ExportMorphs = false;
@@ -120,17 +127,17 @@ void DzBridgeAction::resetToDefaults()
 	m_undoTable_GenerateMissingNormalMap.clear();
 	m_sExportFbx = "";
 
-	// TODO: 
-	// - clear MorphDialog (if exists)
-	// - clear Subdivision Dialog (if exists)
-	// - implement target-software specific settings in subclasses
-	/*
-	Q_PROPERTY(QString ExportFolder READ getExportFolder WRITE setExportFolder)
-	Q_PROPERTY(QString RootFolder READ getRootFolder WRITE setRootFolder)
-	*/
-
 }
 
+/// <summary>
+/// Performs multiple pre-processing procedures prior to exporting FBX and generating DTU.
+/// 
+/// Usage: Usually called from executeAction() prior to calling Export() or ExportHD().
+/// See Also: undoPreProcessScene()
+/// </summary>
+/// <param name="parentNode">The "root" node from which to start processing of all 
+/// children.  If null, then scene primary selection is used.</param>
+/// <returns>true if procedure was successful</returns>
 bool DzBridgeAction::preProcessScene(DzNode* parentNode)
 {
 	DzProgress preProcessProgress = DzProgress("Daz Bridge Pre-Processing...", 0, false, true);
@@ -195,8 +202,22 @@ bool DzBridgeAction::preProcessScene(DzNode* parentNode)
 	return true;
 }
 
+/// <summary>
+/// Generate Normal Map texture for for use in Target Software that doesn't support HeightMap.
+/// Called by preProcessScene() for each exported material. Checks material for existing
+/// HeightMap texture but missing NormalMap texture before generating NormalMap. Exports HeightMap 
+/// strength to NormalMap strength in DTU file.
+/// 
+/// Note: Must call undoGenerateMissingNormalMaps() to undo insertion of NormalMaps into materials.
+/// 
+/// See Also: makeNormalMapFromHeightMap(), m_undoTable_GenerateMissingNormalMap,
+/// preProcessScene(), undoPreProcessScene().
+/// </summary>
+/// <returns>true if normalmap was generated</returns>
 bool DzBridgeAction::generateMissingNormalMap(DzMaterial* material)
 {
+	bool bNormalMapWasGenerated = false;
+
 	// Check if normal map missing
 	if (isNormalMapMissing(material))
 	{
@@ -258,7 +279,9 @@ bool DzBridgeAction::generateMissingNormalMap(DzMaterial* material)
 					QString normalMapSavePath = dzApp->getTempPath() + "/" + normalMapFilename;
 					QFileInfo normalMapInfo = QFileInfo(normalMapSavePath);
 
-					// Generate Temp Normal Map if does not exist
+					// Generate Temp Normal Map if does not already exist.
+					// If it does exist then assume it was generated for previous material
+					// and re-use it for this material.
 					if (!normalMapInfo.exists())
 					{
 						QImage normalMap = makeNormalMapFromHeightMap(heightMapFilename, bakeStrength);
@@ -286,14 +309,21 @@ bool DzBridgeAction::generateMissingNormalMap(DzMaterial* material)
 						// Add to Undo Table
 						m_undoTable_GenerateMissingNormalMap.insert(material, normalMapProp);
 					}
+
+					bNormalMapWasGenerated = true;
 				}
 			}
 		}
 	}
 
-	return true;
+	return bNormalMapWasGenerated;
 }
 
+/// <summary>
+/// Revert changes to materials made by GenerateMissingNormalMaps().
+/// Called by undoPreProcessScene() after Export() or exportHD().
+/// </summary>
+/// <returns>true if the undo process completed successfully.</returns>
 bool DzBridgeAction::undoGenerateMissingNormalMaps()
 {
 	QMap<DzMaterial*, DzProperty*>::iterator iter;
@@ -317,6 +347,12 @@ bool DzBridgeAction::undoGenerateMissingNormalMaps()
 	return true;
 }
 
+/// <summary>
+/// Retrieve HeightMap Strength from material's "bump strength" property.
+/// Called by generateMissingNormalMap().
+/// </summary>
+/// <returns>value of heightmap strength if it exists,
+/// or 0.0 if it does not exist</returns>
 double DzBridgeAction::getHeightMapStrength(DzMaterial* material)
 {
 	QString propertyName = "bump strength";
@@ -343,6 +379,9 @@ double DzBridgeAction::getHeightMapStrength(DzMaterial* material)
 
 }
 
+
+/// <returns>filename stored in material's "bump strength" property if it exists,
+/// QString("") if it does not.</returns>
 QString DzBridgeAction::getHeightMapFilename(DzMaterial* material)
 {
 	QString propertyName = "bump strength";
@@ -386,7 +425,7 @@ QString DzBridgeAction::getHeightMapFilename(DzMaterial* material)
 	return "";
 }
 
-// Only returns true if "Normal Map" property exists, but is not set to a filename
+/// <returns>true if "normal map" property exists AND property does not have filename set</returns>
 bool DzBridgeAction::isNormalMapMissing(DzMaterial* material)
 {
 	QString propertyName = "normal map";
@@ -459,6 +498,7 @@ bool DzBridgeAction::isNormalMapMissing(DzMaterial* material)
 	return false;
 }
 
+/// <returns>true if material has a "bump strength" property</returns>
 bool DzBridgeAction::isHeightMapPresent(DzMaterial* material)
 {
 	QString propertyName = "bump strength";
@@ -472,6 +512,10 @@ bool DzBridgeAction::isHeightMapPresent(DzMaterial* material)
 	return false;
 }
 
+/// <summary>
+/// Undo changes performed by preProcessScene().
+/// </summary>
+/// <returns>true if all undo procedures are successful</returns>
 bool DzBridgeAction::undoPreProcessScene()
 {
 	bool bResult = true;
@@ -490,6 +534,12 @@ bool DzBridgeAction::undoPreProcessScene()
 	return bResult;
 }
 
+/// <summary>
+/// Rename material if its name is already used by existing material(s) to
+/// prevent collisions in Target Software. Called by preProcessScene().
+/// See also: undoRenameMaterialDuplicateMaterials().
+/// </summary>
+/// <returns>true if successful</returns>
 bool DzBridgeAction::renameDuplicateMaterial(DzMaterial *material, QList<QString>* existingMaterialNameList)
 {
 	int nameIndex = 0;
@@ -509,6 +559,10 @@ bool DzBridgeAction::renameDuplicateMaterial(DzMaterial *material, QList<QString
 	return true;
 }
 
+/// <summary>
+/// Undo any materials modified by renameDuplicaetMaterials().
+/// </summary>
+/// <returns>true if successful</returns>
 bool DzBridgeAction::undoRenameDuplicateMaterials()
 {
 	QMap<DzMaterial*, QString>::iterator iter;
@@ -522,35 +576,73 @@ bool DzBridgeAction::undoRenameDuplicateMaterials()
 
 }
 
+/// <summary>
+/// Convenience method to export base mesh and HD mesh as needed.
+/// Performs weightmap fix on subdivided mesh.
+/// See also: upgradeToHD(), Export().
+/// </summary>
+/// <param name="exportProgress">if null, exportHD will handle UI progress updates</param>
 void DzBridgeAction::exportHD(DzProgress* exportProgress)
 {
 	bool bLocalDzProgress = false;
 	if (!exportProgress)
 	{
 		bLocalDzProgress = true;
-		exportProgress = new DzProgress("DazBridge: Exporting FBX/DTU", 4);
+		exportProgress = new DzProgress(tr("DazBridge: Exporting FBX/DTU"), 8, false, true);
+		exportProgress->setCloseOnFinish(true);
+		exportProgress->enable(true);
 		exportProgress->step();
+		QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
 	}
 
 	if (ExportSubdivisions)
 	{
+		if (exportProgress)
+		{
+			exportProgress->setInfo(tr("Exporting Base Mesh..."));
+			exportProgress->step();
+			QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
+		}
 		m_subdivisionDialog->LockSubdivisionProperties(false);
 		ExportBaseMesh = true;
 		Export();
 		m_subdivisionDialog->UnlockSubdivisionProperties();
 		if (exportProgress)
+		{
+			exportProgress->setInfo(tr("Base mesh exported."));
 			exportProgress->step();
+			QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
+		}
 
 	}
 
+	if (exportProgress)
+	{
+		exportProgress->step();
+		if (ExportSubdivisions)
+			exportProgress->setInfo(tr("Exporting HD Mesh..."));
+		else
+			exportProgress->setInfo(tr("Exporting Mesh..."));
+		QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
+	}
 	m_subdivisionDialog->LockSubdivisionProperties(ExportSubdivisions);
 	ExportBaseMesh = false;
 	Export();
 	if (exportProgress)
+	{
 		exportProgress->step();
+		exportProgress->setInfo(tr("Mesh exported."));
+	}
 
 	if (ExportSubdivisions)
 	{
+		if (exportProgress)
+		{
+			exportProgress->step();
+			exportProgress->setInfo(tr("Fixing weightmaps on HD Mesh..."));
+			QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
+		}
+
 		std::map<std::string, int>* pLookupTable = m_subdivisionDialog->GetLookupTable();
 		QString BaseCharacterFBX = DestinationPath + CharacterName + "_base.fbx";
 		// DB 2021-10-02: Upgrade HD
@@ -570,12 +662,22 @@ void DzBridgeAction::exportHD(DzProgress* exportProgress)
 		}
 		delete(pLookupTable);
 		if (exportProgress)
+		{
 			exportProgress->step();
+			exportProgress->setInfo(tr("HD weightmaps fixed."));
+			QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
+		}
 
 	}
 
 	// DB 2021-09-02: Unlock and Undo subdivision changes
 	m_subdivisionDialog->UnlockSubdivisionProperties();
+	if (exportProgress)
+	{
+		exportProgress->step();
+		exportProgress->setInfo(tr("Mesh export complete."));
+		QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
+	}
 
 	if (bLocalDzProgress)
 	{
