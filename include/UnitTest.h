@@ -15,9 +15,24 @@
 	#define DLLExport
 #endif
 
-#define RUNTEST(unittest_method) \
+#define RUNTEST RUNTEST_0ARG
+
+#define RUNTEST_0ARG(unittest_method) \
 createTestResult(#unittest_method); \
 unittest_method();
+
+#define RUNTEST_1ARG(unittest_method) \
+UnitTest::TestResult *unittest_method_testResult = createTestResult(#unittest_method); \
+unittest_method(unittest_method_testResult);
+
+#define LOGTEST_TEXT(text) \
+logToTestResult(testResult, QString(text));
+
+#define LOGTEST_FAILED(text) \
+LOGTEST_TEXT(testResult->name + ": failed. " + text);
+
+#define LOGTEST_PASSED(text) \
+LOGTEST_TEXT(testResult->name + ": passed. " + text);
 
 class QStringList;
 
@@ -31,14 +46,15 @@ public:
 	Q_INVOKABLE bool convertTestResultsToHtml();
 
 protected:
-	class TestResult {
+	struct TestResult {
 		int id;
 		QString name;
 		QStringList* log;
 		bool result;
 	};
 
-	UnitTest::TestResult* createTestResult(QString name);
+	UnitTest::TestResult* createTestResult(QString methodName);
+	bool logToTestResult(UnitTest::TestResult *testResult, QString text);
 
 private:
 	QList<TestResult*> m_testResultList;

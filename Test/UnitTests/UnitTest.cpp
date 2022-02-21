@@ -1,6 +1,7 @@
 #ifdef UNITTEST_DZBRIDGE
 
 #include "UnitTest.h"
+#include <qstringlist.h>
 
 // UnitTest does not have any methods
 
@@ -21,9 +22,27 @@ bool UnitTest::convertTestResultsToHtml()
     return false;
 }
 
-UnitTest::TestResult* UnitTest::createTestResult(QString name)
+UnitTest::TestResult* UnitTest::createTestResult(QString methodName)
 {
-    return nullptr;
+    UnitTest::TestResult* test = new UnitTest::TestResult();
+    test->id = m_testResultList.count();
+    test->name = methodName;
+    test->log = new QStringList();
+    test->result = false;
+
+    m_testResultList.append(test);
+
+    return test;
+}
+
+bool UnitTest::logToTestResult(UnitTest::TestResult* testResult, QString text)
+{
+    if (!testResult || !testResult->log)
+        return false;
+
+    testResult->log->append(text);
+
+    return true;
 }
 
 

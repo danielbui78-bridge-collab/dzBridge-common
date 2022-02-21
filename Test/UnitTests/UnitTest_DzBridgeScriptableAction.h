@@ -16,7 +16,7 @@ public:
 private:
 	DzBridgeScriptableAction* m_testObject;
 
-	bool unitTest001_DzBridgeAction();
+	bool unitTest001_DzBridgeAction(UnitTest::TestResult* testResult);
 	bool unitTest002_resetToDefaults();
 	bool unitTest003_cleanString();
 	bool unitTest004_getAvailableMorphs();

@@ -26,7 +26,7 @@ bool UnitTest_DzBridgeScriptableAction::runUnitTests()
 		return false;
 	}
 
-	RUNTEST(unitTest001_DzBridgeAction);
+	RUNTEST_1ARG(unitTest001_DzBridgeAction);
 	RUNTEST(unitTest002_resetToDefaults);
 	RUNTEST(unitTest003_cleanString);
 	RUNTEST(unitTest004_getAvailableMorphs);
@@ -111,9 +111,21 @@ bool UnitTest_DzBridgeScriptableAction::runUnitTests()
 	return true;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest001_DzBridgeAction()
+bool UnitTest_DzBridgeScriptableAction::unitTest001_DzBridgeAction(UnitTest::TestResult *testResult)
 {
-	return false;
+	LOGTEST_TEXT("Testing unitTest001_DzBridgeAction");
+
+	DzBridgeAction *testObj = new DzBridgeScriptableAction();
+
+	if (!testObj)
+	{
+		LOGTEST_FAILED("");
+	}
+
+	LOGTEST_PASSED("");
+
+	printf(testResult->log->join("\n").toLocal8Bit().data() );
+	return true;
 }
 
 bool UnitTest_DzBridgeScriptableAction::unitTest002_resetToDefaults()
