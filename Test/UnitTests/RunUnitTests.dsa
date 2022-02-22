@@ -1,6 +1,8 @@
 // DAZ Studio version 4.16.0.3 filetype DAZ Script
 
-obj = new UnitTest_DzBridgeScriptableAction()
-result = false
-result = obj.runUnitTests()
-print("Unit Test Results: " + result)
+obj = new UnitTest_DzBridgeScriptableAction();
+result = false;
+result = obj.runUnitTests();
+print("Unit Test Results: " + result);
+obj.writeAllTestResults();
+

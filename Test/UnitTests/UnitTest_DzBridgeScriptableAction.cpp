@@ -9,8 +9,7 @@
 /// </summary>
 UnitTest_DzBridgeScriptableAction::UnitTest_DzBridgeScriptableAction()
 {
-	m_testObject = nullptr;
-
+	m_testObject = (QObject*) new DzBridgeScriptableAction();
 }
 
 /// <summary>
@@ -19,14 +18,12 @@ UnitTest_DzBridgeScriptableAction::UnitTest_DzBridgeScriptableAction()
 /// <returns></returns>
 bool UnitTest_DzBridgeScriptableAction::runUnitTests()
 {
-	m_testObject = new DzBridgeScriptableAction();
-
 	if (!m_testObject)
 	{
 		return false;
 	}
 
-	RUNTEST_1ARG(unitTest001_DzBridgeAction);
+	RUNTEST(unitTest001_DzBridgeAction);
 	RUNTEST(unitTest002_resetToDefaults);
 	RUNTEST(unitTest003_cleanString);
 	RUNTEST(unitTest004_getAvailableMorphs);
@@ -113,7 +110,7 @@ bool UnitTest_DzBridgeScriptableAction::runUnitTests()
 
 bool UnitTest_DzBridgeScriptableAction::unitTest001_DzBridgeAction(UnitTest::TestResult *testResult)
 {
-	LOGTEST_TEXT("Testing unitTest001_DzBridgeAction");
+	LOGTEST_TEXT("Testing [UnitTest001 DzBridgeAction]");
 
 	DzBridgeAction *testObj = new DzBridgeScriptableAction();
 
@@ -124,404 +121,409 @@ bool UnitTest_DzBridgeScriptableAction::unitTest001_DzBridgeAction(UnitTest::Tes
 
 	LOGTEST_PASSED("");
 
-	printf(testResult->log->join("\n").toLocal8Bit().data() );
+	QString debug = QString("");
+
+	debug = testResult->log->join("\n");
+	
 	return true;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest002_resetToDefaults()
+bool UnitTest_DzBridgeScriptableAction::unitTest002_resetToDefaults(UnitTest::TestResult* testResult)
 {
 	return false;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest003_cleanString()
+bool UnitTest_DzBridgeScriptableAction::unitTest003_cleanString(UnitTest::TestResult* testResult)
 {
 	return false;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest004_getAvailableMorphs()
+bool UnitTest_DzBridgeScriptableAction::unitTest004_getAvailableMorphs(UnitTest::TestResult* testResult)
 {
 	return false;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest005_getActiveMorphs()
+bool UnitTest_DzBridgeScriptableAction::unitTest005_getActiveMorphs(UnitTest::TestResult* testResult)
 {
 	return false;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest006_makeNormalMapFromHeightMap()
+bool UnitTest_DzBridgeScriptableAction::unitTest006_makeNormalMapFromHeightMap(UnitTest::TestResult* testResult)
 {
 	return false;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest007_preProcessScene()
+bool UnitTest_DzBridgeScriptableAction::unitTest007_preProcessScene(UnitTest::TestResult* testResult)
 {
 	return false;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest008_renameDuplicateMaterial()
+bool UnitTest_DzBridgeScriptableAction::unitTest008_renameDuplicateMaterial(UnitTest::TestResult* testResult)
 {
 	return false;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest009_undoRenameDuplicateMaterials()
+bool UnitTest_DzBridgeScriptableAction::unitTest009_undoRenameDuplicateMaterials(UnitTest::TestResult* testResult)
 {
 	return false;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest010_generateMissingNormalMap()
+bool UnitTest_DzBridgeScriptableAction::unitTest010_generateMissingNormalMap(UnitTest::TestResult* testResult)
 {
 	return false;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest011_undoGenerateMissingNormalMaps()
+bool UnitTest_DzBridgeScriptableAction::unitTest011_undoGenerateMissingNormalMaps(UnitTest::TestResult* testResult)
 {
 	return false;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest012_getActionGroup()
+bool UnitTest_DzBridgeScriptableAction::unitTest012_getActionGroup(UnitTest::TestResult* testResult)
 {
 	return false;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest013_getDefaultMenuPath()
+bool UnitTest_DzBridgeScriptableAction::unitTest013_getDefaultMenuPath(UnitTest::TestResult* testResult)
 {
 	return false;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest014_Export()
+bool UnitTest_DzBridgeScriptableAction::unitTest014_Export(UnitTest::TestResult* testResult)
 {
 	return false;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest015_ExportNode()
+bool UnitTest_DzBridgeScriptableAction::unitTest015_ExportNode(UnitTest::TestResult* testResult)
 {
 	return false;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest016_WriteConfiguration()
+bool UnitTest_DzBridgeScriptableAction::unitTest016_WriteConfiguration(UnitTest::TestResult* testResult)
 {
 	return false;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest017_SetExportOptions()
+bool UnitTest_DzBridgeScriptableAction::unitTest017_SetExportOptions(UnitTest::TestResult* testResult)
 {
 	return false;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest018_readGUIRootFolder()
+bool UnitTest_DzBridgeScriptableAction::unitTest018_readGUIRootFolder(UnitTest::TestResult* testResult)
 {
 	return false;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest019_writeDTUHeader()
+bool UnitTest_DzBridgeScriptableAction::unitTest019_writeDTUHeader(UnitTest::TestResult* testResult)
 {
 	return false;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest020_startMaterialBlock()
+bool UnitTest_DzBridgeScriptableAction::unitTest020_startMaterialBlock(UnitTest::TestResult* testResult)
 {
 	return false;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest021_finishMaterialBlock()
+bool UnitTest_DzBridgeScriptableAction::unitTest021_finishMaterialBlock(UnitTest::TestResult* testResult)
 {
 	return false;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest022_writeMaterialProperty()
+bool UnitTest_DzBridgeScriptableAction::unitTest022_writeMaterialProperty(UnitTest::TestResult* testResult)
 {
 	return false;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest023_writeAllMorphs()
+bool UnitTest_DzBridgeScriptableAction::unitTest023_writeAllMorphs(UnitTest::TestResult* testResult)
 {
 	return false;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest024_writeMorphProperties()
+bool UnitTest_DzBridgeScriptableAction::unitTest024_writeMorphProperties(UnitTest::TestResult* testResult)
 {
 	return false;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest025_writeMorphJointLinkInfo()
+bool UnitTest_DzBridgeScriptableAction::unitTest025_writeMorphJointLinkInfo(UnitTest::TestResult* testResult)
 {
 	return false;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest026_writeAllSubdivisionProperties()
+bool UnitTest_DzBridgeScriptableAction::unitTest026_writeAllSubdivisionProperties(UnitTest::TestResult* testResult)
 {
 	return false;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest027_writeAllDForceInfo()
+bool UnitTest_DzBridgeScriptableAction::unitTest027_writeAllDForceInfo(UnitTest::TestResult* testResult)
 {
 	return false;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest028_writeDforceMaterialProperties()
+bool UnitTest_DzBridgeScriptableAction::unitTest028_writeDforceMaterialProperties(UnitTest::TestResult* testResult)
 {
 	return false;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest029_writeDforceModifiers()
+bool UnitTest_DzBridgeScriptableAction::unitTest029_writeDforceModifiers(UnitTest::TestResult* testResult)
 {
 	return false;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest030_writeEnvironment()
+bool UnitTest_DzBridgeScriptableAction::unitTest030_writeEnvironment(UnitTest::TestResult* testResult)
 {
 	return false;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest031_writeInstances()
+bool UnitTest_DzBridgeScriptableAction::unitTest031_writeInstances(UnitTest::TestResult* testResult)
 {
 	return false;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest032_writeInstance()
+bool UnitTest_DzBridgeScriptableAction::unitTest032_writeInstance(UnitTest::TestResult* testResult)
 {
 	return false;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest033_writeAllPoses()
+bool UnitTest_DzBridgeScriptableAction::unitTest033_writeAllPoses(UnitTest::TestResult* testResult)
 {
 	return false;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest034_RenameDuplciateMaterials()
+bool UnitTest_DzBridgeScriptableAction::unitTest034_RenameDuplciateMaterials(UnitTest::TestResult* testResult)
 {
 	return false;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest035_UndoRenameDuplicateMaterials()
+bool UnitTest_DzBridgeScriptableAction::unitTest035_UndoRenameDuplicateMaterials(UnitTest::TestResult* testResult)
 {
 	return false;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest036_GetScenePropList()
+bool UnitTest_DzBridgeScriptableAction::unitTest036_GetScenePropList(UnitTest::TestResult* testResult)
 {
 	return false;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest037_DisconnectNode()
+bool UnitTest_DzBridgeScriptableAction::unitTest037_DisconnectNode(UnitTest::TestResult* testResult)
 {
 	return false;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest038_ReconnectNodes()
+bool UnitTest_DzBridgeScriptableAction::unitTest038_ReconnectNodes(UnitTest::TestResult* testResult)
 {
 	return false;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest039_DisconnectOverrideControllers()
+bool UnitTest_DzBridgeScriptableAction::unitTest039_DisconnectOverrideControllers(UnitTest::TestResult* testResult)
 {
 	return false;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest040_ReconnectOverrideControllers()
+bool UnitTest_DzBridgeScriptableAction::unitTest040_ReconnectOverrideControllers(UnitTest::TestResult* testResult)
 {
 	return false;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest041_CheckIfPoseExportIsDestructive()
+bool UnitTest_DzBridgeScriptableAction::unitTest041_CheckIfPoseExportIsDestructive(UnitTest::TestResult* testResult)
 {
 	return false;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest042_UnlockTransform()
+bool UnitTest_DzBridgeScriptableAction::unitTest042_UnlockTransform(UnitTest::TestResult* testResult)
 {
 	return false;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest043_getBridgeDialog()
+bool UnitTest_DzBridgeScriptableAction::unitTest043_getBridgeDialog(UnitTest::TestResult* testResult)
 {
 	return false;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest044_setBridgeDialog()
+bool UnitTest_DzBridgeScriptableAction::unitTest044_setBridgeDialog(UnitTest::TestResult* testResult)
 {
 	return false;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest045_getSubdivisionDialog()
+bool UnitTest_DzBridgeScriptableAction::unitTest045_getSubdivisionDialog(UnitTest::TestResult* testResult)
 {
 	return false;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest046_setSubdivisionDialog()
+bool UnitTest_DzBridgeScriptableAction::unitTest046_setSubdivisionDialog(UnitTest::TestResult* testResult)
 {
 	return false;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest047_getMorphSelectionDialog()
+bool UnitTest_DzBridgeScriptableAction::unitTest047_getMorphSelectionDialog(UnitTest::TestResult* testResult)
 {
 	return false;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest048_getAssetType()
+bool UnitTest_DzBridgeScriptableAction::unitTest048_getAssetType(UnitTest::TestResult* testResult)
 {
 	return false;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest049_setAssetType()
+bool UnitTest_DzBridgeScriptableAction::unitTest049_setAssetType(UnitTest::TestResult* testResult)
 {
 	return false;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest050_getExportFilename()
+bool UnitTest_DzBridgeScriptableAction::unitTest050_getExportFilename(UnitTest::TestResult* testResult)
 {
 	return false;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest051_setExportFilename()
+bool UnitTest_DzBridgeScriptableAction::unitTest051_setExportFilename(UnitTest::TestResult* testResult)
 {
 	return false;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest052_getExportFolder()
+bool UnitTest_DzBridgeScriptableAction::unitTest052_getExportFolder(UnitTest::TestResult* testResult)
 {
 	return false;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest053_setExportFolder()
+bool UnitTest_DzBridgeScriptableAction::unitTest053_setExportFolder(UnitTest::TestResult* testResult)
 {
 	return false;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest054_getRootFolder()
+bool UnitTest_DzBridgeScriptableAction::unitTest054_getRootFolder(UnitTest::TestResult* testResult)
 {
 	return false;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest055_setRootFolder()
+bool UnitTest_DzBridgeScriptableAction::unitTest055_setRootFolder(UnitTest::TestResult* testResult)
 {
 	return false;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest056_getProductName()
+bool UnitTest_DzBridgeScriptableAction::unitTest056_getProductName(UnitTest::TestResult* testResult)
 {
 	return false;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest057_setProductName()
+bool UnitTest_DzBridgeScriptableAction::unitTest057_setProductName(UnitTest::TestResult* testResult)
 {
 	return false;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest058_getProductComponentName()
+bool UnitTest_DzBridgeScriptableAction::unitTest058_getProductComponentName(UnitTest::TestResult* testResult)
 {
 	return false;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest059_setProductComponentName()
+bool UnitTest_DzBridgeScriptableAction::unitTest059_setProductComponentName(UnitTest::TestResult* testResult)
 {
 	return false;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest060_getMorphList()
+bool UnitTest_DzBridgeScriptableAction::unitTest060_getMorphList(UnitTest::TestResult* testResult)
 {
 	return false;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest061_setMorphList()
+bool UnitTest_DzBridgeScriptableAction::unitTest061_setMorphList(UnitTest::TestResult* testResult)
 {
 	return false;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest062_getUseRelativePaths()
+bool UnitTest_DzBridgeScriptableAction::unitTest062_getUseRelativePaths(UnitTest::TestResult* testResult)
 {
 	return false;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest063_setUseRelativePaths()
+bool UnitTest_DzBridgeScriptableAction::unitTest063_setUseRelativePaths(UnitTest::TestResult* testResult)
 {
 	return false;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest064_isTemporaryFile()
+bool UnitTest_DzBridgeScriptableAction::unitTest064_isTemporaryFile(UnitTest::TestResult* testResult)
 {
 	return false;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest065_exportAssetWithDTU()
+bool UnitTest_DzBridgeScriptableAction::unitTest065_exportAssetWithDTU(UnitTest::TestResult* testResult)
 {
 	return false;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest066_writeJSON_Property_Texture()
+bool UnitTest_DzBridgeScriptableAction::unitTest066_writeJSON_Property_Texture(UnitTest::TestResult* testResult)
 {
 	return false;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest067_makeUniqueFilename()
+bool UnitTest_DzBridgeScriptableAction::unitTest067_makeUniqueFilename(UnitTest::TestResult* testResult)
 {
 	return false;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest068_getUndoNormalMaps()
+bool UnitTest_DzBridgeScriptableAction::unitTest068_getUndoNormalMaps(UnitTest::TestResult* testResult)
 {
 	return false;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest069_setUndoNormalMaps()
+bool UnitTest_DzBridgeScriptableAction::unitTest069_setUndoNormalMaps(UnitTest::TestResult* testResult)
 {
 	return false;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest070_getNonInteractiveMode()
+bool UnitTest_DzBridgeScriptableAction::unitTest070_getNonInteractiveMode(UnitTest::TestResult* testResult)
 {
 	return false;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest071_setNonInteractiveMode()
+bool UnitTest_DzBridgeScriptableAction::unitTest071_setNonInteractiveMode(UnitTest::TestResult* testResult)
 {
 	return false;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest072_getExportFbx()
+bool UnitTest_DzBridgeScriptableAction::unitTest072_getExportFbx(UnitTest::TestResult* testResult)
 {
 	return false;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest073_setExportFbx()
+bool UnitTest_DzBridgeScriptableAction::unitTest073_setExportFbx(UnitTest::TestResult* testResult)
 {
 	return false;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest074_readGUI()
+bool UnitTest_DzBridgeScriptableAction::unitTest074_readGUI(UnitTest::TestResult* testResult)
 {
 	return false;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest075_exportHD()
+bool UnitTest_DzBridgeScriptableAction::unitTest075_exportHD(UnitTest::TestResult* testResult)
 {
 	return false;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest076_upgradeToHD()
+bool UnitTest_DzBridgeScriptableAction::unitTest076_upgradeToHD(UnitTest::TestResult* testResult)
 {
 	return false;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest077_WriteWeightMaps()
+bool UnitTest_DzBridgeScriptableAction::unitTest077_WriteWeightMaps(UnitTest::TestResult* testResult)
 {
 	return false;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest078_metaInvokeMethod()
+bool UnitTest_DzBridgeScriptableAction::unitTest078_metaInvokeMethod(UnitTest::TestResult* testResult)
 {
 	return false;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest079_CopyFile()
+bool UnitTest_DzBridgeScriptableAction::unitTest079_CopyFile(UnitTest::TestResult* testResult)
 {
 	return false;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest080_GetMD5()
+bool UnitTest_DzBridgeScriptableAction::unitTest080_GetMD5(UnitTest::TestResult* testResult)
 {
 	return false;
 }
+
+
 
 
 #include "moc_UnitTest_DzBridgeScriptableAction.cpp"

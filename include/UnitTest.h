@@ -15,15 +15,18 @@
 	#define DLLExport
 #endif
 
-#define RUNTEST RUNTEST_0ARG
+#define DECLARE_TEST(method_name) \
+bool method_name(UnitTest::TestResult* testResult);
 
-#define RUNTEST_0ARG(unittest_method) \
-createTestResult(#unittest_method); \
-unittest_method();
+#define RUNTEST RUNTEST_1ARG
 
-#define RUNTEST_1ARG(unittest_method) \
-UnitTest::TestResult *unittest_method_testResult = createTestResult(#unittest_method); \
-unittest_method(unittest_method_testResult);
+#define RUNTEST_0ARG(method_name) \
+createTestResult(#method_name); \
+method_name();
+
+#define RUNTEST_1ARG(method_name) \
+UnitTest::TestResult *##method_name##_testResult = createTestResult(#method_name); \
+method_name(##method_name##_testResult);
 
 #define LOGTEST_TEXT(text) \
 logToTestResult(testResult, QString(text));
@@ -41,9 +44,12 @@ class DLLExport UnitTest : public QObject {
 public:
 	Q_INVOKABLE virtual bool runUnitTests()=0;
 
+	UnitTest();
+
 	Q_INVOKABLE bool writeAllTestResults();
 	Q_INVOKABLE bool convertTestResutlsToXls();
 	Q_INVOKABLE bool convertTestResultsToHtml();
+	Q_INVOKABLE QObject* getTestObject();
 
 protected:
 	struct TestResult {
@@ -55,6 +61,8 @@ protected:
 
 	UnitTest::TestResult* createTestResult(QString methodName);
 	bool logToTestResult(UnitTest::TestResult *testResult, QString text);
+
+	QObject* m_testObject;
 
 private:
 	QList<TestResult*> m_testResultList;
