@@ -112,7 +112,7 @@ bool UnitTest::writeAllTestResults(QString outputPath)
     textOutput.write("End of Report.\n");
     textOutput.close();
 
-    return false;
+    return true;
 }
 
 bool UnitTest::convertTestResutlsToXls()

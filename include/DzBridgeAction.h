@@ -35,7 +35,7 @@ class DzBridgeDialog;
 /// Usage: 
 /// Subclass and implement executeAction() to open m_bridgeDialog. Implement readGUIRootFolder()
 /// to read and return any custom UI widget containing destination root folder. Implement
-/// WriteConfiguration() to manage DTU file generation.  Implement SetExportOptions() to override
+/// writeConfiguration() to manage DTU file generation.  Implement setExportOptions() to override
 /// FBX generation options.  
 /// 
 /// See also: 
@@ -57,6 +57,7 @@ class DLLExport DzBridgeAction : public DzAction {
 	Q_PROPERTY(DzBasicDialog* wBridgeDialog READ getBridgeDialog WRITE setBridgeDialog)
 	Q_PROPERTY(DzBasicDialog* wSubdivisionDialog READ getSubdivisionDialog WRITE setSubdivisionDialog)
 	Q_PROPERTY(DzBasicDialog* wMorphSelectionDialog READ getMorphSelectionDialog WRITE setMorphSelectionDialog)
+
 public:
 
 	DzBridgeAction(const QString& text = QString::null, const QString& desc = QString::null);
@@ -125,11 +126,11 @@ protected:
 	virtual QString getActionGroup() const { return tr("Bridges"); }
 	virtual QString getDefaultMenuPath() const { return tr("&File/Send To"); }
 
-	virtual void Export();
-	virtual void ExportNode(DzNode* Node);
+	virtual void exportAsset();
+	virtual void exportNode(DzNode* Node);
 
-	virtual void WriteConfiguration() = 0;
-	virtual void SetExportOptions(DzFileIOSettings& ExportOptions) = 0;
+	virtual void writeConfiguration() = 0;
+	virtual void setExportOptions(DzFileIOSettings& ExportOptions) = 0;
 	virtual QString readGUIRootFolder() = 0;
 
 	Q_INVOKABLE virtual void writeDTUHeader(DzJsonWriter& writer);
@@ -146,7 +147,7 @@ protected:
 	Q_INVOKABLE virtual void writeAllSubdivisions(DzJsonWriter& Writer);
 	Q_INVOKABLE virtual void writeSubdivisionProperties(DzJsonWriter& writer, const QString& Name, int targetValue);
 
-	Q_INVOKABLE virtual void writeAllDForceInfo(DzNode* Node, DzJsonWriter& Writer, QTextStream* pCVSStream = nullptr, bool bRecursive = false);
+	Q_INVOKABLE virtual void writeAllDforceInfo(DzNode* Node, DzJsonWriter& Writer, QTextStream* pCVSStream = nullptr, bool bRecursive = false);
 	Q_INVOKABLE virtual void writeDforceMaterialProperties(DzJsonWriter& Writer, DzMaterial* Material, DzShape* Shape);
 	Q_INVOKABLE virtual void writeDforceModifiers(const QList<DzModifier*>& dforceModifierList, DzJsonWriter& Writer, DzShape* Shape);
 
@@ -157,26 +158,26 @@ protected:
 	Q_INVOKABLE virtual void writeAllPoses(DzJsonWriter& writer);
 
 	// Need to temporarily rename surfaces if there is a name collision
-	void RenameDuplicateMaterials(DzNode* Node, QList<QString>& MaterialNames, QMap<DzMaterial*, QString>& OriginalMaterialNames);
-	void UndoRenameDuplicateMaterials(DzNode* Node, QList<QString>& MaterialNames, QMap<DzMaterial*, QString>& OriginalMaterialNames);
+	void renameDuplicateMaterials(DzNode* Node, QList<QString>& MaterialNames, QMap<DzMaterial*, QString>& OriginalMaterialNames);
+	void undoRenameDuplicateMaterials(DzNode* Node, QList<QString>& MaterialNames, QMap<DzMaterial*, QString>& OriginalMaterialNames);
 
 	// Used to find all the unique props in a scene for Environment export
-	void GetScenePropList(DzNode* Node, QMap<QString, DzNode*>& Types);
+	void getScenePropList(DzNode* Node, QMap<QString, DzNode*>& Types);
 
 	// During Environment export props need to get disconnected as they are exported.
-	void DisconnectNode(DzNode* Node, QList<AttachmentInfo>& AttachmentList);
-	void ReconnectNodes(QList<AttachmentInfo>& AttachmentList);
+	void disconnectNode(DzNode* Node, QList<AttachmentInfo>& AttachmentList);
+	void reconnectNodes(QList<AttachmentInfo>& AttachmentList);
 
 	// During Skeletal Mesh Export Disconnect Override Controllers
-	QList<QString> DisconnectOverrideControllers();
-	void ReconnectOverrideControllers(QList<QString>& DisconnetedControllers);
-	QList<QString> ControllersToDisconnect;
+	QList<QString> disconnectOverrideControllers();
+	void reconnectOverrideControllers(QList<QString>& DisconnetedControllers);
+	QList<QString> m_ControllersToDisconnect;
 
 	// For Pose exports check if writing to the timeline will alter existing keys
-	bool CheckIfPoseExportIsDestructive();
+	bool checkIfPoseExportIsDestructive();
 
 	// Need to be able to move asset instances to origin during environment export
-	void UnlockTranform(DzNode* NodeToUnlock);
+	void unlockTranform(DzNode* NodeToUnlock);
 
 	// Getter/Setter methods
 	Q_INVOKABLE DzBridgeDialog* getBridgeDialog() { return m_bridgeDialog; }
@@ -275,5 +276,9 @@ private:
 	double getHeightMapStrength(DzMaterial* material);
 
 	DzWeightMapPtr getWeightMapPtr(DzNode* Node);
+
+#ifdef UNITTEST_DZBRIDGE
+	friend class UnitTest_DzBridgeScriptableAction;
+#endif
 
 };

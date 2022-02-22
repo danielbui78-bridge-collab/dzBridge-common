@@ -85,8 +85,8 @@ void DzBridgeAction::resetToDefaults()
 	ExportMorphs = false;
 	ExportSubdivisions = false;
 	ShowFbxDialog = false;
-	ControllersToDisconnect.clear();
-	ControllersToDisconnect.append("facs_bs_MouthClose_div2");
+	m_ControllersToDisconnect.clear();
+	m_ControllersToDisconnect.append("facs_bs_MouthClose_div2");
 
 	// Reset all dialog settings and script-exposed properties to Hardcoded Defaults
 	// Ignore saved settings, QSettings, etc.
@@ -605,7 +605,7 @@ void DzBridgeAction::exportHD(DzProgress* exportProgress)
 		}
 		m_subdivisionDialog->LockSubdivisionProperties(false);
 		ExportBaseMesh = true;
-		Export();
+		exportAsset();
 		m_subdivisionDialog->UnlockSubdivisionProperties();
 		if (exportProgress)
 		{
@@ -627,7 +627,7 @@ void DzBridgeAction::exportHD(DzProgress* exportProgress)
 	}
 	m_subdivisionDialog->LockSubdivisionProperties(ExportSubdivisions);
 	ExportBaseMesh = false;
-	Export();
+	exportAsset();
 	if (exportProgress)
 	{
 		exportProgress->step();
@@ -693,7 +693,7 @@ void DzBridgeAction::exportHD(DzProgress* exportProgress)
 
 }
 
-void DzBridgeAction::Export()
+void DzBridgeAction::exportAsset()
 {
 	// FBX Export
 	Selection = dzScene->getPrimarySelection();
@@ -708,7 +708,7 @@ void DzBridgeAction::Export()
 		DzNode* OriginalSelection = Selection;
 
 		// Find all the different types of props in the scene
-		GetScenePropList(Selection, PropToInstance);
+		getScenePropList(Selection, PropToInstance);
 		QMap<QString, DzNode*>::iterator iter;
 		for (iter = PropToInstance.begin(); iter != PropToInstance.end(); ++iter)
 		{
@@ -730,11 +730,11 @@ void DzBridgeAction::Export()
 			}
 
 			//Unlock the transform controls so the node can be moved to root
-			UnlockTranform(Node);
+			unlockTranform(Node);
 
 			// Disconnect the asset being sent from everything else
 			QList<AttachmentInfo> AttachmentList;
-			DisconnectNode(Node, AttachmentList);
+			disconnectNode(Node, AttachmentList);
 
 			// Set the selection so this will be the exported asset
 			Selection = Node;
@@ -748,13 +748,13 @@ void DzBridgeAction::Export()
 			Node->setWSTransform(DzVec3(0.0f, 0.0f, 0.0f), DzQuat(), DzMatrix3(true));
 
 			// Export
-			ExportNode(Node);
+			exportNode(Node);
 
 			// Put the item back where it was
 			Node->setWSTransform(Location, Rotation, Scale);
 
 			// Reconnect all the nodes
-			ReconnectNodes(AttachmentList);
+			reconnectNodes(AttachmentList);
 		}
 
 		// After the props have been exported, export the environment
@@ -765,11 +765,11 @@ void DzBridgeAction::Export()
 		CharacterFBX = DestinationPath + m_sExportFbx + ".fbx";
 		Selection = OriginalSelection;
 		AssetType = "Environment";
-		ExportNode(Selection);
+		exportNode(Selection);
 	}
 	else if (AssetType == "Pose")
 	{
-		if (CheckIfPoseExportIsDestructive())
+		if (checkIfPoseExportIsDestructive())
 		{
 			if (QMessageBox::question(0, tr("Continue"),
 				tr("Proceeding will delete keyed values on some properties. Continue?"),
@@ -846,23 +846,23 @@ void DzBridgeAction::Export()
 		dzScene->setAnimRange(DzTimeRange(0, poseIndex * dzScene->getTimeStep()));
 		dzScene->setPlayRange(DzTimeRange(0, poseIndex * dzScene->getTimeStep()));
 
-		ExportNode(Selection);
+		exportNode(Selection);
 	}
 	else if (AssetType == "SkeletalMesh")
 	{
-		QList<QString> DisconnectedModifiers = DisconnectOverrideControllers();
+		QList<QString> DisconnectedModifiers = disconnectOverrideControllers();
 		DzNode* Selection = dzScene->getPrimarySelection();
-		ExportNode(Selection);
-		ReconnectOverrideControllers(DisconnectedModifiers);
+		exportNode(Selection);
+		reconnectOverrideControllers(DisconnectedModifiers);
 	}
 	else
 	{
 		DzNode* Selection = dzScene->getPrimarySelection();
-		ExportNode(Selection);
+		exportNode(Selection);
 	}
 }
 
-void DzBridgeAction::DisconnectNode(DzNode* Node, QList<AttachmentInfo>& AttachmentList)
+void DzBridgeAction::disconnectNode(DzNode* Node, QList<AttachmentInfo>& AttachmentList)
 {
 	AttachmentInfo ParentAttachment;
 	if (Node->getNodeParent())
@@ -898,11 +898,11 @@ void DzBridgeAction::DisconnectNode(DzNode* Node, QList<AttachmentInfo>& Attachm
 			AttachmentList.append(ChildAttachment);
 			Node->removeNodeChild(ChildNode);
 		}
-		DisconnectNode(ChildNode, AttachmentList);
+		disconnectNode(ChildNode, AttachmentList);
 	}
 }
 
-void DzBridgeAction::ReconnectNodes(QList<AttachmentInfo>& AttachmentList)
+void DzBridgeAction::reconnectNodes(QList<AttachmentInfo>& AttachmentList)
 {
 	foreach(AttachmentInfo Attachment, AttachmentList)
 	{
@@ -911,7 +911,7 @@ void DzBridgeAction::ReconnectNodes(QList<AttachmentInfo>& AttachmentList)
 }
 
 
-void DzBridgeAction::ExportNode(DzNode* Node)
+void DzBridgeAction::exportNode(DzNode* Node)
 {
 	dzScene->selectAllNodes(false);
 	 dzScene->setPrimarySelection(Node);
@@ -920,7 +920,7 @@ void DzBridgeAction::ExportNode(DzNode* Node)
 	 {
 		 QDir dir;
 		 dir.mkpath(DestinationPath);
-		 WriteConfiguration();
+		 writeConfiguration();
 		 return;
 	 }
 
@@ -991,7 +991,7 @@ void DzBridgeAction::ExportNode(DzNode* Node)
 		  QDir dir;
 		  dir.mkpath(DestinationPath);
 
-		  SetExportOptions(ExportOptions);
+		  setExportOptions(ExportOptions);
 
 		  if (ExportSubdivisions && ExportBaseMesh)
 		  {
@@ -1002,7 +1002,7 @@ void DzBridgeAction::ExportNode(DzNode* Node)
 		  else
 		  {
 			  Exporter->writeFile(CharacterFBX, &ExportOptions);
-			  WriteConfiguration();
+			  writeConfiguration();
 		  }
 
 		  undoPreProcessScene();
@@ -1010,7 +1010,7 @@ void DzBridgeAction::ExportNode(DzNode* Node)
 }
 
 // If there are duplicate material names, save off the original and rename one
-void DzBridgeAction::RenameDuplicateMaterials(DzNode* Node, QList<QString>& MaterialNames, QMap<DzMaterial*, QString>& OriginalMaterialNames)
+void DzBridgeAction::renameDuplicateMaterials(DzNode* Node, QList<QString>& MaterialNames, QMap<DzMaterial*, QString>& OriginalMaterialNames)
 {
 	 DzObject* Object = Node->getObject();
 	 DzShape* Shape = Object ? Object->getCurrentShape() : NULL;
@@ -1035,12 +1035,12 @@ void DzBridgeAction::RenameDuplicateMaterials(DzNode* Node, QList<QString>& Mate
 	 while (Iterator.hasNext())
 	 {
 		  DzNode* Child = Iterator.next();
-		  RenameDuplicateMaterials(Child, MaterialNames, OriginalMaterialNames);
+		  renameDuplicateMaterials(Child, MaterialNames, OriginalMaterialNames);
 	 }
 }
 
 // Restore the original material names
-void DzBridgeAction::UndoRenameDuplicateMaterials(DzNode* Node, QList<QString>& MaterialNames, QMap<DzMaterial*, QString>& OriginalMaterialNames)
+void DzBridgeAction::undoRenameDuplicateMaterials(DzNode* Node, QList<QString>& MaterialNames, QMap<DzMaterial*, QString>& OriginalMaterialNames)
 {
 	 QMap<DzMaterial*, QString>::iterator iter;
 	 for (iter = OriginalMaterialNames.begin(); iter != OriginalMaterialNames.end(); ++iter)
@@ -1049,7 +1049,7 @@ void DzBridgeAction::UndoRenameDuplicateMaterials(DzNode* Node, QList<QString>& 
 	 }
 }
 
-void DzBridgeAction::GetScenePropList(DzNode* Node, QMap<QString, DzNode*>& Types)
+void DzBridgeAction::getScenePropList(DzNode* Node, QMap<QString, DzNode*>& Types)
 {
 	DzObject* Object = Node->getObject();
 	DzShape* Shape = Object ? Object->getCurrentShape() : NULL;
@@ -1088,11 +1088,11 @@ void DzBridgeAction::GetScenePropList(DzNode* Node, QMap<QString, DzNode*>& Type
 	for (int ChildIndex = 0; ChildIndex < Node->getNumNodeChildren(); ChildIndex++)
 	{
 		DzNode* ChildNode = Node->getNodeChild(ChildIndex);
-		GetScenePropList(ChildNode, Types);
+		getScenePropList(ChildNode, Types);
 	}
 }
 
-QList<QString> DzBridgeAction::DisconnectOverrideControllers()
+QList<QString> DzBridgeAction::disconnectOverrideControllers()
 {
 	QList<QString> ModifiedList;
 	DzNode* Selection = dzScene->getPrimarySelection();
@@ -1106,7 +1106,7 @@ QList<QString> DzBridgeAction::DisconnectOverrideControllers()
 		if (numericProperty && !numericProperty->isOverridingControllers())
 		{
 			QString propName = property->getName();
-			if (MorphMapping.contains(propName) && ControllersToDisconnect.contains(propName))
+			if (MorphMapping.contains(propName) && m_ControllersToDisconnect.contains(propName))
 			{
 				numericProperty->setOverrideControllers(true);
 				ModifiedList.append(propName);
@@ -1132,7 +1132,7 @@ QList<QString> DzBridgeAction::DisconnectOverrideControllers()
 					if (numericProperty && !numericProperty->isOverridingControllers())
 					{
 						QString propName = property->getName();
-						if (MorphMapping.contains(modifier->getName()) && ControllersToDisconnect.contains(modifier->getName()))
+						if (MorphMapping.contains(modifier->getName()) && m_ControllersToDisconnect.contains(modifier->getName()))
 						{
 							numericProperty->setOverrideControllers(true);
 							ModifiedList.append(modifier->getName());
@@ -1148,7 +1148,7 @@ QList<QString> DzBridgeAction::DisconnectOverrideControllers()
 	return ModifiedList;
 }
 
-void DzBridgeAction::ReconnectOverrideControllers(QList<QString>& DisconnetedControllers)
+void DzBridgeAction::reconnectOverrideControllers(QList<QString>& DisconnetedControllers)
 {
 	DzNode* Selection = dzScene->getPrimarySelection();
 	int poseIndex = 0;
@@ -1199,7 +1199,7 @@ void DzBridgeAction::ReconnectOverrideControllers(QList<QString>& DisconnetedCon
 	}
 }
 
-bool DzBridgeAction::CheckIfPoseExportIsDestructive()
+bool DzBridgeAction::checkIfPoseExportIsDestructive()
 {
 	DzNode* Selection = dzScene->getPrimarySelection();
 	int poseIndex = 0;
@@ -1252,7 +1252,7 @@ bool DzBridgeAction::CheckIfPoseExportIsDestructive()
 	return false;
 }
 
-void DzBridgeAction::UnlockTranform(DzNode* NodeToUnlock)
+void DzBridgeAction::unlockTranform(DzNode* NodeToUnlock)
 {
 	DzFloatProperty* Property = nullptr;
 	Property = NodeToUnlock->getXPosControl();
@@ -1647,7 +1647,7 @@ void DzBridgeAction::writeSubdivisionProperties(DzJsonWriter& writer, const QStr
 	writer.finishObject();
 }
 
-void DzBridgeAction::writeAllDForceInfo(DzNode* Node, DzJsonWriter& Writer, QTextStream* pCVSStream, bool bRecursive)
+void DzBridgeAction::writeAllDforceInfo(DzNode* Node, DzJsonWriter& Writer, QTextStream* pCVSStream, bool bRecursive)
 {
 	if (!bRecursive)
 		Writer.startMemberArray("dForce", true);
@@ -1716,7 +1716,7 @@ void DzBridgeAction::writeAllDForceInfo(DzNode* Node, DzJsonWriter& Writer, QTex
 	while (Iterator.hasNext())
 	{
 		DzNode* Child = Iterator.next();
-		writeAllDForceInfo(Child, Writer, pCVSStream, true);
+		writeAllDforceInfo(Child, Writer, pCVSStream, true);
 	}
 
 	if (!bRecursive)

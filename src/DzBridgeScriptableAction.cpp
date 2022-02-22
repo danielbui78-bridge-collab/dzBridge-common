@@ -122,7 +122,7 @@ void DzBridgeScriptableAction::executeAction()
     }
 }
 
-void DzBridgeScriptableAction::WriteConfiguration()
+void DzBridgeScriptableAction::writeConfiguration()
 {
 	 QString DTUfilename = DestinationPath + CharacterName + ".dtu";
 	 QFile DTUfile(DTUfilename);
@@ -146,7 +146,7 @@ void DzBridgeScriptableAction::WriteConfiguration()
 		 writeAllMaterials(Selection, writer, pCVSStream);
 		 writeAllMorphs(writer);
 		 writeAllSubdivisions(writer);
-		 writeAllDForceInfo(Selection, writer);
+		 writeAllDforceInfo(Selection, writer);
 	 }
 
 	 if (AssetType == "Pose")
@@ -165,7 +165,7 @@ void DzBridgeScriptableAction::WriteConfiguration()
 }
 
 // Setup custom FBX export options
-void DzBridgeScriptableAction::SetExportOptions(DzFileIOSettings& ExportOptions)
+void DzBridgeScriptableAction::setExportOptions(DzFileIOSettings& ExportOptions)
 {
 
 }
