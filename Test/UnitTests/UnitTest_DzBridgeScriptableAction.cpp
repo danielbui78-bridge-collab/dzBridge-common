@@ -110,77 +110,118 @@ bool UnitTest_DzBridgeScriptableAction::runUnitTests()
 
 bool UnitTest_DzBridgeScriptableAction::unitTest001_DzBridgeAction(UnitTest::TestResult *testResult)
 {
-	LOGTEST_TEXT("Testing [UnitTest001 DzBridgeAction]");
+	bool bResult = true;
+	LOGTEST_TEXT("DzBridgeAction is an abstract class.  Can not test constructor.");
 
-	DzBridgeAction *testObj = new DzBridgeScriptableAction();
-
+/**
+	// Can not build because constructor for abstract class
+	DzBridgeAction *testObj = new DzBridgeAction();
 	if (!testObj)
-	{
 		LOGTEST_FAILED("");
-	}
+	else
+		LOGTEST_PASSED("");
+*/
 
-	LOGTEST_PASSED("");
-
-	QString debug = QString("");
-
-	debug = testResult->aLog->join("\n");
-	
-	return true;
+	return bResult;
 }
 
 bool UnitTest_DzBridgeScriptableAction::unitTest002_resetToDefaults(UnitTest::TestResult* testResult)
 {
-	return false;
+	bool bResult = true;
+	TRY_METHODCALL(qobject_cast<DzBridgeAction*>(m_testObject)->resetToDefaults());
+
+	return true;
 }
 
 bool UnitTest_DzBridgeScriptableAction::unitTest003_cleanString(UnitTest::TestResult* testResult)
 {
-	return false;
+	bool bResult = true;
+	TRY_METHODCALL_NULLPTR(qobject_cast<DzBridgeAction*>(m_testObject)->cleanString(nullptr));
+
+	TRY_METHODCALL_CUSTOM(qobject_cast<DzBridgeAction*>(m_testObject)->cleanString(""), "C++ exception with empty string test.");
+
+	return bResult;
+
 }
 
 bool UnitTest_DzBridgeScriptableAction::unitTest004_getAvailableMorphs(UnitTest::TestResult* testResult)
 {
-	return false;
+	bool bResult = true;
+	TRY_METHODCALL(qobject_cast<DzBridgeAction*>(m_testObject)->getAvailableMorphs(new DzNode()));
+
+	TRY_METHODCALL_NULLPTR(qobject_cast<DzBridgeAction*>(m_testObject)->getAvailableMorphs(nullptr));
+
+	return bResult;
 }
 
 bool UnitTest_DzBridgeScriptableAction::unitTest005_getActiveMorphs(UnitTest::TestResult* testResult)
 {
-	return false;
+	bool bResult = true;
+	TRY_METHODCALL(qobject_cast<DzBridgeAction*>(m_testObject)->getActiveMorphs(new DzNode()));
+
+	TRY_METHODCALL_NULLPTR(qobject_cast<DzBridgeAction*>(m_testObject)->getActiveMorphs(nullptr));
+
+	return bResult;
 }
 
 bool UnitTest_DzBridgeScriptableAction::unitTest006_makeNormalMapFromHeightMap(UnitTest::TestResult* testResult)
 {
-	return false;
+	bool bResult = true;
+	TRY_METHODCALL(qobject_cast<DzBridgeAction*>(m_testObject)->makeNormalMapFromHeightMap(nullptr, 0.0));
+
+	return bResult;
 }
 
 bool UnitTest_DzBridgeScriptableAction::unitTest007_preProcessScene(UnitTest::TestResult* testResult)
 {
-	return false;
+	bool bResult = true;
+	TRY_METHODCALL(qobject_cast<DzBridgeAction*>(m_testObject)->preProcessScene(new DzNode()));
+
+	TRY_METHODCALL_NULLPTR(qobject_cast<DzBridgeAction*>(m_testObject)->preProcessScene(nullptr));
+
+	return bResult;
 }
 
 bool UnitTest_DzBridgeScriptableAction::unitTest008_renameDuplicateMaterial(UnitTest::TestResult* testResult)
 {
-	return false;
+	bool bResult = true;
+	TRY_METHODCALL_NULLPTR(qobject_cast<DzBridgeAction*>(m_testObject)->renameDuplicateMaterial(nullptr, nullptr));
+
+	return bResult;
 }
 
 bool UnitTest_DzBridgeScriptableAction::unitTest009_undoRenameDuplicateMaterials(UnitTest::TestResult* testResult)
 {
-	return false;
+	bool bResult = true;
+	TRY_METHODCALL(qobject_cast<DzBridgeAction*>(m_testObject)->undoRenameDuplicateMaterials());
+
+	return bResult;
 }
 
 bool UnitTest_DzBridgeScriptableAction::unitTest010_generateMissingNormalMap(UnitTest::TestResult* testResult)
 {
-	return false;
+	bool bResult = true;
+	TRY_METHODCALL_NULLPTR(qobject_cast<DzBridgeAction*>(m_testObject)->generateMissingNormalMap(nullptr));
+
+	return bResult;
 }
 
 bool UnitTest_DzBridgeScriptableAction::unitTest011_undoGenerateMissingNormalMaps(UnitTest::TestResult* testResult)
 {
-	return false;
+	bool bResult = true;
+	TRY_METHODCALL(qobject_cast<DzBridgeAction*>(m_testObject)->undoGenerateMissingNormalMaps());
+
+	return bResult;
 }
 
 bool UnitTest_DzBridgeScriptableAction::unitTest012_getActionGroup(UnitTest::TestResult* testResult)
 {
-	return false;
+	bool bResult = true;
+
+	LOGTEST_TEXT("Can not call protected class method.");
+//	TRY_METHODCALL(qobject_cast<DzBridgeAction*>(m_testObject)->getActionGroup());
+
+	return bResult;
 }
 
 bool UnitTest_DzBridgeScriptableAction::unitTest013_getDefaultMenuPath(UnitTest::TestResult* testResult)

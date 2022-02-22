@@ -61,6 +61,29 @@ bool UnitTest::writeAllTestResults(QString outputPath)
     // write unittests summary
     QFile textOutput(outputPath + "/" + sFileNameStem + ".txt");
     textOutput.open(QIODevice::WriteOnly);
+    // write test details
+    textOutput.write("======= UnitTest Details =======\n");
+    textOutput.write("\n");
+    int nMethodNameSpacing = 0;
+    for (auto testResult_iter = m_testResultList.begin(); testResult_iter != m_testResultList.end(); testResult_iter++)
+    {
+        UnitTest::TestResult* testResult = *testResult_iter;
+        if (testResult)
+        {
+            // calculate spacing for method name print out
+            if (nMethodNameSpacing < testResult->sName.length())
+                nMethodNameSpacing = testResult->sName.length();
+            QString sTestResult_buffer = "";
+            if (testResult->aLog)
+                sTestResult_buffer = testResult->aLog->join("\n");
+            if (sTestResult_buffer.isEmpty() != true)
+            {
+                textOutput.write( QString("%1:\n%2\n\n").arg(testResult->sName).arg(sTestResult_buffer).toLocal8Bit());
+            }
+        }
+    }
+    textOutput.write("\n");
+
     // write summary header
     textOutput.write("======= UnitTest Summary =======\n");
     textOutput.write("\n");
@@ -68,17 +91,6 @@ bool UnitTest::writeAllTestResults(QString outputPath)
     textOutput.write( QString("Number of UnitTests: %1\n").arg(m_testResultList.count()).toLocal8Bit() );
     textOutput.write("\n");
 //    textOutput.write("--------------------------------\n");
-    // calculate spacing for method name print out
-    int nMethodNameSpacing = 0;
-    for(auto testResult_iter = m_testResultList.begin(); testResult_iter != m_testResultList.end(); testResult_iter++)
-    {
-        UnitTest::TestResult* testResult = *testResult_iter;
-        if (testResult)
-        {
-            if (nMethodNameSpacing < testResult->sName.length())
-                nMethodNameSpacing = testResult->sName.length();
-        }
-    }
     // print each unittest result line
     int nUnitTestCount = 1;
     for (auto testResult_iter = m_testResultList.begin(); testResult_iter != m_testResultList.end(); testResult_iter++)

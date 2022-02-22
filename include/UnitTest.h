@@ -1,3 +1,11 @@
+/*****************************************************************
+* 
+* For Visual Studio: In order to catch memory access violations, 
+* you must set following option in Properties -> C/C++ -> Code Generation:
+* Enable C++ Exceptions: "Yes With SEH Exceptions"
+* 
+******************************************************************/
+
 #pragma once
 
 #ifdef UNITTEST_DZBRIDGE
@@ -36,6 +44,20 @@ LOGTEST_TEXT(testResult->sName + ": failed. " + text);
 
 #define LOGTEST_PASSED(text) \
 LOGTEST_TEXT(testResult->sName + ": passed. " + text);
+
+#define TRY_METHODCALL(method_call) \
+try { method_call; } \
+catch (...) { LOGTEST_TEXT("C++ exception caught."); bResult = false; }
+
+#define TRY_METHODCALL_CUSTOM(method_call, error_string) \
+try { method_call; } \
+catch (...) { LOGTEST_TEXT(error_string); bResult = false; }
+
+#define TRY_METHODCALL_NULLPTR(method_call) \
+try { method_call; } \
+catch (...) { LOGTEST_TEXT("C++ exception caught. Failed nullptr C++ exception test."); bResult = false; } \
+if (bResult) LOGTEST_TEXT("Passed nullptr C++ exception test.");
+
 
 class QStringList;
 
