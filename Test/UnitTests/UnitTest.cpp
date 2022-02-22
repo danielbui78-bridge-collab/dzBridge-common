@@ -4,6 +4,7 @@
 #include <qstringlist.h>
 #include <qfile.h>
 #include <dzjsonwriter.h>
+#include <dzapp.h>
 
 // UnitTest does not have any methods
 
@@ -14,69 +15,89 @@ UnitTest::UnitTest()
     m_testObject = nullptr;
 }
 
-bool UnitTest::writeAllTestResults()
+bool UnitTest::writeAllTestResults(QString outputPath)
 {
-    QFile textOutput("UnitTest_Results.txt");
-    textOutput.open(QIODevice::WriteOnly);
-    
-    QFile jsonFile("UnitTest_Results.json");
+    if (outputPath == "")
+    {
+        outputPath = dzApp->getDocumentsPath();
+    }
+    QString sClassName = m_testObject ? m_testObject->metaObject()->className() : this->metaObject()->className();
+    QString sFileNameStem = "TestResults_" + sClassName;
+
+    QFile jsonFile(outputPath + "/" + sFileNameStem + ".json");
     jsonFile.open(QIODevice::WriteOnly);
     DzJsonWriter writer(&jsonFile);
-
     // write JSON header
     writer.startObject(true);
     writer.addMember("UnitTest Results Version", 1);
-    writer.addMember("Class Name", QString(m_testObject->metaObject()->className()) );
+    writer.addMember("Class Name", sClassName);
     writer.addMember("Number of UnitTests", m_testResultList.count());
-
     writer.startMemberArray("Detailed Test Results", true);
     // write detailed unittests output
-    QList<TestResult*>::iterator testResult_iter = m_testResultList.begin();
-    while (testResult_iter != m_testResultList.end())
+    for (auto testResult_iter = m_testResultList.begin(); testResult_iter != m_testResultList.end(); testResult_iter++)
     {
         UnitTest::TestResult* testResult = *testResult_iter;
         if (testResult)
         {
             writer.startObject(true);
-            writer.addMember("UnitTest ID", testResult->id);
-            writer.addMember("Method Name", testResult->name);
-            writer.addMember("Test Result", testResult->result);
-            if (testResult->log)
+            writer.addMember("UnitTest ID", testResult->nId);
+            writer.addMember("Method Name", testResult->sName);
+            writer.addMember("Test Result", testResult->bResult);
+            if (testResult->aLog)
             {
-                QString testResult_buffer = testResult->log->join("\n");
+                QString testResult_buffer = testResult->aLog->join("\n");
                 // format test result header
                 // output buffer
                 writer.addMember("Test Log", testResult_buffer);
             }
             writer.finishObject();
         }
-        testResult_iter++;
     }
     writer.finishArray();
-
+    writer.finishArray();
+    writer.finishObject();
+    jsonFile.close();
 
     // write unittests summary
-    testResult_iter = m_testResultList.begin();
-    // format summary header
-    while (testResult_iter != m_testResultList.end())
+    QFile textOutput(outputPath + "/" + sFileNameStem + ".txt");
+    textOutput.open(QIODevice::WriteOnly);
+    // write summary header
+    textOutput.write("======= UnitTest Summary =======\n");
+    textOutput.write("\n");
+    textOutput.write( QString("Class Name: " + sClassName + "\n").toLocal8Bit() );
+    textOutput.write( QString("Number of UnitTests: %1\n").arg(m_testResultList.count()).toLocal8Bit() );
+    textOutput.write("\n");
+//    textOutput.write("--------------------------------\n");
+    // calculate spacing for method name print out
+    int nMethodNameSpacing = 0;
+    for(auto testResult_iter = m_testResultList.begin(); testResult_iter != m_testResultList.end(); testResult_iter++)
+    {
+        UnitTest::TestResult* testResult = *testResult_iter;
+        if (testResult)
+        {
+            if (nMethodNameSpacing < testResult->sName.length())
+                nMethodNameSpacing = testResult->sName.length();
+        }
+    }
+    // print each unittest result line
+    int nUnitTestCount = 1;
+    for (auto testResult_iter = m_testResultList.begin(); testResult_iter != m_testResultList.end(); testResult_iter++)
     {
         UnitTest::TestResult* testResult = *testResult_iter;
         if (testResult)
         {
             // print test result line
-            QString resultString = "[ *** FAILED *** ]";
-            if (testResult->result)
-                resultString = "[ PASSED ]";
-            QString testResult_line = testResult->name + ": " + resultString;
+            QString sResultString = "*** FAILED ***";
+            if (testResult->bResult)
+                sResultString = "PASSED";
+            QString sMethodName = QString(testResult->sName + ":").leftJustified(nMethodNameSpacing+2, '.');
+            QString sTestResult_line = QString("[%1] %2[ %3 ]\n").arg(nUnitTestCount++,2).arg(sMethodName).arg(sResultString);
+            textOutput.write( sTestResult_line.toLocal8Bit() );
         }
-        testResult_iter++;
     }
-
-
-    writer.finishArray();
-    writer.finishObject();
-    jsonFile.close();
-
+//    textOutput.write("--------------------------------\n");
+    textOutput.write("\n");
+    textOutput.write("End of Report.\n");
     textOutput.close();
 
     return false;
@@ -100,10 +121,10 @@ QObject* UnitTest::getTestObject()
 UnitTest::TestResult* UnitTest::createTestResult(QString methodName)
 {
     UnitTest::TestResult* test = new UnitTest::TestResult();
-    test->id = m_testResultList.count();
-    test->name = methodName;
-    test->log = new QStringList();
-    test->result = false;
+    test->nId = m_testResultList.count();
+    test->sName = methodName;
+    test->aLog = new QStringList();
+    test->bResult = false;
 
     m_testResultList.append(test);
 
@@ -112,10 +133,10 @@ UnitTest::TestResult* UnitTest::createTestResult(QString methodName)
 
 bool UnitTest::logToTestResult(UnitTest::TestResult* testResult, QString text)
 {
-    if (!testResult || !testResult->log)
+    if (!testResult || !testResult->aLog)
         return false;
 
-    testResult->log->append(text);
+    testResult->aLog->append(text);
 
     return true;
 }

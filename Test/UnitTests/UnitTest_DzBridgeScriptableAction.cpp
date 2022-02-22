@@ -123,7 +123,7 @@ bool UnitTest_DzBridgeScriptableAction::unitTest001_DzBridgeAction(UnitTest::Tes
 
 	QString debug = QString("");
 
-	debug = testResult->log->join("\n");
+	debug = testResult->aLog->join("\n");
 	
 	return true;
 }

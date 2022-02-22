@@ -21,21 +21,21 @@ bool method_name(UnitTest::TestResult* testResult);
 #define RUNTEST RUNTEST_1ARG
 
 #define RUNTEST_0ARG(method_name) \
-createTestResult(#method_name); \
-method_name();
+UnitTest::TestResult *##method_name##_testResult = createTestResult(#method_name); \
+##method_name##_testResult->bResult = method_name();
 
 #define RUNTEST_1ARG(method_name) \
 UnitTest::TestResult *##method_name##_testResult = createTestResult(#method_name); \
-method_name(##method_name##_testResult);
+##method_name##_testResult->bResult = method_name(##method_name##_testResult);
 
 #define LOGTEST_TEXT(text) \
 logToTestResult(testResult, QString(text));
 
 #define LOGTEST_FAILED(text) \
-LOGTEST_TEXT(testResult->name + ": failed. " + text);
+LOGTEST_TEXT(testResult->sName + ": failed. " + text);
 
 #define LOGTEST_PASSED(text) \
-LOGTEST_TEXT(testResult->name + ": passed. " + text);
+LOGTEST_TEXT(testResult->sName + ": passed. " + text);
 
 class QStringList;
 
@@ -46,17 +46,17 @@ public:
 
 	UnitTest();
 
-	Q_INVOKABLE bool writeAllTestResults();
+	Q_INVOKABLE bool writeAllTestResults(QString outputPath="");
 	Q_INVOKABLE bool convertTestResutlsToXls();
 	Q_INVOKABLE bool convertTestResultsToHtml();
 	Q_INVOKABLE QObject* getTestObject();
 
 protected:
 	struct TestResult {
-		int id;
-		QString name;
-		QStringList* log;
-		bool result;
+		int nId;
+		QString sName;
+		QStringList* aLog;
+		bool bResult;
 	};
 
 	UnitTest::TestResult* createTestResult(QString methodName);
