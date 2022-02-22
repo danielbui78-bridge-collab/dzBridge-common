@@ -49,7 +49,7 @@ bool UnitTest_DzBridgeScriptableAction::runUnitTests()
 	RUNTEST(unitTest024_writeMorphProperties);
 	RUNTEST(unitTest025_writeMorphJointLinkInfo);
 	RUNTEST(unitTest026_writeAllSubdivisions);
-	RUNTEST(unitTest026_writeSubdivisionProperties);
+	RUNTEST(unitTest081_writeSubdivisionProperties);
 	RUNTEST(unitTest027_writeAllDforceInfo);
 	RUNTEST(unitTest028_writeDforceMaterialProperties);
 	RUNTEST(unitTest029_writeDforceModifiers);
@@ -347,7 +347,7 @@ bool UnitTest_DzBridgeScriptableAction::unitTest026_writeAllSubdivisions(UnitTes
 	return bResult;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest026_writeSubdivisionProperties(UnitTest::TestResult* testResult)
+bool UnitTest_DzBridgeScriptableAction::unitTest081_writeSubdivisionProperties(UnitTest::TestResult* testResult)
 {
 	bool bResult = true;
 	DzJsonWriter arg(nullptr);
@@ -497,197 +497,349 @@ bool UnitTest_DzBridgeScriptableAction::unitTest041_checkIfPoseExportIsDestructi
 
 bool UnitTest_DzBridgeScriptableAction::unitTest042_unlockTransform(UnitTest::TestResult* testResult)
 {
-	return false;
+	bool bResult = true;
+	TRY_METHODCALL_NULLPTR(qobject_cast<DzBridgeAction*>(m_testObject)->unlockTranform(nullptr));
+
+	return bResult;
 }
 
 bool UnitTest_DzBridgeScriptableAction::unitTest043_getBridgeDialog(UnitTest::TestResult* testResult)
 {
-	return false;
+	bool bResult = true;
+	TRY_METHODCALL(qobject_cast<DzBridgeAction*>(m_testObject)->getBridgeDialog());
+
+	return bResult;
+
 }
 
 bool UnitTest_DzBridgeScriptableAction::unitTest044_setBridgeDialog(UnitTest::TestResult* testResult)
 {
-	return false;
+	bool bResult = true;
+	TRY_METHODCALL_NULLPTR(qobject_cast<DzBridgeAction*>(m_testObject)->setBridgeDialog(nullptr));
+
+	return bResult;
 }
 
 bool UnitTest_DzBridgeScriptableAction::unitTest045_getSubdivisionDialog(UnitTest::TestResult* testResult)
 {
-	return false;
+	bool bResult = true;
+	TRY_METHODCALL(qobject_cast<DzBridgeAction*>(m_testObject)->getSubdivisionDialog());
+
+	return bResult;
 }
 
 bool UnitTest_DzBridgeScriptableAction::unitTest046_setSubdivisionDialog(UnitTest::TestResult* testResult)
 {
-	return false;
+	bool bResult = true;
+	TRY_METHODCALL_NULLPTR(qobject_cast<DzBridgeAction*>(m_testObject)->setSubdivisionDialog(nullptr));
+
+	return bResult;
 }
 
 bool UnitTest_DzBridgeScriptableAction::unitTest047_getMorphSelectionDialog(UnitTest::TestResult* testResult)
+{
+	bool bResult = true;
+	TRY_METHODCALL(qobject_cast<DzBridgeAction*>(m_testObject)->getMorphSelectionDialog());
+
+	return bResult;
+}
+
+bool UnitTest_DzBridgeScriptableAction::unitTest082_getMorphSelectionDialog(UnitTest::TestResult* testResult)
 {
 	return false;
 }
 
 bool UnitTest_DzBridgeScriptableAction::unitTest048_getAssetType(UnitTest::TestResult* testResult)
 {
-	return false;
+	bool bResult = true;
+	TRY_METHODCALL(qobject_cast<DzBridgeAction*>(m_testObject)->getAssetType());
+
+	return bResult;
 }
 
 bool UnitTest_DzBridgeScriptableAction::unitTest049_setAssetType(UnitTest::TestResult* testResult)
 {
-	return false;
+	bool bResult = true;
+	TRY_METHODCALL(qobject_cast<DzBridgeAction*>(m_testObject)->setAssetType(""));
+
+	TRY_METHODCALL_NULLPTR(qobject_cast<DzBridgeAction*>(m_testObject)->setAssetType(nullptr));
+
+	return bResult;
 }
 
 bool UnitTest_DzBridgeScriptableAction::unitTest050_getExportFilename(UnitTest::TestResult* testResult)
 {
-	return false;
+	bool bResult = true;
+	TRY_METHODCALL(qobject_cast<DzBridgeAction*>(m_testObject)->getExportFilename());
+
+	return bResult;
 }
 
 bool UnitTest_DzBridgeScriptableAction::unitTest051_setExportFilename(UnitTest::TestResult* testResult)
 {
-	return false;
+	bool bResult = true;
+	TRY_METHODCALL(qobject_cast<DzBridgeAction*>(m_testObject)->setExportFilename(""));
+
+	TRY_METHODCALL_NULLPTR(qobject_cast<DzBridgeAction*>(m_testObject)->setExportFilename(nullptr));
+
+	return bResult;
 }
 
 bool UnitTest_DzBridgeScriptableAction::unitTest052_getExportFolder(UnitTest::TestResult* testResult)
 {
-	return false;
+	bool bResult = true;
+	TRY_METHODCALL(qobject_cast<DzBridgeAction*>(m_testObject)->getExportFolder());
+
+	return bResult;
 }
 
 bool UnitTest_DzBridgeScriptableAction::unitTest053_setExportFolder(UnitTest::TestResult* testResult)
 {
-	return false;
+	bool bResult = true;
+	TRY_METHODCALL(qobject_cast<DzBridgeAction*>(m_testObject)->setExportFolder(""));
+
+	return bResult;
 }
 
 bool UnitTest_DzBridgeScriptableAction::unitTest054_getRootFolder(UnitTest::TestResult* testResult)
 {
-	return false;
+	bool bResult = true;
+	TRY_METHODCALL(qobject_cast<DzBridgeAction*>(m_testObject)->getRootFolder());
+
+	return bResult;
 }
 
 bool UnitTest_DzBridgeScriptableAction::unitTest055_setRootFolder(UnitTest::TestResult* testResult)
 {
-	return false;
+	bool bResult = true;
+	TRY_METHODCALL(qobject_cast<DzBridgeAction*>(m_testObject)->setRootFolder(""));
+
+	return bResult;
 }
 
 bool UnitTest_DzBridgeScriptableAction::unitTest056_getProductName(UnitTest::TestResult* testResult)
 {
-	return false;
+	bool bResult = true;
+	TRY_METHODCALL(qobject_cast<DzBridgeAction*>(m_testObject)->getProductName());
+
+	return bResult;
 }
 
 bool UnitTest_DzBridgeScriptableAction::unitTest057_setProductName(UnitTest::TestResult* testResult)
 {
-	return false;
+	bool bResult = true;
+	TRY_METHODCALL(qobject_cast<DzBridgeAction*>(m_testObject)->setProductName(""));
+
+	return bResult;
 }
 
 bool UnitTest_DzBridgeScriptableAction::unitTest058_getProductComponentName(UnitTest::TestResult* testResult)
 {
-	return false;
+	bool bResult = true;
+	TRY_METHODCALL(qobject_cast<DzBridgeAction*>(m_testObject)->getProductComponentName());
+
+	return bResult;
 }
 
 bool UnitTest_DzBridgeScriptableAction::unitTest059_setProductComponentName(UnitTest::TestResult* testResult)
 {
-	return false;
+	bool bResult = true;
+	TRY_METHODCALL(qobject_cast<DzBridgeAction*>(m_testObject)->setProductComponentName(""));
+
+	return bResult;
+
 }
 
 bool UnitTest_DzBridgeScriptableAction::unitTest060_getMorphList(UnitTest::TestResult* testResult)
 {
-	return false;
+	bool bResult = true;
+	TRY_METHODCALL(qobject_cast<DzBridgeAction*>(m_testObject)->getMorphList());
+
+	return bResult;
+
 }
 
 bool UnitTest_DzBridgeScriptableAction::unitTest061_setMorphList(UnitTest::TestResult* testResult)
 {
-	return false;
+	bool bResult = true;
+	QStringList arg;
+	TRY_METHODCALL(qobject_cast<DzBridgeAction*>(m_testObject)->setMorphList(arg));
+
+	return bResult;
+
 }
 
 bool UnitTest_DzBridgeScriptableAction::unitTest062_getUseRelativePaths(UnitTest::TestResult* testResult)
 {
-	return false;
+	bool bResult = true;
+	TRY_METHODCALL(qobject_cast<DzBridgeAction*>(m_testObject)->getUseRelativePaths());
+
+	return bResult;
+
 }
 
 bool UnitTest_DzBridgeScriptableAction::unitTest063_setUseRelativePaths(UnitTest::TestResult* testResult)
 {
-	return false;
+	bool bResult = true;
+	TRY_METHODCALL(qobject_cast<DzBridgeAction*>(m_testObject)->setUseRelativePaths(0));
+
+	return bResult;
+
 }
 
 bool UnitTest_DzBridgeScriptableAction::unitTest064_isTemporaryFile(UnitTest::TestResult* testResult)
 {
-	return false;
+	bool bResult = true;
+	TRY_METHODCALL(qobject_cast<DzBridgeAction*>(m_testObject)->isTemporaryFile(""));
+
+	return bResult;
+
 }
 
 bool UnitTest_DzBridgeScriptableAction::unitTest065_exportAssetWithDTU(UnitTest::TestResult* testResult)
 {
-	return false;
+	bool bResult = true;
+	TRY_METHODCALL(qobject_cast<DzBridgeAction*>(m_testObject)->exportAssetWithDtu(""));
+
+	return bResult;
+
 }
 
 bool UnitTest_DzBridgeScriptableAction::unitTest066_writeJSON_Property_Texture(UnitTest::TestResult* testResult)
 {
-	return false;
+	bool bResult = true;
+	DzJsonWriter arg(nullptr);
+	TRY_METHODCALL(qobject_cast<DzBridgeAction*>(m_testObject)->writePropertyTexture(arg,"",0,"",""));
+
+	return bResult;
+
 }
 
 bool UnitTest_DzBridgeScriptableAction::unitTest067_makeUniqueFilename(UnitTest::TestResult* testResult)
 {
-	return false;
+	bool bResult = true;
+	TRY_METHODCALL(qobject_cast<DzBridgeAction*>(m_testObject)->makeUniqueFilename(""));
+
+	return bResult;
 }
 
 bool UnitTest_DzBridgeScriptableAction::unitTest068_getUndoNormalMaps(UnitTest::TestResult* testResult)
 {
-	return false;
+	bool bResult = true;
+	TRY_METHODCALL(qobject_cast<DzBridgeAction*>(m_testObject)->getUndoNormalMaps());
+
+	return bResult;
+
 }
 
 bool UnitTest_DzBridgeScriptableAction::unitTest069_setUndoNormalMaps(UnitTest::TestResult* testResult)
 {
-	return false;
+	bool bResult = true;
+	TRY_METHODCALL(qobject_cast<DzBridgeAction*>(m_testObject)->setUndoNormalMaps(0));
+
+	return bResult;
+
 }
 
 bool UnitTest_DzBridgeScriptableAction::unitTest070_getNonInteractiveMode(UnitTest::TestResult* testResult)
 {
-	return false;
+	bool bResult = true;
+	TRY_METHODCALL(qobject_cast<DzBridgeAction*>(m_testObject)->getNonInteractiveMode());
+
+	return bResult;
+
 }
 
 bool UnitTest_DzBridgeScriptableAction::unitTest071_setNonInteractiveMode(UnitTest::TestResult* testResult)
 {
-	return false;
+	bool bResult = true;
+	TRY_METHODCALL(qobject_cast<DzBridgeAction*>(m_testObject)->setNonInteractiveMode(0));
+
+	return bResult;
+
 }
 
 bool UnitTest_DzBridgeScriptableAction::unitTest072_getExportFbx(UnitTest::TestResult* testResult)
 {
-	return false;
+	bool bResult = true;
+	TRY_METHODCALL(qobject_cast<DzBridgeAction*>(m_testObject)->getExportFbx());
+
+	return bResult;
+
 }
 
 bool UnitTest_DzBridgeScriptableAction::unitTest073_setExportFbx(UnitTest::TestResult* testResult)
 {
-	return false;
+	bool bResult = true;
+	TRY_METHODCALL(qobject_cast<DzBridgeAction*>(m_testObject)->setExportFbx(""));
+
+	return bResult;
+
 }
 
 bool UnitTest_DzBridgeScriptableAction::unitTest074_readGUI(UnitTest::TestResult* testResult)
 {
-	return false;
+	bool bResult = true;
+	TRY_METHODCALL_NULLPTR(qobject_cast<DzBridgeAction*>(m_testObject)->readGui(nullptr));
+
+	return bResult;
+
 }
 
 bool UnitTest_DzBridgeScriptableAction::unitTest075_exportHD(UnitTest::TestResult* testResult)
 {
-	return false;
+	bool bResult = true;
+	TRY_METHODCALL(qobject_cast<DzBridgeAction*>(m_testObject)->exportHD());
+
+	return bResult;
+
 }
 
 bool UnitTest_DzBridgeScriptableAction::unitTest076_upgradeToHD(UnitTest::TestResult* testResult)
 {
-	return false;
+	bool bResult = true;
+	TRY_METHODCALL_NULLPTR(qobject_cast<DzBridgeAction*>(m_testObject)->upgradeToHD("","", "", nullptr));
+
+	return bResult;
+
 }
 
 bool UnitTest_DzBridgeScriptableAction::unitTest077_WriteWeightMaps(UnitTest::TestResult* testResult)
 {
-	return false;
+	bool bResult = true;
+	DzJsonWriter arg(nullptr);
+	TRY_METHODCALL_NULLPTR(qobject_cast<DzBridgeAction*>(m_testObject)->writeWeightMaps(nullptr, arg));
+
+	return bResult;
+
 }
 
 bool UnitTest_DzBridgeScriptableAction::unitTest078_metaInvokeMethod(UnitTest::TestResult* testResult)
 {
-	return false;
+	bool bResult = true;
+	TRY_METHODCALL_NULLPTR(qobject_cast<DzBridgeAction*>(m_testObject)->metaInvokeMethod(nullptr, nullptr, nullptr));
+
+	return bResult;
+
 }
 
 bool UnitTest_DzBridgeScriptableAction::unitTest079_CopyFile(UnitTest::TestResult* testResult)
 {
-	return false;
+	bool bResult = false;
+	LOGTEST_FAILED("CopyFile won't build");
+//	TRY_METHODCALL_NULLPTR(qobject_cast<DzBridgeAction*>(m_testObject)->CopyFile(nullptr, nullptr));
+
+	return bResult;
+
 }
 
 bool UnitTest_DzBridgeScriptableAction::unitTest080_GetMD5(UnitTest::TestResult* testResult)
 {
-	return false;
+	bool bResult = true;
+	TRY_METHODCALL(qobject_cast<DzBridgeAction*>(m_testObject)->GetMD5(""));
+
+	return bResult;
+
 }
 
 

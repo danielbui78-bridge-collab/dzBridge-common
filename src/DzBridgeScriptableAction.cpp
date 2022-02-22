@@ -116,7 +116,7 @@ void DzBridgeScriptableAction::executeAction()
     if (NonInteractiveMode == 1 || dialog_choice == QDialog::Accepted)
     {
 		// Read in Common GUI values
-		readGUI(m_bridgeDialog);
+		readGui(m_bridgeDialog);
 
 		exportHD();
     }

@@ -209,9 +209,9 @@ protected:
 	Q_INVOKABLE void setUseRelativePaths(bool arg_UseRelativePaths) { this->UseRelativePaths = arg_UseRelativePaths; };
 
 	bool isTemporaryFile(QString sFilename);
-	QString exportAssetWithDTU(QString sFilename, QString sAssetMaterialName = "");
-	void writeJSON_Property_Texture(DzJsonWriter& Writer, QString sName, QString sValue, QString sType, QString sTexture);
-	void writeJSON_Property_Texture(DzJsonWriter& Writer, QString sName, double dValue, QString sType, QString sTexture);
+	QString exportAssetWithDtu(QString sFilename, QString sAssetMaterialName = "");
+	void writePropertyTexture(DzJsonWriter& Writer, QString sName, QString sValue, QString sType, QString sTexture);
+	void writePropertyTexture(DzJsonWriter& Writer, QString sName, double dValue, QString sType, QString sTexture);
 	QString makeUniqueFilename(QString sFilename);
 
 	Q_INVOKABLE bool getUndoNormalMaps() { return this->m_bUndoNormalMaps; };
@@ -223,10 +223,10 @@ protected:
 	Q_INVOKABLE QString getExportFbx() { return this->m_sExportFbx; };
 	Q_INVOKABLE void setExportFbx(QString arg_FbxName) { this->m_sExportFbx = arg_FbxName; };
 
-	Q_INVOKABLE void readGUI(DzBridgeDialog*);
+	Q_INVOKABLE void readGui(DzBridgeDialog*);
 	Q_INVOKABLE void exportHD(DzProgress* exportProgress = nullptr);
 	Q_INVOKABLE bool upgradeToHD(QString baseFilePath, QString hdFilePath, QString outFilePath, std::map<std::string, int>* pLookupTable);
-	Q_INVOKABLE void WriteWeightMaps(DzNode* Node, DzJsonWriter& Stream);
+	Q_INVOKABLE void writeWeightMaps(DzNode* Node, DzJsonWriter& Stream);
 
 	Q_INVOKABLE bool metaInvokeMethod(QObject* object, const char* methodSig, void** returnPtr);
 	Q_INVOKABLE bool CopyFile(QFile* file, QString* dst, bool replace = true, bool compareFiles = true);

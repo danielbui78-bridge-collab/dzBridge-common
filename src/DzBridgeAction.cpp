@@ -1290,7 +1290,7 @@ bool DzBridgeAction::isTemporaryFile(QString sFilename)
 	return false;
 }
 
-QString DzBridgeAction::exportAssetWithDTU(QString sFilename, QString sAssetMaterialName)
+QString DzBridgeAction::exportAssetWithDtu(QString sFilename, QString sAssetMaterialName)
 {
 	if (sFilename.isEmpty())
 		return sFilename;
@@ -1348,7 +1348,7 @@ QString DzBridgeAction::makeUniqueFilename(QString sFilename)
 
 }
 
-void DzBridgeAction::writeJSON_Property_Texture(DzJsonWriter& Writer, QString sName, QString sValue, QString sType, QString sTexture)
+void DzBridgeAction::writePropertyTexture(DzJsonWriter& Writer, QString sName, QString sValue, QString sType, QString sTexture)
 {
 	Writer.startObject(true);
 	Writer.addMember("Name", sName);
@@ -1359,7 +1359,7 @@ void DzBridgeAction::writeJSON_Property_Texture(DzJsonWriter& Writer, QString sN
 
 }
 
-void DzBridgeAction::writeJSON_Property_Texture(DzJsonWriter& Writer, QString sName, double dValue, QString sType, QString sTexture)
+void DzBridgeAction::writePropertyTexture(DzJsonWriter& Writer, QString sName, double dValue, QString sType, QString sTexture)
 {
 	Writer.startObject(true);
 	Writer.addMember("Name", sName);
@@ -1537,13 +1537,13 @@ void DzBridgeAction::writeMaterialProperty(DzNode* Node, DzJsonWriter& Writer, Q
 		}
 		if (isTemporaryFile(TextureName))
 		{
-			dtuTextureName = exportAssetWithDTU(TextureName, Node->getLabel() + "_" + Material->getName());
+			dtuTextureName = exportAssetWithDtu(TextureName, Node->getLabel() + "_" + Material->getName());
 		}
 	}
 	if (bUseNumeric)
-		writeJSON_Property_Texture(Writer, Name, dtuPropNumericValue, dtuPropType, dtuTextureName);
+		writePropertyTexture(Writer, Name, dtuPropNumericValue, dtuPropType, dtuTextureName);
 	else
-		writeJSON_Property_Texture(Writer, Name, dtuPropValue, dtuPropType, dtuTextureName);
+		writePropertyTexture(Writer, Name, dtuPropValue, dtuPropType, dtuTextureName);
 
 	if (ExportMaterialPropertiesCSV && pCVSStream)
 	{
@@ -1727,7 +1727,7 @@ void DzBridgeAction::writeAllDforceInfo(DzNode* Node, DzJsonWriter& Writer, QTex
 			Writer.startMemberArray("dForce-WeightMaps", true);
 			if (ExportDForce)
 			{
-				WriteWeightMaps(Selection, Writer);
+				writeWeightMaps(Selection, Writer);
 			}
 			Writer.finishArray();
 		}
@@ -1883,7 +1883,7 @@ QUuid DzBridgeAction::writeInstance(DzNode* Node, DzJsonWriter& Writer, QUuid Pa
 	return Uid;
 }
 
-void DzBridgeAction::readGUI(DzBridgeDialog* BridgeDialog)
+void DzBridgeAction::readGui(DzBridgeDialog* BridgeDialog)
 {
 
 	// Collect the values from the dialog fields
@@ -2218,7 +2218,7 @@ bool DzBridgeAction::setMorphSelectionDialog(DzBasicDialog* arg_dlg)
 // START: DFORCE WEIGHTMAPS
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Write weightmaps - recursively traverse parent/children, and export all associated weightmaps
-void DzBridgeAction::WriteWeightMaps(DzNode* Node, DzJsonWriter& Writer)
+void DzBridgeAction::writeWeightMaps(DzNode* Node, DzJsonWriter& Writer)
 {
 	DzObject* Object = Node->getObject();
 	DzShape* Shape = Object ? Object->getCurrentShape() : NULL;
@@ -2399,7 +2399,7 @@ void DzBridgeAction::WriteWeightMaps(DzNode* Node, DzJsonWriter& Writer)
 	while (Iterator.hasNext())
 	{
 		DzNode* Child = Iterator.next();
-		WriteWeightMaps(Child, Writer);
+		writeWeightMaps(Child, Writer);
 	}
 
 }

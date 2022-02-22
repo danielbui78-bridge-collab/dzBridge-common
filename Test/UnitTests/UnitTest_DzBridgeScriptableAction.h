@@ -40,7 +40,7 @@ private:
 	bool unitTest024_writeMorphProperties(UnitTest::TestResult* testResult);
 	bool unitTest025_writeMorphJointLinkInfo(UnitTest::TestResult* testResult);
 	bool unitTest026_writeAllSubdivisions(UnitTest::TestResult* testResult);
-	bool unitTest026_writeSubdivisionProperties(UnitTest::TestResult* testResult);
+	bool unitTest081_writeSubdivisionProperties(UnitTest::TestResult* testResult);
 	bool unitTest027_writeAllDforceInfo(UnitTest::TestResult* testResult);
 	bool unitTest028_writeDforceMaterialProperties(UnitTest::TestResult* testResult);
 	bool unitTest029_writeDforceModifiers(UnitTest::TestResult* testResult);
@@ -62,6 +62,7 @@ private:
 	bool unitTest045_getSubdivisionDialog(UnitTest::TestResult* testResult);
 	bool unitTest046_setSubdivisionDialog(UnitTest::TestResult* testResult);
 	bool unitTest047_getMorphSelectionDialog(UnitTest::TestResult* testResult);
+	bool unitTest082_getMorphSelectionDialog(UnitTest::TestResult* testResult);
 	bool unitTest048_getAssetType(UnitTest::TestResult* testResult);
 	bool unitTest049_setAssetType(UnitTest::TestResult* testResult);
 	bool unitTest050_getExportFilename(UnitTest::TestResult* testResult);
