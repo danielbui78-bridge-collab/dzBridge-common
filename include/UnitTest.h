@@ -55,8 +55,7 @@ catch (...) { LOGTEST_TEXT(error_string); bResult = false; }
 
 #define TRY_METHODCALL_NULLPTR(method_call) \
 try { method_call; } \
-catch (...) { LOGTEST_TEXT("C++ exception caught. Failed nullptr C++ exception test."); bResult = false; } \
-if (bResult) LOGTEST_TEXT("Passed nullptr C++ exception test.");
+catch (...) { LOGTEST_TEXT("C++ exception caught. Failed nullptr C++ exception test."); bResult = false; } 
 
 
 class QStringList;

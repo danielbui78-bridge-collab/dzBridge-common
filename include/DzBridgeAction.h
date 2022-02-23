@@ -68,9 +68,8 @@ public:
 	Q_INVOKABLE QStringList getAvailableMorphs(DzNode* Node);
 	Q_INVOKABLE QStringList getActiveMorphs(DzNode* Node);
 
-public slots:
 	// Normal Map Handling
-	QImage makeNormalMapFromHeightMap(QString heightMapFilename, double normalStrength);
+	Q_INVOKABLE QImage makeNormalMapFromHeightMap(QString heightMapFilename, double normalStrength);
 	// Pre-Process Scene data to workaround FbxExporter issues, called by Export() before FbxExport operation.
 	bool preProcessScene(DzNode* parentNode = nullptr);
 	// Undo changes made by preProcessScene(), called by Export() after FbxExport operation.
@@ -157,10 +156,6 @@ protected:
 
 	Q_INVOKABLE virtual void writeAllPoses(DzJsonWriter& writer);
 
-	// Need to temporarily rename surfaces if there is a name collision
-	void renameDuplicateMaterials(DzNode* Node, QList<QString>& MaterialNames, QMap<DzMaterial*, QString>& OriginalMaterialNames);
-	void undoRenameDuplicateMaterials(DzNode* Node, QList<QString>& MaterialNames, QMap<DzMaterial*, QString>& OriginalMaterialNames);
-
 	// Used to find all the unique props in a scene for Environment export
 	void getScenePropList(DzNode* Node, QMap<QString, DzNode*>& Types);
 
@@ -229,8 +224,8 @@ protected:
 	Q_INVOKABLE void writeWeightMaps(DzNode* Node, DzJsonWriter& Stream);
 
 	Q_INVOKABLE bool metaInvokeMethod(QObject* object, const char* methodSig, void** returnPtr);
-	Q_INVOKABLE bool CopyFile(QFile* file, QString* dst, bool replace = true, bool compareFiles = true);
-	Q_INVOKABLE QString GetMD5(const QString& path);
+	Q_INVOKABLE bool copyFile(QFile* file, QString* dst, bool replace = true, bool compareFiles = true);
+	Q_INVOKABLE QString getMD5(const QString& path);
 
 private:
 	class MaterialGroupExportOrderMetaData
@@ -276,6 +271,11 @@ private:
 	double getHeightMapStrength(DzMaterial* material);
 
 	DzWeightMapPtr getWeightMapPtr(DzNode* Node);
+
+	// Need to temporarily rename surfaces if there is a name collision
+	void renameDuplicateMaterials(DzNode* Node, QList<QString>& MaterialNames, QMap<DzMaterial*, QString>& OriginalMaterialNames);
+	void undoRenameDuplicateMaterials(DzNode* Node, QList<QString>& MaterialNames, QMap<DzMaterial*, QString>& OriginalMaterialNames);
+
 
 #ifdef UNITTEST_DZBRIDGE
 	friend class UnitTest_DzBridgeScriptableAction;

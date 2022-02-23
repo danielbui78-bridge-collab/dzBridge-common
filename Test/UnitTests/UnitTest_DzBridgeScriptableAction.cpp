@@ -2,7 +2,7 @@
 
 #include "UnitTest_DzBridgeScriptableAction.h"
 #include "DzBridgeScriptableAction.h"
-
+#include "dzprogress.h"
 
 /// <summary>
 /// Constructor
@@ -23,93 +23,95 @@ bool UnitTest_DzBridgeScriptableAction::runUnitTests()
 		return false;
 	}
 
-	RUNTEST(unitTest001_DzBridgeAction);
-	RUNTEST(unitTest002_resetToDefaults);
-	RUNTEST(unitTest003_cleanString);
-	RUNTEST(unitTest004_getAvailableMorphs);
-	RUNTEST(unitTest005_getActiveMorphs);
-	RUNTEST(unitTest006_makeNormalMapFromHeightMap);
-	RUNTEST(unitTest007_preProcessScene);
-	RUNTEST(unitTest008_renameDuplicateMaterial);
-	RUNTEST(unitTest009_undoRenameDuplicateMaterials);
-	RUNTEST(unitTest010_generateMissingNormalMap);
-	RUNTEST(unitTest011_undoGenerateMissingNormalMaps);
-	RUNTEST(unitTest012_getActionGroup);
-	RUNTEST(unitTest013_getDefaultMenuPath);
-	RUNTEST(unitTest014_exportAsset);
-	RUNTEST(unitTest015_exportNode);
-	RUNTEST(unitTest016_writeConfiguration);
-	RUNTEST(unitTest017_setExportOptions);
-	RUNTEST(unitTest018_readGUIRootFolder);
-	RUNTEST(unitTest019_writeDTUHeader);
-	RUNTEST(unitTest020_startMaterialBlock);
-	RUNTEST(unitTest021_finishMaterialBlock);
-	RUNTEST(unitTest022_writeMaterialProperty);
-	RUNTEST(unitTest023_writeAllMorphs);
-	RUNTEST(unitTest024_writeMorphProperties);
-	RUNTEST(unitTest025_writeMorphJointLinkInfo);
-	RUNTEST(unitTest026_writeAllSubdivisions);
-	RUNTEST(unitTest081_writeSubdivisionProperties);
-	RUNTEST(unitTest027_writeAllDforceInfo);
-	RUNTEST(unitTest028_writeDforceMaterialProperties);
-	RUNTEST(unitTest029_writeDforceModifiers);
-	RUNTEST(unitTest030_writeEnvironment);
-	RUNTEST(unitTest031_writeInstances);
-	RUNTEST(unitTest032_writeInstance);
-	RUNTEST(unitTest033_writeAllPoses);
-	RUNTEST(unitTest034_renameDuplciateMaterials);
-	RUNTEST(unitTest035_undoRenameDuplicateMaterials);
-	RUNTEST(unitTest036_getScenePropList);
-	RUNTEST(unitTest037_disconnectNode);
-	RUNTEST(unitTest038_reconnectNodes);
-	RUNTEST(unitTest039_disconnectOverrideControllers);
-	RUNTEST(unitTest040_reconnectOverrideControllers);
-	RUNTEST(unitTest041_checkIfPoseExportIsDestructive);
-	RUNTEST(unitTest042_unlockTransform);
-	RUNTEST(unitTest043_getBridgeDialog);
-	RUNTEST(unitTest044_setBridgeDialog);
-	RUNTEST(unitTest045_getSubdivisionDialog);
-	RUNTEST(unitTest046_setSubdivisionDialog);
-	RUNTEST(unitTest047_getMorphSelectionDialog);
-	RUNTEST(unitTest048_getAssetType);
-	RUNTEST(unitTest049_setAssetType);
-	RUNTEST(unitTest050_getExportFilename);
-	RUNTEST(unitTest051_setExportFilename);
-	RUNTEST(unitTest052_getExportFolder);
-	RUNTEST(unitTest053_setExportFolder);
-	RUNTEST(unitTest054_getRootFolder);
-	RUNTEST(unitTest055_setRootFolder);
-	RUNTEST(unitTest056_getProductName);
-	RUNTEST(unitTest057_setProductName);
-	RUNTEST(unitTest058_getProductComponentName);
-	RUNTEST(unitTest059_setProductComponentName);
-	RUNTEST(unitTest060_getMorphList);
-	RUNTEST(unitTest061_setMorphList);
-	RUNTEST(unitTest062_getUseRelativePaths);
-	RUNTEST(unitTest063_setUseRelativePaths);
-	RUNTEST(unitTest064_isTemporaryFile);
-	RUNTEST(unitTest065_exportAssetWithDTU);
-	RUNTEST(unitTest066_writeJSON_Property_Texture);
-	RUNTEST(unitTest067_makeUniqueFilename);
-	RUNTEST(unitTest068_getUndoNormalMaps);
-	RUNTEST(unitTest069_setUndoNormalMaps);
-	RUNTEST(unitTest070_getNonInteractiveMode);
-	RUNTEST(unitTest071_setNonInteractiveMode);
-	RUNTEST(unitTest072_getExportFbx);
-	RUNTEST(unitTest073_setExportFbx);
-	RUNTEST(unitTest074_readGUI);
-	RUNTEST(unitTest075_exportHD);
-	RUNTEST(unitTest076_upgradeToHD);
-	RUNTEST(unitTest077_WriteWeightMaps);
-	RUNTEST(unitTest078_metaInvokeMethod);
-	RUNTEST(unitTest079_CopyFile);
-	RUNTEST(unitTest080_GetMD5);
+	RUNTEST(_DzBridgeAction);
+	RUNTEST(resetToDefaults);
+	RUNTEST(cleanString);
+	RUNTEST(getAvailableMorphs);
+	RUNTEST(getActiveMorphs);
+	RUNTEST(makeNormalMapFromHeightMap);
+	RUNTEST(preProcessScene);
+	RUNTEST(renameDuplicateMaterial);
+	RUNTEST(undoRenameDuplicateMaterials);
+	RUNTEST(generateMissingNormalMap);
+	RUNTEST(undoGenerateMissingNormalMaps);
+	RUNTEST(getActionGroup);
+	RUNTEST(getDefaultMenuPath);
+	RUNTEST(exportAsset);
+	RUNTEST(exportNode);
+	RUNTEST(writeConfiguration);
+	RUNTEST(setExportOptions);
+	RUNTEST(readGuiRootFolder);
+	RUNTEST(writeDtuHeader);
+	RUNTEST(startMaterialBlock);
+	RUNTEST(finishMaterialBlock);
+	RUNTEST(writeAllMaterials);
+	RUNTEST(writeMaterialProperty);
+	RUNTEST(writeAllMorphs);
+	RUNTEST(writeMorphProperties);
+	RUNTEST(writeMorphJointLinkInfo);
+	RUNTEST(writeAllSubdivisions);
+	RUNTEST(writeSubdivisionProperties);
+	RUNTEST(writeAllDforceInfo);
+	RUNTEST(writeDforceMaterialProperties);
+	RUNTEST(writeDforceModifiers);
+	RUNTEST(writeEnvironment);
+	RUNTEST(writeInstances);
+	RUNTEST(writeInstance);
+	RUNTEST(writeAllPoses);
+	RUNTEST(renameDuplicateMaterials2);
+	RUNTEST(undoRenameDuplicateMaterials2);
+	RUNTEST(getScenePropList);
+	RUNTEST(disconnectNode);
+	RUNTEST(reconnectNodes);
+	RUNTEST(disconnectOverrideControllers);
+	RUNTEST(reconnectOverrideControllers);
+	RUNTEST(checkIfPoseExportIsDestructive);
+	RUNTEST(unlockTransform);
+	RUNTEST(getBridgeDialog);
+	RUNTEST(setBridgeDialog);
+	RUNTEST(getSubdivisionDialog);
+	RUNTEST(setSubdivisionDialog);
+	RUNTEST(getMorphSelectionDialog);
+	RUNTEST(setMorphSelectionDialog);
+	RUNTEST(getAssetType);
+	RUNTEST(setAssetType);
+	RUNTEST(getExportFilename);
+	RUNTEST(setExportFilename);
+	RUNTEST(getExportFolder);
+	RUNTEST(setExportFolder);
+	RUNTEST(getRootFolder);
+	RUNTEST(setRootFolder);
+	RUNTEST(getProductName);
+	RUNTEST(setProductName);
+	RUNTEST(getProductComponentName);
+	RUNTEST(setProductComponentName);
+	RUNTEST(getMorphList);
+	RUNTEST(setMorphList);
+	RUNTEST(getUseRelativePaths);
+	RUNTEST(setUseRelativePaths);
+	RUNTEST(isTemporaryFile);
+	RUNTEST(exportAssetWithDtu);
+	RUNTEST(writePropertyTexture);
+	RUNTEST(makeUniqueFilename);
+	RUNTEST(getUndoNormalMaps);
+	RUNTEST(setUndoNormalMaps);
+	RUNTEST(getNonInteractiveMode);
+	RUNTEST(setNonInteractiveMode);
+	RUNTEST(getExportFbx);
+	RUNTEST(setExportFbx);
+	RUNTEST(readGui);
+	RUNTEST(exportHD);
+	RUNTEST(upgradeToHD);
+	RUNTEST(writeWeightMaps);
+	RUNTEST(metaInvokeMethod);
+	RUNTEST(copyFile);
+	RUNTEST(getMD5);
 
 
 	return true;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest001_DzBridgeAction(UnitTest::TestResult *testResult)
+bool UnitTest_DzBridgeScriptableAction::_DzBridgeAction(UnitTest::TestResult *testResult)
 {
 	bool bResult = true;
 	LOGTEST_TEXT("DzBridgeAction is an abstract class.  Can not test constructor.");
@@ -126,15 +128,14 @@ bool UnitTest_DzBridgeScriptableAction::unitTest001_DzBridgeAction(UnitTest::Tes
 	return bResult;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest002_resetToDefaults(UnitTest::TestResult* testResult)
+bool UnitTest_DzBridgeScriptableAction::resetToDefaults(UnitTest::TestResult* testResult)
 {
 	bool bResult = true;
-	TRY_METHODCALL(qobject_cast<DzBridgeAction*>(m_testObject)->resetToDefaults());
-
+	TRY_METHODCALL(qobject_cast<::DzBridgeAction*>(m_testObject)->resetToDefaults());
 	return true;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest003_cleanString(UnitTest::TestResult* testResult)
+bool UnitTest_DzBridgeScriptableAction::cleanString(UnitTest::TestResult* testResult)
 {
 	bool bResult = true;
 	TRY_METHODCALL_NULLPTR(qobject_cast<DzBridgeAction*>(m_testObject)->cleanString(nullptr));
@@ -145,7 +146,7 @@ bool UnitTest_DzBridgeScriptableAction::unitTest003_cleanString(UnitTest::TestRe
 
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest004_getAvailableMorphs(UnitTest::TestResult* testResult)
+bool UnitTest_DzBridgeScriptableAction::getAvailableMorphs(UnitTest::TestResult* testResult)
 {
 	bool bResult = true;
 	TRY_METHODCALL(qobject_cast<DzBridgeAction*>(m_testObject)->getAvailableMorphs(new DzNode()));
@@ -155,7 +156,7 @@ bool UnitTest_DzBridgeScriptableAction::unitTest004_getAvailableMorphs(UnitTest:
 	return bResult;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest005_getActiveMorphs(UnitTest::TestResult* testResult)
+bool UnitTest_DzBridgeScriptableAction::getActiveMorphs(UnitTest::TestResult* testResult)
 {
 	bool bResult = true;
 	TRY_METHODCALL(qobject_cast<DzBridgeAction*>(m_testObject)->getActiveMorphs(new DzNode()));
@@ -165,7 +166,7 @@ bool UnitTest_DzBridgeScriptableAction::unitTest005_getActiveMorphs(UnitTest::Te
 	return bResult;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest006_makeNormalMapFromHeightMap(UnitTest::TestResult* testResult)
+bool UnitTest_DzBridgeScriptableAction::makeNormalMapFromHeightMap(UnitTest::TestResult* testResult)
 {
 	bool bResult = true;
 	TRY_METHODCALL(qobject_cast<DzBridgeAction*>(m_testObject)->makeNormalMapFromHeightMap(nullptr, 0.0));
@@ -173,7 +174,7 @@ bool UnitTest_DzBridgeScriptableAction::unitTest006_makeNormalMapFromHeightMap(U
 	return bResult;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest007_preProcessScene(UnitTest::TestResult* testResult)
+bool UnitTest_DzBridgeScriptableAction::preProcessScene(UnitTest::TestResult* testResult)
 {
 	bool bResult = true;
 	TRY_METHODCALL(qobject_cast<DzBridgeAction*>(m_testObject)->preProcessScene(new DzNode()));
@@ -183,7 +184,7 @@ bool UnitTest_DzBridgeScriptableAction::unitTest007_preProcessScene(UnitTest::Te
 	return bResult;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest008_renameDuplicateMaterial(UnitTest::TestResult* testResult)
+bool UnitTest_DzBridgeScriptableAction::renameDuplicateMaterial(UnitTest::TestResult* testResult)
 {
 	bool bResult = true;
 	TRY_METHODCALL_NULLPTR(qobject_cast<DzBridgeAction*>(m_testObject)->renameDuplicateMaterial(nullptr, nullptr));
@@ -191,7 +192,7 @@ bool UnitTest_DzBridgeScriptableAction::unitTest008_renameDuplicateMaterial(Unit
 	return bResult;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest009_undoRenameDuplicateMaterials(UnitTest::TestResult* testResult)
+bool UnitTest_DzBridgeScriptableAction::undoRenameDuplicateMaterials(UnitTest::TestResult* testResult)
 {
 	bool bResult = true;
 	TRY_METHODCALL(qobject_cast<DzBridgeAction*>(m_testObject)->undoRenameDuplicateMaterials());
@@ -199,7 +200,7 @@ bool UnitTest_DzBridgeScriptableAction::unitTest009_undoRenameDuplicateMaterials
 	return bResult;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest010_generateMissingNormalMap(UnitTest::TestResult* testResult)
+bool UnitTest_DzBridgeScriptableAction::generateMissingNormalMap(UnitTest::TestResult* testResult)
 {
 	bool bResult = true;
 	TRY_METHODCALL_NULLPTR(qobject_cast<DzBridgeAction*>(m_testObject)->generateMissingNormalMap(nullptr));
@@ -207,7 +208,7 @@ bool UnitTest_DzBridgeScriptableAction::unitTest010_generateMissingNormalMap(Uni
 	return bResult;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest011_undoGenerateMissingNormalMaps(UnitTest::TestResult* testResult)
+bool UnitTest_DzBridgeScriptableAction::undoGenerateMissingNormalMaps(UnitTest::TestResult* testResult)
 {
 	bool bResult = true;
 	TRY_METHODCALL(qobject_cast<DzBridgeAction*>(m_testObject)->undoGenerateMissingNormalMaps());
@@ -215,7 +216,7 @@ bool UnitTest_DzBridgeScriptableAction::unitTest011_undoGenerateMissingNormalMap
 	return bResult;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest012_getActionGroup(UnitTest::TestResult* testResult)
+bool UnitTest_DzBridgeScriptableAction::getActionGroup(UnitTest::TestResult* testResult)
 {
 	bool bResult = true;
 	TRY_METHODCALL(qobject_cast<DzBridgeAction*>(m_testObject)->getActionGroup());
@@ -223,7 +224,7 @@ bool UnitTest_DzBridgeScriptableAction::unitTest012_getActionGroup(UnitTest::Tes
 	return bResult;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest013_getDefaultMenuPath(UnitTest::TestResult* testResult)
+bool UnitTest_DzBridgeScriptableAction::getDefaultMenuPath(UnitTest::TestResult* testResult)
 {
 	bool bResult = true;
 	TRY_METHODCALL(qobject_cast<DzBridgeAction*>(m_testObject)->getDefaultMenuPath());
@@ -231,7 +232,7 @@ bool UnitTest_DzBridgeScriptableAction::unitTest013_getDefaultMenuPath(UnitTest:
 	return bResult;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest014_exportAsset(UnitTest::TestResult* testResult)
+bool UnitTest_DzBridgeScriptableAction::exportAsset(UnitTest::TestResult* testResult)
 {
 	bool bResult = true;
 	TRY_METHODCALL(qobject_cast<DzBridgeAction*>(m_testObject)->exportAsset());
@@ -239,7 +240,7 @@ bool UnitTest_DzBridgeScriptableAction::unitTest014_exportAsset(UnitTest::TestRe
 	return bResult;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest015_exportNode(UnitTest::TestResult* testResult)
+bool UnitTest_DzBridgeScriptableAction::exportNode(UnitTest::TestResult* testResult)
 {
 	bool bResult = true;
 	TRY_METHODCALL(qobject_cast<DzBridgeAction*>(m_testObject)->exportNode(new DzNode()));
@@ -249,7 +250,7 @@ bool UnitTest_DzBridgeScriptableAction::unitTest015_exportNode(UnitTest::TestRes
 	return bResult;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest016_writeConfiguration(UnitTest::TestResult* testResult)
+bool UnitTest_DzBridgeScriptableAction::writeConfiguration(UnitTest::TestResult* testResult)
 {
 	bool bResult = true;
 	TRY_METHODCALL(qobject_cast<DzBridgeAction*>(m_testObject)->writeConfiguration());
@@ -257,7 +258,7 @@ bool UnitTest_DzBridgeScriptableAction::unitTest016_writeConfiguration(UnitTest:
 	return bResult;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest017_setExportOptions(UnitTest::TestResult* testResult)
+bool UnitTest_DzBridgeScriptableAction::setExportOptions(UnitTest::TestResult* testResult)
 {
 	bool bResult = true;
 	DzFileIOSettings arg;
@@ -266,7 +267,7 @@ bool UnitTest_DzBridgeScriptableAction::unitTest017_setExportOptions(UnitTest::T
 	return bResult;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest018_readGUIRootFolder(UnitTest::TestResult* testResult)
+bool UnitTest_DzBridgeScriptableAction::readGuiRootFolder(UnitTest::TestResult* testResult)
 {
 	bool bResult = true;
 	TRY_METHODCALL(qobject_cast<DzBridgeAction*>(m_testObject)->readGUIRootFolder());
@@ -274,7 +275,7 @@ bool UnitTest_DzBridgeScriptableAction::unitTest018_readGUIRootFolder(UnitTest::
 	return bResult;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest019_writeDTUHeader(UnitTest::TestResult* testResult)
+bool UnitTest_DzBridgeScriptableAction::writeDtuHeader(UnitTest::TestResult* testResult)
 {
 	bool bResult = true;
 	DzJsonWriter arg(nullptr);
@@ -283,7 +284,7 @@ bool UnitTest_DzBridgeScriptableAction::unitTest019_writeDTUHeader(UnitTest::Tes
 	return bResult;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest020_startMaterialBlock(UnitTest::TestResult* testResult)
+bool UnitTest_DzBridgeScriptableAction::startMaterialBlock(UnitTest::TestResult* testResult)
 {
 	bool bResult = true;
 	DzJsonWriter arg(nullptr);
@@ -292,7 +293,7 @@ bool UnitTest_DzBridgeScriptableAction::unitTest020_startMaterialBlock(UnitTest:
 	return bResult;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest021_finishMaterialBlock(UnitTest::TestResult* testResult)
+bool UnitTest_DzBridgeScriptableAction::finishMaterialBlock(UnitTest::TestResult* testResult)
 {
 	bool bResult = true;
 	DzJsonWriter arg(nullptr);
@@ -301,7 +302,16 @@ bool UnitTest_DzBridgeScriptableAction::unitTest021_finishMaterialBlock(UnitTest
 	return bResult;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest022_writeMaterialProperty(UnitTest::TestResult* testResult)
+bool UnitTest_DzBridgeScriptableAction::writeAllMaterials(UnitTest::TestResult* testResult)
+{
+	bool bResult = true;
+	DzJsonWriter arg(nullptr);
+	TRY_METHODCALL_NULLPTR(qobject_cast<DzBridgeAction*>(m_testObject)->writeAllMaterials(nullptr, arg));
+
+	return bResult;
+}
+
+bool UnitTest_DzBridgeScriptableAction::writeMaterialProperty(UnitTest::TestResult* testResult)
 {
 	bool bResult = true;
 	DzJsonWriter arg(nullptr);
@@ -310,7 +320,7 @@ bool UnitTest_DzBridgeScriptableAction::unitTest022_writeMaterialProperty(UnitTe
 	return bResult;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest023_writeAllMorphs(UnitTest::TestResult* testResult)
+bool UnitTest_DzBridgeScriptableAction::writeAllMorphs(UnitTest::TestResult* testResult)
 {
 	bool bResult = true;
 	DzJsonWriter arg(nullptr);
@@ -319,7 +329,7 @@ bool UnitTest_DzBridgeScriptableAction::unitTest023_writeAllMorphs(UnitTest::Tes
 	return bResult;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest024_writeMorphProperties(UnitTest::TestResult* testResult)
+bool UnitTest_DzBridgeScriptableAction::writeMorphProperties(UnitTest::TestResult* testResult)
 {
 	bool bResult = true;
 	DzJsonWriter arg(nullptr);
@@ -328,7 +338,7 @@ bool UnitTest_DzBridgeScriptableAction::unitTest024_writeMorphProperties(UnitTes
 	return bResult;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest025_writeMorphJointLinkInfo(UnitTest::TestResult* testResult)
+bool UnitTest_DzBridgeScriptableAction::writeMorphJointLinkInfo(UnitTest::TestResult* testResult)
 {
 	bool bResult = true;
 	DzJsonWriter arg1(nullptr);
@@ -338,7 +348,7 @@ bool UnitTest_DzBridgeScriptableAction::unitTest025_writeMorphJointLinkInfo(Unit
 	return bResult;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest026_writeAllSubdivisions(UnitTest::TestResult* testResult)
+bool UnitTest_DzBridgeScriptableAction::writeAllSubdivisions(UnitTest::TestResult* testResult)
 {
 	bool bResult = true;
 	DzJsonWriter arg(nullptr);
@@ -347,7 +357,7 @@ bool UnitTest_DzBridgeScriptableAction::unitTest026_writeAllSubdivisions(UnitTes
 	return bResult;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest081_writeSubdivisionProperties(UnitTest::TestResult* testResult)
+bool UnitTest_DzBridgeScriptableAction::writeSubdivisionProperties(UnitTest::TestResult* testResult)
 {
 	bool bResult = true;
 	DzJsonWriter arg(nullptr);
@@ -356,7 +366,7 @@ bool UnitTest_DzBridgeScriptableAction::unitTest081_writeSubdivisionProperties(U
 	return bResult;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest027_writeAllDforceInfo(UnitTest::TestResult* testResult)
+bool UnitTest_DzBridgeScriptableAction::writeAllDforceInfo(UnitTest::TestResult* testResult)
 {
 	bool bResult = true;
 	DzJsonWriter arg(nullptr);
@@ -365,7 +375,7 @@ bool UnitTest_DzBridgeScriptableAction::unitTest027_writeAllDforceInfo(UnitTest:
 	return bResult;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest028_writeDforceMaterialProperties(UnitTest::TestResult* testResult)
+bool UnitTest_DzBridgeScriptableAction::writeDforceMaterialProperties(UnitTest::TestResult* testResult)
 {
 	bool bResult = true;
 	DzJsonWriter arg(nullptr);
@@ -374,7 +384,7 @@ bool UnitTest_DzBridgeScriptableAction::unitTest028_writeDforceMaterialPropertie
 	return bResult;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest029_writeDforceModifiers(UnitTest::TestResult* testResult)
+bool UnitTest_DzBridgeScriptableAction::writeDforceModifiers(UnitTest::TestResult* testResult)
 {
 	bool bResult = true;
 	DzJsonWriter arg1(nullptr);
@@ -384,7 +394,7 @@ bool UnitTest_DzBridgeScriptableAction::unitTest029_writeDforceModifiers(UnitTes
 	return bResult;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest030_writeEnvironment(UnitTest::TestResult* testResult)
+bool UnitTest_DzBridgeScriptableAction::writeEnvironment(UnitTest::TestResult* testResult)
 {
 	bool bResult = true;
 	DzJsonWriter arg(nullptr);
@@ -393,7 +403,7 @@ bool UnitTest_DzBridgeScriptableAction::unitTest030_writeEnvironment(UnitTest::T
 	return bResult;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest031_writeInstances(UnitTest::TestResult* testResult)
+bool UnitTest_DzBridgeScriptableAction::writeInstances(UnitTest::TestResult* testResult)
 {
 	bool bResult = true;
 	DzJsonWriter arg1(nullptr);
@@ -404,7 +414,7 @@ bool UnitTest_DzBridgeScriptableAction::unitTest031_writeInstances(UnitTest::Tes
 	return bResult;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest032_writeInstance(UnitTest::TestResult* testResult)
+bool UnitTest_DzBridgeScriptableAction::writeInstance(UnitTest::TestResult* testResult)
 {
 	bool bResult = true;
 	DzJsonWriter arg(nullptr);
@@ -413,7 +423,7 @@ bool UnitTest_DzBridgeScriptableAction::unitTest032_writeInstance(UnitTest::Test
 	return bResult;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest033_writeAllPoses(UnitTest::TestResult* testResult)
+bool UnitTest_DzBridgeScriptableAction::writeAllPoses(UnitTest::TestResult* testResult)
 {
 	bool bResult = true;
 	DzJsonWriter arg(nullptr);
@@ -422,7 +432,7 @@ bool UnitTest_DzBridgeScriptableAction::unitTest033_writeAllPoses(UnitTest::Test
 	return bResult;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest034_renameDuplciateMaterials(UnitTest::TestResult* testResult)
+bool UnitTest_DzBridgeScriptableAction::renameDuplicateMaterials2(UnitTest::TestResult* testResult)
 {
 	bool bResult = true;
 	QList<QString> arg1;
@@ -432,7 +442,7 @@ bool UnitTest_DzBridgeScriptableAction::unitTest034_renameDuplciateMaterials(Uni
 	return bResult;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest035_undoRenameDuplicateMaterials(UnitTest::TestResult* testResult)
+bool UnitTest_DzBridgeScriptableAction::undoRenameDuplicateMaterials2(UnitTest::TestResult* testResult)
 {
 	bool bResult = true;
 	QList<QString> arg1;
@@ -442,7 +452,7 @@ bool UnitTest_DzBridgeScriptableAction::unitTest035_undoRenameDuplicateMaterials
 	return bResult;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest036_getScenePropList(UnitTest::TestResult* testResult)
+bool UnitTest_DzBridgeScriptableAction::getScenePropList(UnitTest::TestResult* testResult)
 {
 	bool bResult = true;
 	QMap<QString, DzNode*> arg;
@@ -451,7 +461,7 @@ bool UnitTest_DzBridgeScriptableAction::unitTest036_getScenePropList(UnitTest::T
 	return bResult;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest037_disconnectNode(UnitTest::TestResult* testResult)
+bool UnitTest_DzBridgeScriptableAction::disconnectNode(UnitTest::TestResult* testResult)
 {
 	bool bResult = true;
 	QList<DzBridgeAction::AttachmentInfo> arg;
@@ -460,7 +470,7 @@ bool UnitTest_DzBridgeScriptableAction::unitTest037_disconnectNode(UnitTest::Tes
 	return bResult;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest038_reconnectNodes(UnitTest::TestResult* testResult)
+bool UnitTest_DzBridgeScriptableAction::reconnectNodes(UnitTest::TestResult* testResult)
 {
 	bool bResult = true;
 	QList<DzBridgeAction::AttachmentInfo> arg;
@@ -469,7 +479,7 @@ bool UnitTest_DzBridgeScriptableAction::unitTest038_reconnectNodes(UnitTest::Tes
 	return bResult;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest039_disconnectOverrideControllers(UnitTest::TestResult* testResult)
+bool UnitTest_DzBridgeScriptableAction::disconnectOverrideControllers(UnitTest::TestResult* testResult)
 {
 	bool bResult = true;
 	TRY_METHODCALL(qobject_cast<DzBridgeAction*>(m_testObject)->disconnectOverrideControllers());
@@ -478,7 +488,7 @@ bool UnitTest_DzBridgeScriptableAction::unitTest039_disconnectOverrideController
 
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest040_reconnectOverrideControllers(UnitTest::TestResult* testResult)
+bool UnitTest_DzBridgeScriptableAction::reconnectOverrideControllers(UnitTest::TestResult* testResult)
 {
 	bool bResult = true;
 	QList<QString> arg;
@@ -487,7 +497,7 @@ bool UnitTest_DzBridgeScriptableAction::unitTest040_reconnectOverrideControllers
 	return bResult;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest041_checkIfPoseExportIsDestructive(UnitTest::TestResult* testResult)
+bool UnitTest_DzBridgeScriptableAction::checkIfPoseExportIsDestructive(UnitTest::TestResult* testResult)
 {
 	bool bResult = true;
 	TRY_METHODCALL(qobject_cast<DzBridgeAction*>(m_testObject)->checkIfPoseExportIsDestructive());
@@ -495,7 +505,7 @@ bool UnitTest_DzBridgeScriptableAction::unitTest041_checkIfPoseExportIsDestructi
 	return bResult;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest042_unlockTransform(UnitTest::TestResult* testResult)
+bool UnitTest_DzBridgeScriptableAction::unlockTransform(UnitTest::TestResult* testResult)
 {
 	bool bResult = true;
 	TRY_METHODCALL_NULLPTR(qobject_cast<DzBridgeAction*>(m_testObject)->unlockTranform(nullptr));
@@ -503,7 +513,7 @@ bool UnitTest_DzBridgeScriptableAction::unitTest042_unlockTransform(UnitTest::Te
 	return bResult;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest043_getBridgeDialog(UnitTest::TestResult* testResult)
+bool UnitTest_DzBridgeScriptableAction::getBridgeDialog(UnitTest::TestResult* testResult)
 {
 	bool bResult = true;
 	TRY_METHODCALL(qobject_cast<DzBridgeAction*>(m_testObject)->getBridgeDialog());
@@ -512,7 +522,7 @@ bool UnitTest_DzBridgeScriptableAction::unitTest043_getBridgeDialog(UnitTest::Te
 
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest044_setBridgeDialog(UnitTest::TestResult* testResult)
+bool UnitTest_DzBridgeScriptableAction::setBridgeDialog(UnitTest::TestResult* testResult)
 {
 	bool bResult = true;
 	TRY_METHODCALL_NULLPTR(qobject_cast<DzBridgeAction*>(m_testObject)->setBridgeDialog(nullptr));
@@ -520,7 +530,7 @@ bool UnitTest_DzBridgeScriptableAction::unitTest044_setBridgeDialog(UnitTest::Te
 	return bResult;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest045_getSubdivisionDialog(UnitTest::TestResult* testResult)
+bool UnitTest_DzBridgeScriptableAction::getSubdivisionDialog(UnitTest::TestResult* testResult)
 {
 	bool bResult = true;
 	TRY_METHODCALL(qobject_cast<DzBridgeAction*>(m_testObject)->getSubdivisionDialog());
@@ -528,7 +538,7 @@ bool UnitTest_DzBridgeScriptableAction::unitTest045_getSubdivisionDialog(UnitTes
 	return bResult;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest046_setSubdivisionDialog(UnitTest::TestResult* testResult)
+bool UnitTest_DzBridgeScriptableAction::setSubdivisionDialog(UnitTest::TestResult* testResult)
 {
 	bool bResult = true;
 	TRY_METHODCALL_NULLPTR(qobject_cast<DzBridgeAction*>(m_testObject)->setSubdivisionDialog(nullptr));
@@ -536,7 +546,7 @@ bool UnitTest_DzBridgeScriptableAction::unitTest046_setSubdivisionDialog(UnitTes
 	return bResult;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest047_getMorphSelectionDialog(UnitTest::TestResult* testResult)
+bool UnitTest_DzBridgeScriptableAction::getMorphSelectionDialog(UnitTest::TestResult* testResult)
 {
 	bool bResult = true;
 	TRY_METHODCALL(qobject_cast<DzBridgeAction*>(m_testObject)->getMorphSelectionDialog());
@@ -544,12 +554,15 @@ bool UnitTest_DzBridgeScriptableAction::unitTest047_getMorphSelectionDialog(Unit
 	return bResult;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest082_getMorphSelectionDialog(UnitTest::TestResult* testResult)
+bool UnitTest_DzBridgeScriptableAction::setMorphSelectionDialog(UnitTest::TestResult* testResult)
 {
-	return false;
+	bool bResult = true;
+	TRY_METHODCALL_NULLPTR(qobject_cast<DzBridgeAction*>(m_testObject)->setMorphSelectionDialog(nullptr));
+
+	return bResult;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest048_getAssetType(UnitTest::TestResult* testResult)
+bool UnitTest_DzBridgeScriptableAction::getAssetType(UnitTest::TestResult* testResult)
 {
 	bool bResult = true;
 	TRY_METHODCALL(qobject_cast<DzBridgeAction*>(m_testObject)->getAssetType());
@@ -557,7 +570,7 @@ bool UnitTest_DzBridgeScriptableAction::unitTest048_getAssetType(UnitTest::TestR
 	return bResult;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest049_setAssetType(UnitTest::TestResult* testResult)
+bool UnitTest_DzBridgeScriptableAction::setAssetType(UnitTest::TestResult* testResult)
 {
 	bool bResult = true;
 	TRY_METHODCALL(qobject_cast<DzBridgeAction*>(m_testObject)->setAssetType(""));
@@ -567,7 +580,7 @@ bool UnitTest_DzBridgeScriptableAction::unitTest049_setAssetType(UnitTest::TestR
 	return bResult;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest050_getExportFilename(UnitTest::TestResult* testResult)
+bool UnitTest_DzBridgeScriptableAction::getExportFilename(UnitTest::TestResult* testResult)
 {
 	bool bResult = true;
 	TRY_METHODCALL(qobject_cast<DzBridgeAction*>(m_testObject)->getExportFilename());
@@ -575,7 +588,7 @@ bool UnitTest_DzBridgeScriptableAction::unitTest050_getExportFilename(UnitTest::
 	return bResult;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest051_setExportFilename(UnitTest::TestResult* testResult)
+bool UnitTest_DzBridgeScriptableAction::setExportFilename(UnitTest::TestResult* testResult)
 {
 	bool bResult = true;
 	TRY_METHODCALL(qobject_cast<DzBridgeAction*>(m_testObject)->setExportFilename(""));
@@ -585,7 +598,7 @@ bool UnitTest_DzBridgeScriptableAction::unitTest051_setExportFilename(UnitTest::
 	return bResult;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest052_getExportFolder(UnitTest::TestResult* testResult)
+bool UnitTest_DzBridgeScriptableAction::getExportFolder(UnitTest::TestResult* testResult)
 {
 	bool bResult = true;
 	TRY_METHODCALL(qobject_cast<DzBridgeAction*>(m_testObject)->getExportFolder());
@@ -593,7 +606,7 @@ bool UnitTest_DzBridgeScriptableAction::unitTest052_getExportFolder(UnitTest::Te
 	return bResult;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest053_setExportFolder(UnitTest::TestResult* testResult)
+bool UnitTest_DzBridgeScriptableAction::setExportFolder(UnitTest::TestResult* testResult)
 {
 	bool bResult = true;
 	TRY_METHODCALL(qobject_cast<DzBridgeAction*>(m_testObject)->setExportFolder(""));
@@ -601,7 +614,7 @@ bool UnitTest_DzBridgeScriptableAction::unitTest053_setExportFolder(UnitTest::Te
 	return bResult;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest054_getRootFolder(UnitTest::TestResult* testResult)
+bool UnitTest_DzBridgeScriptableAction::getRootFolder(UnitTest::TestResult* testResult)
 {
 	bool bResult = true;
 	TRY_METHODCALL(qobject_cast<DzBridgeAction*>(m_testObject)->getRootFolder());
@@ -609,7 +622,7 @@ bool UnitTest_DzBridgeScriptableAction::unitTest054_getRootFolder(UnitTest::Test
 	return bResult;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest055_setRootFolder(UnitTest::TestResult* testResult)
+bool UnitTest_DzBridgeScriptableAction::setRootFolder(UnitTest::TestResult* testResult)
 {
 	bool bResult = true;
 	TRY_METHODCALL(qobject_cast<DzBridgeAction*>(m_testObject)->setRootFolder(""));
@@ -617,7 +630,7 @@ bool UnitTest_DzBridgeScriptableAction::unitTest055_setRootFolder(UnitTest::Test
 	return bResult;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest056_getProductName(UnitTest::TestResult* testResult)
+bool UnitTest_DzBridgeScriptableAction::getProductName(UnitTest::TestResult* testResult)
 {
 	bool bResult = true;
 	TRY_METHODCALL(qobject_cast<DzBridgeAction*>(m_testObject)->getProductName());
@@ -625,7 +638,7 @@ bool UnitTest_DzBridgeScriptableAction::unitTest056_getProductName(UnitTest::Tes
 	return bResult;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest057_setProductName(UnitTest::TestResult* testResult)
+bool UnitTest_DzBridgeScriptableAction::setProductName(UnitTest::TestResult* testResult)
 {
 	bool bResult = true;
 	TRY_METHODCALL(qobject_cast<DzBridgeAction*>(m_testObject)->setProductName(""));
@@ -633,7 +646,7 @@ bool UnitTest_DzBridgeScriptableAction::unitTest057_setProductName(UnitTest::Tes
 	return bResult;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest058_getProductComponentName(UnitTest::TestResult* testResult)
+bool UnitTest_DzBridgeScriptableAction::getProductComponentName(UnitTest::TestResult* testResult)
 {
 	bool bResult = true;
 	TRY_METHODCALL(qobject_cast<DzBridgeAction*>(m_testObject)->getProductComponentName());
@@ -641,81 +654,73 @@ bool UnitTest_DzBridgeScriptableAction::unitTest058_getProductComponentName(Unit
 	return bResult;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest059_setProductComponentName(UnitTest::TestResult* testResult)
+bool UnitTest_DzBridgeScriptableAction::setProductComponentName(UnitTest::TestResult* testResult)
 {
 	bool bResult = true;
 	TRY_METHODCALL(qobject_cast<DzBridgeAction*>(m_testObject)->setProductComponentName(""));
 
 	return bResult;
-
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest060_getMorphList(UnitTest::TestResult* testResult)
+bool UnitTest_DzBridgeScriptableAction::getMorphList(UnitTest::TestResult* testResult)
 {
 	bool bResult = true;
 	TRY_METHODCALL(qobject_cast<DzBridgeAction*>(m_testObject)->getMorphList());
 
 	return bResult;
-
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest061_setMorphList(UnitTest::TestResult* testResult)
+bool UnitTest_DzBridgeScriptableAction::setMorphList(UnitTest::TestResult* testResult)
 {
 	bool bResult = true;
 	QStringList arg;
 	TRY_METHODCALL(qobject_cast<DzBridgeAction*>(m_testObject)->setMorphList(arg));
 
 	return bResult;
-
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest062_getUseRelativePaths(UnitTest::TestResult* testResult)
+bool UnitTest_DzBridgeScriptableAction::getUseRelativePaths(UnitTest::TestResult* testResult)
 {
 	bool bResult = true;
 	TRY_METHODCALL(qobject_cast<DzBridgeAction*>(m_testObject)->getUseRelativePaths());
 
 	return bResult;
-
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest063_setUseRelativePaths(UnitTest::TestResult* testResult)
+bool UnitTest_DzBridgeScriptableAction::setUseRelativePaths(UnitTest::TestResult* testResult)
 {
 	bool bResult = true;
 	TRY_METHODCALL(qobject_cast<DzBridgeAction*>(m_testObject)->setUseRelativePaths(0));
 
 	return bResult;
-
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest064_isTemporaryFile(UnitTest::TestResult* testResult)
+bool UnitTest_DzBridgeScriptableAction::isTemporaryFile(UnitTest::TestResult* testResult)
 {
 	bool bResult = true;
 	TRY_METHODCALL(qobject_cast<DzBridgeAction*>(m_testObject)->isTemporaryFile(""));
 
 	return bResult;
-
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest065_exportAssetWithDTU(UnitTest::TestResult* testResult)
+bool UnitTest_DzBridgeScriptableAction::exportAssetWithDtu(UnitTest::TestResult* testResult)
 {
 	bool bResult = true;
 	TRY_METHODCALL(qobject_cast<DzBridgeAction*>(m_testObject)->exportAssetWithDtu(""));
 
 	return bResult;
-
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest066_writeJSON_Property_Texture(UnitTest::TestResult* testResult)
+bool UnitTest_DzBridgeScriptableAction::writePropertyTexture(UnitTest::TestResult* testResult)
 {
 	bool bResult = true;
 	DzJsonWriter arg(nullptr);
 	TRY_METHODCALL(qobject_cast<DzBridgeAction*>(m_testObject)->writePropertyTexture(arg,"",0,"",""));
 
 	return bResult;
-
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest067_makeUniqueFilename(UnitTest::TestResult* testResult)
+bool UnitTest_DzBridgeScriptableAction::makeUniqueFilename(UnitTest::TestResult* testResult)
 {
 	bool bResult = true;
 	TRY_METHODCALL(qobject_cast<DzBridgeAction*>(m_testObject)->makeUniqueFilename(""));
@@ -723,123 +728,113 @@ bool UnitTest_DzBridgeScriptableAction::unitTest067_makeUniqueFilename(UnitTest:
 	return bResult;
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest068_getUndoNormalMaps(UnitTest::TestResult* testResult)
+bool UnitTest_DzBridgeScriptableAction::getUndoNormalMaps(UnitTest::TestResult* testResult)
 {
 	bool bResult = true;
 	TRY_METHODCALL(qobject_cast<DzBridgeAction*>(m_testObject)->getUndoNormalMaps());
 
 	return bResult;
-
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest069_setUndoNormalMaps(UnitTest::TestResult* testResult)
+bool UnitTest_DzBridgeScriptableAction::setUndoNormalMaps(UnitTest::TestResult* testResult)
 {
 	bool bResult = true;
 	TRY_METHODCALL(qobject_cast<DzBridgeAction*>(m_testObject)->setUndoNormalMaps(0));
 
 	return bResult;
-
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest070_getNonInteractiveMode(UnitTest::TestResult* testResult)
+bool UnitTest_DzBridgeScriptableAction::getNonInteractiveMode(UnitTest::TestResult* testResult)
 {
 	bool bResult = true;
 	TRY_METHODCALL(qobject_cast<DzBridgeAction*>(m_testObject)->getNonInteractiveMode());
 
 	return bResult;
-
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest071_setNonInteractiveMode(UnitTest::TestResult* testResult)
+bool UnitTest_DzBridgeScriptableAction::setNonInteractiveMode(UnitTest::TestResult* testResult)
 {
 	bool bResult = true;
 	TRY_METHODCALL(qobject_cast<DzBridgeAction*>(m_testObject)->setNonInteractiveMode(0));
 
 	return bResult;
-
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest072_getExportFbx(UnitTest::TestResult* testResult)
+bool UnitTest_DzBridgeScriptableAction::getExportFbx(UnitTest::TestResult* testResult)
 {
 	bool bResult = true;
 	TRY_METHODCALL(qobject_cast<DzBridgeAction*>(m_testObject)->getExportFbx());
 
 	return bResult;
-
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest073_setExportFbx(UnitTest::TestResult* testResult)
+bool UnitTest_DzBridgeScriptableAction::setExportFbx(UnitTest::TestResult* testResult)
 {
 	bool bResult = true;
 	TRY_METHODCALL(qobject_cast<DzBridgeAction*>(m_testObject)->setExportFbx(""));
 
 	return bResult;
-
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest074_readGUI(UnitTest::TestResult* testResult)
+bool UnitTest_DzBridgeScriptableAction::readGui(UnitTest::TestResult* testResult)
 {
 	bool bResult = true;
 	TRY_METHODCALL_NULLPTR(qobject_cast<DzBridgeAction*>(m_testObject)->readGui(nullptr));
 
 	return bResult;
-
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest075_exportHD(UnitTest::TestResult* testResult)
+bool UnitTest_DzBridgeScriptableAction::exportHD(UnitTest::TestResult* testResult)
 {
 	bool bResult = true;
-	TRY_METHODCALL(qobject_cast<DzBridgeAction*>(m_testObject)->exportHD());
+	DzProgress* arg = new DzProgress("", 0, true, true);
+	arg->enable(false);
+	TRY_METHODCALL(qobject_cast<DzBridgeAction*>(m_testObject)->exportHD(arg));
+	arg->finish();
 
 	return bResult;
-
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest076_upgradeToHD(UnitTest::TestResult* testResult)
+bool UnitTest_DzBridgeScriptableAction::upgradeToHD(UnitTest::TestResult* testResult)
 {
 	bool bResult = true;
+	TRY_METHODCALL(qobject_cast<DzBridgeAction*>(m_testObject)->setNonInteractiveMode(true));
 	TRY_METHODCALL_NULLPTR(qobject_cast<DzBridgeAction*>(m_testObject)->upgradeToHD("","", "", nullptr));
 
 	return bResult;
-
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest077_WriteWeightMaps(UnitTest::TestResult* testResult)
+bool UnitTest_DzBridgeScriptableAction::writeWeightMaps(UnitTest::TestResult* testResult)
 {
 	bool bResult = true;
 	DzJsonWriter arg(nullptr);
 	TRY_METHODCALL_NULLPTR(qobject_cast<DzBridgeAction*>(m_testObject)->writeWeightMaps(nullptr, arg));
 
 	return bResult;
-
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest078_metaInvokeMethod(UnitTest::TestResult* testResult)
+bool UnitTest_DzBridgeScriptableAction::metaInvokeMethod(UnitTest::TestResult* testResult)
 {
 	bool bResult = true;
 	TRY_METHODCALL_NULLPTR(qobject_cast<DzBridgeAction*>(m_testObject)->metaInvokeMethod(nullptr, nullptr, nullptr));
 
 	return bResult;
-
 }
 
-bool UnitTest_DzBridgeScriptableAction::unitTest079_CopyFile(UnitTest::TestResult* testResult)
-{
-	bool bResult = false;
-	LOGTEST_FAILED("CopyFile won't build");
-//	TRY_METHODCALL_NULLPTR(qobject_cast<DzBridgeAction*>(m_testObject)->CopyFile(nullptr, nullptr));
-
-	return bResult;
-
-}
-
-bool UnitTest_DzBridgeScriptableAction::unitTest080_GetMD5(UnitTest::TestResult* testResult)
+bool UnitTest_DzBridgeScriptableAction::copyFile(UnitTest::TestResult* testResult)
 {
 	bool bResult = true;
-	TRY_METHODCALL(qobject_cast<DzBridgeAction*>(m_testObject)->GetMD5(""));
+	TRY_METHODCALL_NULLPTR(qobject_cast<DzBridgeAction*>(m_testObject)->copyFile(nullptr, nullptr));
 
 	return bResult;
+}
 
+bool UnitTest_DzBridgeScriptableAction::getMD5(UnitTest::TestResult* testResult)
+{
+	bool bResult = true;
+	TRY_METHODCALL(qobject_cast<DzBridgeAction*>(m_testObject)->getMD5(""));
+
+	return bResult;
 }
 
 

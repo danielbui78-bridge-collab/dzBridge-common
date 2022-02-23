@@ -78,7 +78,7 @@ bool UnitTest::writeAllTestResults(QString outputPath)
                 sTestResult_buffer = testResult->aLog->join("\n");
             if (sTestResult_buffer.isEmpty() != true)
             {
-                textOutput.write( QString("%1:\n%2\n\n").arg(testResult->sName).arg(sTestResult_buffer).toLocal8Bit());
+                textOutput.write( QString("[%1] %2:\n%3\n\n").arg(testResult->nId,2).arg(testResult->sName).arg(sTestResult_buffer).toLocal8Bit());
             }
         }
     }
@@ -92,7 +92,6 @@ bool UnitTest::writeAllTestResults(QString outputPath)
     textOutput.write("\n");
 //    textOutput.write("--------------------------------\n");
     // print each unittest result line
-    int nUnitTestCount = 1;
     for (auto testResult_iter = m_testResultList.begin(); testResult_iter != m_testResultList.end(); testResult_iter++)
     {
         UnitTest::TestResult* testResult = *testResult_iter;
@@ -103,7 +102,7 @@ bool UnitTest::writeAllTestResults(QString outputPath)
             if (testResult->bResult)
                 sResultString = "PASSED";
             QString sMethodName = QString(testResult->sName + ":").leftJustified(nMethodNameSpacing+2, '.');
-            QString sTestResult_line = QString("[%1] %2[ %3 ]\n").arg(nUnitTestCount++,2).arg(sMethodName).arg(sResultString);
+            QString sTestResult_line = QString("[%1] %2[ %3 ]\n").arg(testResult->nId,2).arg(sMethodName).arg(sResultString);
             textOutput.write( sTestResult_line.toLocal8Bit() );
         }
     }
