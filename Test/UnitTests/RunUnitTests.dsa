@@ -7,12 +7,23 @@ var sOutputPath = sIncludePath;
 obj = new UnitTest_DzBridgeScriptableAction();
 result = false;
 result = obj.runUnitTests();
-print("Unit Test Results: " + result);
+print("Unit Test Results (DzBridgeAction): " + result);
 obj.writeAllTestResults(sOutputPath);
 
 obj = new UnitTest_DzBridgeDialog();
 result = false;
 result = obj.runUnitTests();
-print("Unit Test Results: " + result);
+print("Unit Test Results (DzBridgeDialog): " + result);
 obj.writeAllTestResults(sOutputPath);
 
+obj = new UnitTest_DzBridgeMorphSelectionDialog();
+result = false;
+result = obj.runUnitTests();
+print("Unit Test Results (DzBridgeMorphSelectionDialog): " + result);
+obj.writeAllTestResults(sOutputPath);
+
+obj = new UnitTest_DzBridgeSubdivisionDialog();
+result = false;
+result = obj.runUnitTests();
+print("Unit Test Results (DzBridgeSubdivisionDialog): " + result);
+obj.writeAllTestResults(sOutputPath);
