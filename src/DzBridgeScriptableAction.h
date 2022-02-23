@@ -17,7 +17,7 @@ public:
 	DzBridgeScriptableAction();
 
 	 Q_INVOKABLE void resetToDefaults();
-	 QString readGUIRootFolder();
+	 QString readGuiRootFolder();
 
 protected:
 	 void executeAction();

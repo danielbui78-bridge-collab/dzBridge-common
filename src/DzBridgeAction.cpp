@@ -1958,7 +1958,7 @@ void DzBridgeAction::readGui(DzBridgeDialog* BridgeDialog)
 
 	// Collect the values from the dialog fields
 	if (CharacterName == "" || NonInteractiveMode == 0) CharacterName = BridgeDialog->getAssetNameEdit()->text();
-	if (RootFolder == "" || NonInteractiveMode == 0) RootFolder = readGUIRootFolder();
+	if (RootFolder == "" || NonInteractiveMode == 0) RootFolder = readGuiRootFolder();
 	if (ExportFolder == "" || NonInteractiveMode == 0) ExportFolder = CharacterName;
 	DestinationPath = RootFolder + "/" + ExportFolder + "/";
 	if (m_sExportFbx == "" || NonInteractiveMode == 0) m_sExportFbx = CharacterName;

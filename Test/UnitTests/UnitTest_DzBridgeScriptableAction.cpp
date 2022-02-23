@@ -270,7 +270,7 @@ bool UnitTest_DzBridgeScriptableAction::setExportOptions(UnitTest::TestResult* t
 bool UnitTest_DzBridgeScriptableAction::readGuiRootFolder(UnitTest::TestResult* testResult)
 {
 	bool bResult = true;
-	TRY_METHODCALL(qobject_cast<DzBridgeAction*>(m_testObject)->readGUIRootFolder());
+	TRY_METHODCALL(qobject_cast<DzBridgeAction*>(m_testObject)->readGuiRootFolder());
 
 	return bResult;
 }

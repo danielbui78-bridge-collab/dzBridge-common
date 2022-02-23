@@ -198,7 +198,7 @@ void DzBridgeScriptableAction::resetToDefaults()
 
 }
 
-QString DzBridgeScriptableAction::readGUIRootFolder()
+QString DzBridgeScriptableAction::readGuiRootFolder()
 {
 	return QString("");
 }

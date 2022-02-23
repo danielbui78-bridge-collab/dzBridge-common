@@ -2,7 +2,7 @@
 var includeDir_oFILE = new DzFile( getScriptFileName() );
 //var sIncludePath = includeDir_oFILE.path();
 var sIncludePath = "C:/GitHub/dzBridge-common/Test/UnitTests/"
-var sOutputPath = sIncludePath;
+var sOutputPath = "C:/GitHub/dzBridge-common/Test/Results/"
 
 obj = new UnitTest_DzBridgeScriptableAction();
 result = false;

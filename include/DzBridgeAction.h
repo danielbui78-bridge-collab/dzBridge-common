@@ -33,7 +33,7 @@ class DzBridgeDialog;
 /// intermediate files.  Manages destination filepaths, morphs, subdivisions, animations, etc.
 /// 
 /// Usage: 
-/// Subclass and implement executeAction() to open m_bridgeDialog. Implement readGUIRootFolder()
+/// Subclass and implement executeAction() to open m_bridgeDialog. Implement readGuiRootFolder()
 /// to read and return any custom UI widget containing destination root folder. Implement
 /// writeConfiguration() to manage DTU file generation.  Implement setExportOptions() to override
 /// FBX generation options.  
@@ -130,7 +130,7 @@ protected:
 
 	virtual void writeConfiguration() = 0;
 	virtual void setExportOptions(DzFileIOSettings& ExportOptions) = 0;
-	virtual QString readGUIRootFolder() = 0;
+	virtual QString readGuiRootFolder() = 0;
 
 	Q_INVOKABLE virtual void writeDTUHeader(DzJsonWriter& writer);
 
