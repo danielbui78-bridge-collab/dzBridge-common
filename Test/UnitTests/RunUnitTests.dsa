@@ -10,3 +10,9 @@ result = obj.runUnitTests();
 print("Unit Test Results: " + result);
 obj.writeAllTestResults(sOutputPath);
 
+obj = new UnitTest_DzBridgeDialog();
+result = false;
+result = obj.runUnitTests();
+print("Unit Test Results: " + result);
+obj.writeAllTestResults(sOutputPath);
+

@@ -88,5 +88,8 @@ protected:
 	QComboBox* fbxVersionCombo;
 	QCheckBox* showFbxDialogCheckBox;
 
+#ifdef UNITTEST_DZBRIDGE
+	friend class UnitTest_DzBridgeDialog;
+#endif
 
 };
