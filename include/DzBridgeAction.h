@@ -91,36 +91,34 @@ protected:
 	DzBridgeSubdivisionDialog* m_subdivisionDialog;
 	DzBridgeMorphSelectionDialog* m_morphSelectionDialog;
 
-	int NonInteractiveMode;
-	QString CharacterName; // Exported filename without extension
-	QString RootFolder; // The destination Root Folder
-	QString DestinationPath; // Path to destination files: <RootFolder> + "/" + <CharacterName (folder)> + "/"
-	QString CharacterFBX;
-	//	 QString CharacterBaseFBX;
-	//	 QString CharacterHDFBX;
-	QString AssetType;
-	QString MorphString;
-	QString FBXVersion;
-	QMap<QString, QString> MorphMapping;
-	QList<QString> PoseList;
-	QMap<DzImageProperty*, double> m_imgPropertyTable_NormalMapStrength;
+	int m_nNonInteractiveMode;
+	QString m_sAssetName; // Exported filename without extension
+	QString m_sRootFolder; // The destination Root Folder
+	QString m_sDestinationPath; // Path to destination files: <m_sRootFolder> + "/" + <m_sAssetName (folder)> + "/"
+	QString m_sDestinationFBX; // Path to destination fbx file: <m_sDestinationPath> + <m_sExportFbx> + ".fbx";
+	QString m_sAssetType; // Asset Types: "SkeletalMesh", "StaticMesh", "Animation", "Pose", "Environment"
+	QString m_sMorphSelectionRule; // Selection Rule used by FbxExporter to choose morphs to export
+	QString m_sFbxVersion; // FBX file format version to export
+	QMap<QString, QString> m_mMorphNameToLabel; // Internal name to Friendly label
+	QList<QString> m_aPoseList; // Control Pose names
+	QMap<DzImageProperty*, double> m_imgPropertyTable_NormalMapStrength; // Image Property to Normal Map Strength
 
 	// Used only by script system
-	QString ExportFolder; // over-rides bridge use of <CharacterName> for the destination folder
-	QString ProductName; // Daz Store Product Name, can contain spaces and special characters
-	QString ProductComponentName; // Friendly name of Component of Daz Store Product, can contain spaces and special characters
-	QStringList ScriptOnly_MorphList; // overrides Morph Selection Dialog
-	bool UseRelativePaths;
-	bool m_bGenerateNormalMaps;
-	bool m_bUndoNormalMaps;
-	QString m_sExportFbx;
+	QString m_sExportSubfolder; // Destination subfolder within Root Folder for exporting. [Default is <m_sAssetName>]
+	QString m_sProductName; // Daz Store Product Name, can contain spaces and special characters
+	QString m_sProductComponentName; // Friendly name of Component of Daz Store Product, can contain spaces and special characters
+	QStringList m_aMorphListOverride; // overrides Morph Selection Dialog
+	bool m_bUseRelativePaths; // use relative paths in DTU instead of absolute paths
+	bool m_bGenerateNormalMaps; // generate normal maps from height maps
+	bool m_bUndoNormalMaps;  // remove generated normal maps after export
+	QString m_sExportFbx; // override filename of exported fbx
 
-	bool ExportMorphs;
-	bool ExportSubdivisions;
-	bool ExportBaseMesh;
-	bool ShowFbxDialog;
-	bool ExportMaterialPropertiesCSV;
-	DzNode* Selection;
+	bool m_bEnableMorphs; // enable morph export
+	bool m_EnableSubdivisions; // enable subdivision baking
+	bool m_bExportingBaseMesh;
+	bool m_bShowFbxOptions;
+	bool m_bExportMaterialPropertiesCSV;
+	DzNode* m_pSelectedNode;
 
 	virtual QString getActionGroup() const { return tr("Bridges"); }
 	virtual QString getDefaultMenuPath() const { return tr("&File/Send To"); }
@@ -182,26 +180,26 @@ protected:
 	Q_INVOKABLE DzBridgeMorphSelectionDialog* getMorphSelectionDialog() { return m_morphSelectionDialog; }
 	Q_INVOKABLE bool setMorphSelectionDialog(DzBasicDialog* arg_dlg);
 
-	Q_INVOKABLE QString getAssetType() { return this->AssetType; };
-	Q_INVOKABLE void setAssetType(QString arg_AssetType) { this->AssetType = arg_AssetType; };
-	Q_INVOKABLE QString getExportFilename() { return this->CharacterName; };
-	Q_INVOKABLE void setExportFilename(QString arg_Filename) { this->CharacterName = arg_Filename; };
+	Q_INVOKABLE QString getAssetType() { return this->m_sAssetType; };
+	Q_INVOKABLE void setAssetType(QString arg_AssetType) { this->m_sAssetType = arg_AssetType; };
+	Q_INVOKABLE QString getExportFilename() { return this->m_sAssetName; };
+	Q_INVOKABLE void setExportFilename(QString arg_Filename) { this->m_sAssetName = arg_Filename; };
 
-	Q_INVOKABLE QString getExportFolder() { return this->ExportFolder; };
-	Q_INVOKABLE void setExportFolder(QString arg_Folder) { this->ExportFolder = arg_Folder; };
-	Q_INVOKABLE QString getRootFolder() { return this->RootFolder; };
-	Q_INVOKABLE void setRootFolder(QString arg_Root) { this->RootFolder = arg_Root; };
+	Q_INVOKABLE QString getExportFolder() { return this->m_sExportSubfolder; };
+	Q_INVOKABLE void setExportFolder(QString arg_Folder) { this->m_sExportSubfolder = arg_Folder; };
+	Q_INVOKABLE QString getRootFolder() { return this->m_sRootFolder; };
+	Q_INVOKABLE void setRootFolder(QString arg_Root) { this->m_sRootFolder = arg_Root; };
 
-	Q_INVOKABLE QString getProductName() { return this->ProductName; };
-	Q_INVOKABLE void setProductName(QString arg_ProductName) { this->ProductName = arg_ProductName; };
-	Q_INVOKABLE QString getProductComponentName() { return this->ProductComponentName; };
-	Q_INVOKABLE void setProductComponentName(QString arg_ProductComponentName) { this->ProductComponentName = arg_ProductComponentName; };
+	Q_INVOKABLE QString getProductName() { return this->m_sProductName; };
+	Q_INVOKABLE void setProductName(QString arg_ProductName) { this->m_sProductName = arg_ProductName; };
+	Q_INVOKABLE QString getProductComponentName() { return this->m_sProductComponentName; };
+	Q_INVOKABLE void setProductComponentName(QString arg_ProductComponentName) { this->m_sProductComponentName = arg_ProductComponentName; };
 
-	Q_INVOKABLE QStringList getMorphList() { return ScriptOnly_MorphList; };
-	Q_INVOKABLE void setMorphList(QStringList arg_MorphList) { this->ScriptOnly_MorphList = arg_MorphList; };
+	Q_INVOKABLE QStringList getMorphList() { return m_aMorphListOverride; };
+	Q_INVOKABLE void setMorphList(QStringList arg_MorphList) { this->m_aMorphListOverride = arg_MorphList; };
 
-	Q_INVOKABLE bool getUseRelativePaths() { return this->UseRelativePaths; };
-	Q_INVOKABLE void setUseRelativePaths(bool arg_UseRelativePaths) { this->UseRelativePaths = arg_UseRelativePaths; };
+	Q_INVOKABLE bool getUseRelativePaths() { return this->m_bUseRelativePaths; };
+	Q_INVOKABLE void setUseRelativePaths(bool arg_UseRelativePaths) { this->m_bUseRelativePaths = arg_UseRelativePaths; };
 
 	bool isTemporaryFile(QString sFilename);
 	QString exportAssetWithDtu(QString sFilename, QString sAssetMaterialName = "");
@@ -212,8 +210,8 @@ protected:
 	Q_INVOKABLE bool getUndoNormalMaps() { return this->m_bUndoNormalMaps; };
 	Q_INVOKABLE void setUndoNormalMaps(bool arg_UndoNormalMaps) { this->m_bUndoNormalMaps = arg_UndoNormalMaps; };
 
-	Q_INVOKABLE int getNonInteractiveMode() { return this->NonInteractiveMode; };
-	Q_INVOKABLE void setNonInteractiveMode(int arg_Mode) { this->NonInteractiveMode = arg_Mode; };
+	Q_INVOKABLE int getNonInteractiveMode() { return this->m_nNonInteractiveMode; };
+	Q_INVOKABLE void setNonInteractiveMode(int arg_Mode) { this->m_nNonInteractiveMode = arg_Mode; };
 
 	Q_INVOKABLE QString getExportFbx() { return this->m_sExportFbx; };
 	Q_INVOKABLE void setExportFbx(QString arg_FbxName) { this->m_sExportFbx = arg_FbxName; };

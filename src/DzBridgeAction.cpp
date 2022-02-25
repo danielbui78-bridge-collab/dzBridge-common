@@ -82,9 +82,9 @@ DzBridgeAction::~DzBridgeAction()
 /// </summary>
 void DzBridgeAction::resetToDefaults()
 {
-	ExportMorphs = false;
-	ExportSubdivisions = false;
-	ShowFbxDialog = false;
+	m_bEnableMorphs = false;
+	m_EnableSubdivisions = false;
+	m_bShowFbxOptions = false;
 	m_ControllersToDisconnect.clear();
 	m_ControllersToDisconnect.append("facs_bs_MouthClose_div2");
 
@@ -97,32 +97,32 @@ void DzBridgeAction::resetToDefaults()
 		if (dzScene->getFilename().length() > 0)
 		{
 			QFileInfo fileInfo = QFileInfo(dzScene->getFilename());
-			CharacterName = fileInfo.baseName().remove(QRegExp("[^A-Za-z0-9_]"));
+			m_sAssetName = fileInfo.baseName().remove(QRegExp("[^A-Za-z0-9_]"));
 		}
 		else
 		{
-			CharacterName = this->cleanString(selection->getLabel());
+			m_sAssetName = this->cleanString(selection->getLabel());
 		}
 	}
 	else
 	{
-		CharacterName = "";
+		m_sAssetName = "";
 	}
 	if (figure)
 	{
-		AssetType = "SkeletalMesh";
+		m_sAssetType = "SkeletalMesh";
 	}
 	else
 	{
-		AssetType = "StaticMesh";
+		m_sAssetType = "StaticMesh";
 	}
 
-	ProductName = "";
-	ProductComponentName = "";
-	ScriptOnly_MorphList.clear();
-	UseRelativePaths = false;
+	m_sProductName = "";
+	m_sProductComponentName = "";
+	m_aMorphListOverride.clear();
+	m_bUseRelativePaths = false;
 	m_bUndoNormalMaps = true;
-	NonInteractiveMode = 0;
+	m_nNonInteractiveMode = 0;
 	m_undoTable_DuplicateMaterialRename.clear();
 	m_undoTable_GenerateMissingNormalMap.clear();
 	m_sExportFbx = "";
@@ -616,7 +616,7 @@ void DzBridgeAction::exportHD(DzProgress* exportProgress)
 		QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
 	}
 
-	if (ExportSubdivisions)
+	if (m_EnableSubdivisions)
 	{
 		if (exportProgress)
 		{
@@ -625,7 +625,7 @@ void DzBridgeAction::exportHD(DzProgress* exportProgress)
 			QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
 		}
 		m_subdivisionDialog->LockSubdivisionProperties(false);
-		ExportBaseMesh = true;
+		m_bExportingBaseMesh = true;
 		exportAsset();
 		m_subdivisionDialog->UnlockSubdivisionProperties();
 		if (exportProgress)
@@ -640,14 +640,14 @@ void DzBridgeAction::exportHD(DzProgress* exportProgress)
 	if (exportProgress)
 	{
 		exportProgress->step();
-		if (ExportSubdivisions)
+		if (m_EnableSubdivisions)
 			exportProgress->setInfo(tr("Exporting HD Mesh..."));
 		else
 			exportProgress->setInfo(tr("Exporting Mesh..."));
 		QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
 	}
-	m_subdivisionDialog->LockSubdivisionProperties(ExportSubdivisions);
-	ExportBaseMesh = false;
+	m_subdivisionDialog->LockSubdivisionProperties(m_EnableSubdivisions);
+	m_bExportingBaseMesh = false;
 	exportAsset();
 	if (exportProgress)
 	{
@@ -655,7 +655,7 @@ void DzBridgeAction::exportHD(DzProgress* exportProgress)
 		exportProgress->setInfo(tr("Mesh exported."));
 	}
 
-	if (ExportSubdivisions)
+	if (m_EnableSubdivisions)
 	{
 		if (exportProgress)
 		{
@@ -665,11 +665,11 @@ void DzBridgeAction::exportHD(DzProgress* exportProgress)
 		}
 
 		std::map<std::string, int>* pLookupTable = m_subdivisionDialog->GetLookupTable();
-		QString BaseCharacterFBX = DestinationPath + CharacterName + "_base.fbx";
+		QString BaseCharacterFBX = m_sDestinationPath + m_sAssetName + "_base.fbx";
 		// DB 2021-10-02: Upgrade HD
-		if (upgradeToHD(BaseCharacterFBX, CharacterFBX, CharacterFBX, pLookupTable) == false)
+		if (upgradeToHD(BaseCharacterFBX, m_sDestinationFBX, m_sDestinationFBX, pLookupTable) == false)
 		{
-			if (NonInteractiveMode == 0) QMessageBox::warning(0, tr("Error"),
+			if (m_nNonInteractiveMode == 0) QMessageBox::warning(0, tr("Error"),
 				tr("There was an error during the Subdivision Surface refinement operation, the exported Daz model may not work correctly."), QMessageBox::Ok);
 		}
 		else
@@ -704,7 +704,7 @@ void DzBridgeAction::exportHD(DzProgress* exportProgress)
 	{
 		exportProgress->finish();
 		// 2022-02-13 (DB): Generic messagebox "Export Complete"
-		if (NonInteractiveMode == 0)
+		if (m_nNonInteractiveMode == 0)
 		{
 			QMessageBox::information(0, "DazBridge",
 				tr("Export phase from Daz Studio complete. Please switch to Unity to begin Import phase."), QMessageBox::Ok);
@@ -717,28 +717,28 @@ void DzBridgeAction::exportHD(DzProgress* exportProgress)
 void DzBridgeAction::exportAsset()
 {
 	// FBX Export
-	Selection = dzScene->getPrimarySelection();
-	if (Selection == nullptr)
+	m_pSelectedNode = dzScene->getPrimarySelection();
+	if (m_pSelectedNode == nullptr)
 		return;
 
 	QMap<QString, DzNode*> PropToInstance;
-	if (AssetType == "Environment")
+	if (m_sAssetType == "Environment")
 	{
 		// Store off the original export information
-		QString OriginalCharacterName = CharacterName;
-		DzNode* OriginalSelection = Selection;
+		QString OriginalCharacterName = m_sAssetName;
+		DzNode* OriginalSelection = m_pSelectedNode;
 
 		// Find all the different types of props in the scene
-		getScenePropList(Selection, PropToInstance);
+		getScenePropList(m_pSelectedNode, PropToInstance);
 		QMap<QString, DzNode*>::iterator iter;
 		for (iter = PropToInstance.begin(); iter != PropToInstance.end(); ++iter)
 		{
 			// Override the export info for exporting this prop
-			AssetType = "StaticMesh";
-			CharacterName = iter.key();
-			CharacterName = CharacterName.remove(QRegExp("[^A-Za-z0-9_]"));
-			DestinationPath = RootFolder + "/" + CharacterName + "/";
-			CharacterFBX = DestinationPath + CharacterName + ".fbx";
+			m_sAssetType = "StaticMesh";
+			m_sAssetName = iter.key();
+			m_sAssetName = m_sAssetName.remove(QRegExp("[^A-Za-z0-9_]"));
+			m_sDestinationPath = m_sRootFolder + "/" + m_sAssetName + "/";
+			m_sDestinationFBX = m_sDestinationPath + m_sAssetName + ".fbx";
 			DzNode* Node = iter.value();
 
 			// If this is a figure, send it as a skeletal mesh
@@ -746,7 +746,7 @@ void DzBridgeAction::exportAsset()
 			{
 				if (DzFigure* Figure = qobject_cast<DzFigure*>(Skeleton))
 				{
-					AssetType = "SkeletalMesh";
+					m_sAssetType = "SkeletalMesh";
 				}
 			}
 
@@ -758,7 +758,7 @@ void DzBridgeAction::exportAsset()
 			disconnectNode(Node, AttachmentList);
 
 			// Set the selection so this will be the exported asset
-			Selection = Node;
+			m_pSelectedNode = Node;
 
 			// Store the current transform and zero it out.
 			DzVec3 Location;
@@ -779,16 +779,16 @@ void DzBridgeAction::exportAsset()
 		}
 
 		// After the props have been exported, export the environment
-		CharacterName = OriginalCharacterName;
-		DestinationPath = RootFolder + "/" + ExportFolder + "/";
+		m_sAssetName = OriginalCharacterName;
+		m_sDestinationPath = m_sRootFolder + "/" + m_sExportSubfolder + "/";
 		// use original export fbx filestem, if exists
-		if (m_sExportFbx == "") m_sExportFbx = CharacterName;
-		CharacterFBX = DestinationPath + m_sExportFbx + ".fbx";
-		Selection = OriginalSelection;
-		AssetType = "Environment";
-		exportNode(Selection);
+		if (m_sExportFbx == "") m_sExportFbx = m_sAssetName;
+		m_sDestinationFBX = m_sDestinationPath + m_sExportFbx + ".fbx";
+		m_pSelectedNode = OriginalSelection;
+		m_sAssetType = "Environment";
+		exportNode(m_pSelectedNode);
 	}
-	else if (AssetType == "Pose")
+	else if (m_sAssetType == "Pose")
 	{
 		if (checkIfPoseExportIsDestructive())
 		{
@@ -800,7 +800,7 @@ void DzBridgeAction::exportAsset()
 			}
 		}
 
-		PoseList.clear();
+		m_aPoseList.clear();
 		DzNode* Selection = dzScene->getPrimarySelection();
 		int poseIndex = 0;
 		DzNumericProperty* previousProperty = nullptr;
@@ -812,16 +812,16 @@ void DzBridgeAction::exportAsset()
 			if (numericProperty)
 			{
 				QString propName = property->getName();
-				if (MorphMapping.contains(propName))
+				if (m_mMorphNameToLabel.contains(propName))
 				{
 					poseIndex++;
 					numericProperty->setDoubleValue(0.0f, 0.0f);
-					for (int frame = 0; frame < MorphMapping.count() + 1; frame++)
+					for (int frame = 0; frame < m_mMorphNameToLabel.count() + 1; frame++)
 					{
 						numericProperty->setDoubleValue(dzScene->getTimeStep() * double(frame), 0.0f);
 					}
 					numericProperty->setDoubleValue(dzScene->getTimeStep() * double(poseIndex),1.0f);
-					PoseList.append(propName);
+					m_aPoseList.append(propName);
 				}
 			}
 		}
@@ -845,16 +845,16 @@ void DzBridgeAction::exportAsset()
 						{
 							QString propName = property->getName();
 							//qDebug() << propName;
-							if (MorphMapping.contains(modifier->getName()))
+							if (m_mMorphNameToLabel.contains(modifier->getName()))
 							{
 								poseIndex++;
 								numericProperty->setDoubleValue(0.0f, 0.0f);
-								for (int frame = 0; frame < MorphMapping.count() + 1; frame++)
+								for (int frame = 0; frame < m_mMorphNameToLabel.count() + 1; frame++)
 								{
 									numericProperty->setDoubleValue(dzScene->getTimeStep() * double(frame), 0.0f);
 								}
 								numericProperty->setDoubleValue(dzScene->getTimeStep() * double(poseIndex), 1.0f);
-								PoseList.append(modifier->getName());
+								m_aPoseList.append(modifier->getName());
 							}
 						}
 					}
@@ -869,7 +869,7 @@ void DzBridgeAction::exportAsset()
 
 		exportNode(Selection);
 	}
-	else if (AssetType == "SkeletalMesh")
+	else if (m_sAssetType == "SkeletalMesh")
 	{
 		QList<QString> DisconnectedModifiers = disconnectOverrideControllers();
 		DzNode* Selection = dzScene->getPrimarySelection();
@@ -943,10 +943,10 @@ void DzBridgeAction::exportNode(DzNode* Node)
 	dzScene->selectAllNodes(false);
 	 dzScene->setPrimarySelection(Node);
 
-	 if (AssetType == "Environment")
+	 if (m_sAssetType == "Environment")
 	 {
 		 QDir dir;
-		 dir.mkpath(DestinationPath);
+		 dir.mkpath(m_sDestinationPath);
 		 writeConfiguration();
 		 return;
 	 }
@@ -959,7 +959,7 @@ void DzBridgeAction::exportNode(DzNode* Node)
 		  DzFileIOSettings ExportOptions;
 		  ExportOptions.setBoolValue("doSelected", true);
 		  ExportOptions.setBoolValue("doVisible", false);
-		  if (AssetType == "SkeletalMesh" || AssetType == "StaticMesh" || AssetType == "Environment")
+		  if (m_sAssetType == "SkeletalMesh" || m_sAssetType == "StaticMesh" || m_sAssetType == "Environment")
 		  {
 				ExportOptions.setBoolValue("doFigures", true);
 				ExportOptions.setBoolValue("doProps", true);
@@ -971,7 +971,7 @@ void DzBridgeAction::exportNode(DzNode* Node)
 		  }
 		  ExportOptions.setBoolValue("doLights", false);
 		  ExportOptions.setBoolValue("doCameras", false);
-		  if (AssetType == "Animation")
+		  if (m_sAssetType == "Animation")
 		  {
 			  ExportOptions.setBoolValue("doAnims", true);
 		  }
@@ -979,10 +979,10 @@ void DzBridgeAction::exportNode(DzNode* Node)
 		  {
 			  ExportOptions.setBoolValue("doAnims", false);
 		  }
-		  if ((AssetType == "Animation" || AssetType == "SkeletalMesh") && ExportMorphs && MorphString != "")
+		  if ((m_sAssetType == "Animation" || m_sAssetType == "SkeletalMesh") && m_bEnableMorphs && m_sMorphSelectionRule != "")
 		  {
 				ExportOptions.setBoolValue("doMorphs", true);
-				ExportOptions.setStringValue("rules", MorphString);
+				ExportOptions.setStringValue("rules", m_sMorphSelectionRule);
 		  }
 		  else
 		  {
@@ -990,8 +990,8 @@ void DzBridgeAction::exportNode(DzNode* Node)
 				ExportOptions.setStringValue("rules", "");
 		  }
 
-		  ExportOptions.setStringValue("format", FBXVersion);
-		  ExportOptions.setIntValue("RunSilent", !ShowFbxDialog);
+		  ExportOptions.setStringValue("format", m_sFbxVersion);
+		  ExportOptions.setIntValue("RunSilent", !m_bShowFbxOptions);
 
 		  ExportOptions.setBoolValue("doEmbed", false);
 		  ExportOptions.setBoolValue("doCopyTextures", false);
@@ -1005,7 +1005,7 @@ void DzBridgeAction::exportNode(DzNode* Node)
 
 		  // get the top level node for things like clothing so we don't get dupe material names
 		  DzNode* Parent = Node;
-		  if (AssetType != "Environment")
+		  if (m_sAssetType != "Environment")
 		  {
 			  while (Parent->getNodeParent() != NULL)
 			  {
@@ -1016,19 +1016,19 @@ void DzBridgeAction::exportNode(DzNode* Node)
 		  preProcessScene(Parent);
 
 		  QDir dir;
-		  dir.mkpath(DestinationPath);
+		  dir.mkpath(m_sDestinationPath);
 
 		  setExportOptions(ExportOptions);
 
-		  if (ExportSubdivisions && ExportBaseMesh)
+		  if (m_EnableSubdivisions && m_bExportingBaseMesh)
 		  {
-			  QString CharacterBaseFBX = this->CharacterFBX;
+			  QString CharacterBaseFBX = this->m_sDestinationFBX;
 			  CharacterBaseFBX.replace(".fbx", "_base.fbx");
 			  Exporter->writeFile(CharacterBaseFBX, &ExportOptions);
 		  }
 		  else
 		  {
-			  Exporter->writeFile(CharacterFBX, &ExportOptions);
+			  Exporter->writeFile(m_sDestinationFBX, &ExportOptions);
 			  writeConfiguration();
 		  }
 
@@ -1090,7 +1090,7 @@ void DzBridgeAction::getScenePropList(DzNode* Node, QMap<QString, DzNode*>& Type
 	DzSkeleton* Skeleton = Node->getSkeleton();
 	DzFigure* Figure = Skeleton ? qobject_cast<DzFigure*>(Skeleton) : NULL;
 	//QString AssetId = Node->getAssetId();
-	//IDzSceneAsset::AssetType Type = Node->getAssetType();
+	//IDzSceneAsset::m_sAssetType Type = Node->getAssetType();
 
 	// Use the FileName to generate a name for the prop to be exported
 	QString Path = Node->getAssetFileInfo().getUri().getFilePath();
@@ -1144,7 +1144,7 @@ QList<QString> DzBridgeAction::disconnectOverrideControllers()
 		if (numericProperty && !numericProperty->isOverridingControllers())
 		{
 			QString propName = property->getName();
-			if (MorphMapping.contains(propName) && m_ControllersToDisconnect.contains(propName))
+			if (m_mMorphNameToLabel.contains(propName) && m_ControllersToDisconnect.contains(propName))
 			{
 				numericProperty->setOverrideControllers(true);
 				ModifiedList.append(propName);
@@ -1170,7 +1170,7 @@ QList<QString> DzBridgeAction::disconnectOverrideControllers()
 					if (numericProperty && !numericProperty->isOverridingControllers())
 					{
 						QString propName = property->getName();
-						if (MorphMapping.contains(modifier->getName()) && m_ControllersToDisconnect.contains(modifier->getName()))
+						if (m_mMorphNameToLabel.contains(modifier->getName()) && m_ControllersToDisconnect.contains(modifier->getName()))
 						{
 							numericProperty->setOverrideControllers(true);
 							ModifiedList.append(modifier->getName());
@@ -1256,7 +1256,7 @@ bool DzBridgeAction::checkIfPoseExportIsDestructive()
 		if (numericProperty)
 		{
 			QString propName = property->getName();
-			if (MorphMapping.contains(propName))
+			if (m_mMorphNameToLabel.contains(propName))
 			{
 				if (!(numericProperty->getKeyRange().getEnd() == 0.0f && numericProperty->getDoubleValue(0.0f) == 0.0f)) return true;
 			}
@@ -1281,7 +1281,7 @@ bool DzBridgeAction::checkIfPoseExportIsDestructive()
 					if (numericProperty)
 					{
 						QString propName = property->getName();
-						if (MorphMapping.contains(modifier->getName()))
+						if (m_mMorphNameToLabel.contains(modifier->getName()))
 						{
 							if (!(numericProperty->getKeyRange().getEnd() == 0.0f && numericProperty->getDoubleValue(0.0f) == 0.0f)) return true;
 						}
@@ -1347,7 +1347,7 @@ QString DzBridgeAction::exportAssetWithDtu(QString sFilename, QString sAssetMate
 	QString cleanedAssetMaterialName = sAssetMaterialName;
 	cleanedAssetMaterialName.remove(QRegExp("[^A-Za-z0-9_]"));
 
-	QString exportPath = this->RootFolder.replace("\\","/") + "/" + this->ExportFolder.replace("\\", "/");
+	QString exportPath = this->m_sRootFolder.replace("\\","/") + "/" + this->m_sExportSubfolder.replace("\\", "/");
 	QString fileStem = QFileInfo(sFilename).fileName();
 
 	exportPath += "/ExportTextures/";
@@ -1420,19 +1420,19 @@ void DzBridgeAction::writePropertyTexture(DzJsonWriter& Writer, QString sName, d
 void DzBridgeAction::writeDTUHeader(DzJsonWriter& writer)
 {
 	writer.addMember("DTU Version", 3);
-	writer.addMember("Asset Name", CharacterName);
-	writer.addMember("Asset Type", AssetType);
-	writer.addMember("FBX File", CharacterFBX);
-	QString CharacterBaseFBX = CharacterFBX;
+	writer.addMember("Asset Name", m_sAssetName);
+	writer.addMember("Asset Type", m_sAssetType);
+	writer.addMember("FBX File", m_sDestinationFBX);
+	QString CharacterBaseFBX = m_sDestinationFBX;
 	CharacterBaseFBX.replace(".fbx", "_base.fbx");
 	writer.addMember("Base FBX File", CharacterBaseFBX);
-	QString CharacterHDFBX = CharacterFBX;
+	QString CharacterHDFBX = m_sDestinationFBX;
 	CharacterHDFBX.replace(".fbx", "_HD.fbx");
 	writer.addMember("HD FBX File", CharacterHDFBX);
-	writer.addMember("Import Folder", DestinationPath);
+	writer.addMember("Import Folder", m_sDestinationPath);
 	// DB Dec-21-2021: additional metadata
-	writer.addMember("Product Name", ProductName);
-	writer.addMember("Product Component Name", ProductComponentName);
+	writer.addMember("Product Name", m_sProductName);
+	writer.addMember("Product Component Name", m_sProductComponentName);
 
 }
 
@@ -1511,7 +1511,7 @@ void DzBridgeAction::startMaterialBlock(DzNode* Node, DzJsonWriter& Writer, QTex
 		Writer.addMember("Texture", QString(""));
 		Writer.finishObject();
 
-		if (ExportMaterialPropertiesCSV && pCVSStream)
+		if (m_bExportMaterialPropertiesCSV && pCVSStream)
 		{
 			*pCVSStream << "2, " << Node->getLabel() << ", " << Material->getName() << ", " << Material->getMaterialName() << ", " << "Asset Type" << ", " << presentationType << ", " << "String" << ", " << "" << endl;
 		}
@@ -1587,7 +1587,7 @@ void DzBridgeAction::writeMaterialProperty(DzNode* Node, DzJsonWriter& Writer, Q
 	QString dtuTextureName = TextureName;
 	if (TextureName != "")
 	{
-		if (this->UseRelativePaths)
+		if (this->m_bUseRelativePaths)
 		{
 			dtuTextureName = dzApp->getContentMgr()->getRelativePath(TextureName, true);
 		}
@@ -1601,7 +1601,7 @@ void DzBridgeAction::writeMaterialProperty(DzNode* Node, DzJsonWriter& Writer, Q
 	else
 		writePropertyTexture(Writer, Name, dtuPropValue, dtuPropType, dtuTextureName);
 
-	if (ExportMaterialPropertiesCSV && pCVSStream)
+	if (m_bExportMaterialPropertiesCSV && pCVSStream)
 	{
 		if (bUseNumeric)
 			*pCVSStream << "2, " << Node->getLabel() << ", " << Material->getName() << ", " << Material->getMaterialName() << ", " << Name << ", " << dtuPropNumericValue << ", " << dtuPropType << ", " << TextureName << endl;
@@ -1615,21 +1615,21 @@ void DzBridgeAction::writeMaterialProperty(DzNode* Node, DzJsonWriter& Writer, Q
 void DzBridgeAction::writeAllMorphs(DzJsonWriter& writer)
 {
 	writer.startMemberArray("Morphs", true);
-	if (ExportMorphs)
+	if (m_bEnableMorphs)
 	{
-		for (QMap<QString, QString>::iterator i = MorphMapping.begin(); i != MorphMapping.end(); ++i)
+		for (QMap<QString, QString>::iterator i = m_mMorphNameToLabel.begin(); i != m_mMorphNameToLabel.end(); ++i)
 		{
 			writeMorphProperties(writer, i.key(), i.value());
 		}
 	}
 	writer.finishArray();
 
-	if (ExportMorphs)
+	if (m_bEnableMorphs)
 	{
 		if (m_morphSelectionDialog->IsAutoJCMEnabled())
 		{
 			writer.startMemberArray("JointLinks", true);
-			QList<JointLinkInfo> JointLinks = m_morphSelectionDialog->GetActiveJointControlledMorphs(Selection);
+			QList<JointLinkInfo> JointLinks = m_morphSelectionDialog->GetActiveJointControlledMorphs(m_pSelectedNode);
 			foreach(JointLinkInfo linkInfo, JointLinks)
 			{
 				writeMorphJointLinkInfo(writer, linkInfo);
@@ -1674,7 +1674,7 @@ void DzBridgeAction::writeMorphJointLinkInfo(DzJsonWriter& writer, const JointLi
 void DzBridgeAction::writeAllSubdivisions(DzJsonWriter& writer)
 {
 	writer.startMemberArray("Subdivisions", true);
-	if (ExportSubdivisions)
+	if (m_EnableSubdivisions)
 	{
 		//stream << "Version, Object, Subdivision" << endl;
 		QObjectList objList = m_subdivisionDialog->getSubdivisionCombos();
@@ -1780,13 +1780,13 @@ void DzBridgeAction::writeAllDforceInfo(DzNode* Node, DzJsonWriter& Writer, QTex
 
 	if (!bRecursive)
 	{
-		if (AssetType == "SkeletalMesh")
+		if (m_sAssetType == "SkeletalMesh")
 		{
 			bool ExportDForce = true;
 			Writer.startMemberArray("dForce-WeightMaps", true);
 			if (ExportDForce)
 			{
-				writeWeightMaps(Selection, Writer);
+				writeWeightMaps(m_pSelectedNode, Writer);
 			}
 			Writer.finishArray();
 		}
@@ -1868,11 +1868,11 @@ void DzBridgeAction::writeDforceMaterialProperties(DzJsonWriter& Writer, DzMater
 void DzBridgeAction::writeAllPoses(DzJsonWriter& writer)
 {
 	writer.startMemberArray("Poses", true);
-	for (QList<QString>::iterator i = PoseList.begin(); i != PoseList.end(); ++i)
+	for (QList<QString>::iterator i = m_aPoseList.begin(); i != m_aPoseList.end(); ++i)
 	{
 		writer.startObject(true);
 		writer.addMember("Name", *i);
-		writer.addMember("Label", MorphMapping[*i]);
+		writer.addMember("Label", m_mMorphNameToLabel[*i]);
 		writer.finishObject();
 	}
 	writer.finishArray();
@@ -1883,7 +1883,7 @@ void DzBridgeAction::writeEnvironment(DzJsonWriter& writer)
 	writer.startMemberArray("Instances", true);
 	QMap<QString, DzMatrix3> WritingInstances;
 	QList<DzGeometry*> ExportedGeometry;
-	writeInstances(Selection, writer, WritingInstances, ExportedGeometry);
+	writeInstances(m_pSelectedNode, writer, WritingInstances, ExportedGeometry);
 	writer.finishArray();
 }
 
@@ -1957,30 +1957,30 @@ void DzBridgeAction::readGui(DzBridgeDialog* BridgeDialog)
 		return;
 
 	// Collect the values from the dialog fields
-	if (CharacterName == "" || NonInteractiveMode == 0) CharacterName = BridgeDialog->getAssetNameEdit()->text();
-	if (RootFolder == "" || NonInteractiveMode == 0) RootFolder = readGuiRootFolder();
-	if (ExportFolder == "" || NonInteractiveMode == 0) ExportFolder = CharacterName;
-	DestinationPath = RootFolder + "/" + ExportFolder + "/";
-	if (m_sExportFbx == "" || NonInteractiveMode == 0) m_sExportFbx = CharacterName;
-	CharacterFBX = DestinationPath + m_sExportFbx + ".fbx";
+	if (m_sAssetName == "" || m_nNonInteractiveMode == 0) m_sAssetName = BridgeDialog->getAssetNameEdit()->text();
+	if (m_sRootFolder == "" || m_nNonInteractiveMode == 0) m_sRootFolder = readGuiRootFolder();
+	if (m_sExportSubfolder == "" || m_nNonInteractiveMode == 0) m_sExportSubfolder = m_sAssetName;
+	m_sDestinationPath = m_sRootFolder + "/" + m_sExportSubfolder + "/";
+	if (m_sExportFbx == "" || m_nNonInteractiveMode == 0) m_sExportFbx = m_sAssetName;
+	m_sDestinationFBX = m_sDestinationPath + m_sExportFbx + ".fbx";
 
-	if (NonInteractiveMode == 0)
+	if (m_nNonInteractiveMode == 0)
 	{
 		// TODO: consider removing once findData( ) method above is completely implemented
-		AssetType = cleanString(BridgeDialog->getAssetTypeCombo()->currentText());
+		m_sAssetType = cleanString(BridgeDialog->getAssetTypeCombo()->currentText());
 
-		MorphString = BridgeDialog->GetMorphString();
-		MorphMapping = BridgeDialog->GetMorphMapping();
-		ExportMorphs = BridgeDialog->getMorphsEnabledCheckBox()->isChecked();
+		m_sMorphSelectionRule = BridgeDialog->GetMorphString();
+		m_mMorphNameToLabel = BridgeDialog->GetMorphMapping();
+		m_bEnableMorphs = BridgeDialog->getMorphsEnabledCheckBox()->isChecked();
 	}
 
-	ExportSubdivisions = BridgeDialog->getSubdivisionEnabledCheckBox()->isChecked();
-	ShowFbxDialog = BridgeDialog->getShowFbxDialogCheckBox()->isChecked();
+	m_EnableSubdivisions = BridgeDialog->getSubdivisionEnabledCheckBox()->isChecked();
+	m_bShowFbxOptions = BridgeDialog->getShowFbxDialogCheckBox()->isChecked();
 	if (m_subdivisionDialog == nullptr)
 	{
 		m_subdivisionDialog = DzBridgeSubdivisionDialog::Get(BridgeDialog);
 	}
-	FBXVersion = BridgeDialog->getFbxVersionCombo()->currentText();
+	m_sFbxVersion = BridgeDialog->getFbxVersionCombo()->currentText();
 
 }
 
@@ -2447,7 +2447,7 @@ void DzBridgeAction::writeWeightMaps(DzNode* Node, DzJsonWriter& Writer)
 
 							// export to dforce_weightmap file
 							QString filename = QString("%1.dforce_weightmap.bytes").arg(cleanString(Node->getLabel()));
-							QFile rawWeight(DestinationPath + filename);
+							QFile rawWeight(m_sDestinationPath + filename);
 							if (rawWeight.open(QIODevice::WriteOnly))
 							{
 								int bytesWritten = rawWeight.write(buffer, byte_length);
@@ -2455,7 +2455,7 @@ void DzBridgeAction::writeWeightMaps(DzNode* Node, DzJsonWriter& Writer)
 								{
 									// write error
 									QString errString = rawWeight.errorString();
-									if (NonInteractiveMode == 0) QMessageBox::warning(0,
+									if (m_nNonInteractiveMode == 0) QMessageBox::warning(0,
 										tr("Error writing dforce weightmap. Incorrect number of bytes written."),
 										errString, QMessageBox::Ok);
 								}
@@ -2620,7 +2620,7 @@ bool DzBridgeAction::upgradeToHD(QString baseFilePath, QString hdFilePath, QStri
 	FbxScene* baseMeshScene = openFBX->CreateScene("Base Mesh Scene");
 	if (openFBX->LoadScene(baseMeshScene, baseFilePath.toLocal8Bit().data()) == false)
 	{
-		if (NonInteractiveMode == 0) QMessageBox::warning(0, "Error",
+		if (m_nNonInteractiveMode == 0) QMessageBox::warning(0, "Error",
 			"An error occurred while loading the base scene...", QMessageBox::Ok);
 		printf("\n\nAn error occurred while loading the base scene...");
 		return false;
@@ -2630,7 +2630,7 @@ bool DzBridgeAction::upgradeToHD(QString baseFilePath, QString hdFilePath, QStri
 	FbxScene* hdMeshScene = openFBX->CreateScene("HD Mesh Scene");
 	if (openFBX->LoadScene(hdMeshScene, hdFilePath.toLocal8Bit().data()) == false)
 	{
-		if (NonInteractiveMode == 0) QMessageBox::warning(0, "Error",
+		if (m_nNonInteractiveMode == 0) QMessageBox::warning(0, "Error",
 			"An error occurred while loading the base scene...", QMessageBox::Ok);
 		printf("\n\nAn error occurred while loading the base scene...");
 		return false;
@@ -2638,7 +2638,7 @@ bool DzBridgeAction::upgradeToHD(QString baseFilePath, QString hdFilePath, QStri
 	subdivider.SaveClustersToScene(hdMeshScene);
 	if (openFBX->SaveScene(hdMeshScene, outFilePath.toLocal8Bit().data()) == false)
 	{
-		if (NonInteractiveMode == 0) QMessageBox::warning(0, "Error",
+		if (m_nNonInteractiveMode == 0) QMessageBox::warning(0, "Error",
 			"An error occurred while saving the scene...", QMessageBox::Ok);
 
 		printf("\n\nAn error occurred while saving the scene...");
