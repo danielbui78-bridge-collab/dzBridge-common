@@ -25,11 +25,12 @@ set(OSDI_SOURCES
 )
 
 set(LIB_SRCS
-	${LIB_SRCS}
-	DzRuntimePluginAction.cpp
+	${LIB_HEADERS}
+	DzBridgeAction.cpp
 	DzBridgeMorphSelectionDialog.cpp
 	DzBridgeSubdivisionDialog.cpp
 	DzBridgeDialog.cpp
+	${QA_SRCS}
 )
 
 add_library(dzbridge-static 
@@ -61,10 +62,12 @@ set_target_properties (dzbridge-static
 add_library(dzbridge
 	SHARED 
 	${LIB_SRCS}
-	pluginmain.cpp
 	${OS_SOURCES}
 	${OFBXI_SOURCES}
 	${OSDI_SOURCES}
+	pluginmain.cpp
+	DzBridgeScriptableAction.h
+	DzBridgeScriptableAction.cpp
 )
 
 target_include_directories(dzbridge
@@ -93,9 +96,11 @@ set_target_properties (dzbridge
 target_compile_definitions(dzbridge
 	PUBLIC
 	DZ_BRIDGE_SHARED
+	$<$<CONFIG:DEBUG>:UNITTEST_DZBRIDGE>
 )
 
 target_compile_definitions(dzbridge-static
 	PUBLIC
 	DZ_BRIDGE_STATIC
+	$<$<CONFIG:DEBUG>:UNITTEST_DZBRIDGE>
 )

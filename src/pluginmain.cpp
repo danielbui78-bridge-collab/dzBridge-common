@@ -6,6 +6,7 @@
 #include "DzBridgeMorphSelectionDialog.h"
 #include "DzBridgeSubdivisionDialog.h"
 #include "OpenFBXInterface.h"
+#include "DzBridgeScriptableAction.h"
 
 #ifdef __APPLE__
 DZ_PLUGIN_DEFINITION("Daz Bridges Common Library");
@@ -39,9 +40,11 @@ Bridge Collaboration Project<br><br>\
 <a href = \"https://github.com/danielbui78-bridge-collab/DazToRuntime/tree/dzbridge-library-main\">Github</a><br><br>"
 ).arg(COMMON_MAJOR).arg(COMMON_MINOR).arg(COMMON_REV).arg(COMMON_BUILD));
 
+DZ_PLUGIN_CUSTOM_CLASS_GUID(DzBridgeDialog, c0830510-cea8-419a-b17b-49b3353e3d07);
 DZ_PLUGIN_CUSTOM_CLASS_GUID(DzBridgeMorphSelectionDialog, 321916ba-0bcc-45d9-8c7e-ebbe80dea51c);
 DZ_PLUGIN_CUSTOM_CLASS_GUID(DzBridgeSubdivisionDialog, a2342e17-db3b-4032-a576-75b5843fa893);
 DZ_PLUGIN_CLASS_GUID(OpenFBXInterface, 9aaaf080-28c1-4e0f-a3e9-a0205e91a154);
+DZ_PLUGIN_CLASS_GUID(DzBridgeScriptableAction, 71fb7202-4b49-47ba-a82a-4780e3819776);
 
 static QWidget* GetParentArg0(const QVariantList& args)
 {
@@ -54,6 +57,16 @@ static QWidget* GetParentArg0(const QVariantList& args)
 	}
 
 	return parent;
+}
+
+QObject* DzBridgeDialogFactory::createInstance(const QVariantList& args) const
+{
+	QWidget* parent = GetParentArg0(args);
+	return (QObject*) new DzBridgeDialog(parent);
+}
+QObject* DzBridgeDialogFactory::createInstance() const
+{
+	return (QObject*) new DzBridgeDialog(nullptr);
 }
 
 QObject* DzBridgeMorphSelectionDialogFactory::createInstance(const QVariantList& args) const
@@ -75,3 +88,16 @@ QObject* DzBridgeSubdivisionDialogFactory::createInstance() const
 {
 	return (QObject*) new DzBridgeSubdivisionDialog(nullptr);
 }
+
+#ifdef UNITTEST_DZBRIDGE
+#include "UnitTest_DzBridgeScriptableAction.h"
+#include "UnitTest_DzBridgeDialog.h"
+#include "UnitTest_DzBridgeMorphSelectionDialog.h"
+#include "UnitTest_DzBridgeSubdivisionDialog.h"
+
+DZ_PLUGIN_CLASS_GUID(UnitTest_DzBridgeScriptableAction, 1ae818ba-d745-4db7-afb9-b1cb5e7700db);
+DZ_PLUGIN_CLASS_GUID(UnitTest_DzBridgeDialog, 15bdc1cf-fbe6-4085-b729-fcb5e428fe71);
+DZ_PLUGIN_CLASS_GUID(UnitTest_DzBridgeMorphSelectionDialog, 8d4ba27a-bb2a-4d69-95da-c8dc1b095bcc);
+DZ_PLUGIN_CLASS_GUID(UnitTest_DzBridgeSubdivisionDialog, fc3a8f28-fef2-44ed-ac99-25aadb91e3d5);
+
+#endif

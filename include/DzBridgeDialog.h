@@ -49,10 +49,9 @@ public:
 	// Pass so the DazTRoUnrealAction can access it from the morph dialog
 	Q_INVOKABLE QMap<QString,QString> GetMorphMapping() { return morphMapping; }
 	Q_INVOKABLE virtual void resetToDefaults();
+	Q_INVOKABLE bool loadSavedSettings();
 
 	void Accepted();
-
-	Q_INVOKABLE virtual QString getRootFolder()=0;
 
 protected slots:
 	void handleSceneSelectionChanged();
@@ -68,7 +67,6 @@ protected slots:
 protected:
 	QSettings* settings;
 
-	Q_INVOKABLE bool loadSavedSettings();
 	void refreshAsset();
 
 	// These are clumsy leftovers from before the dialog were singletons
@@ -90,5 +88,8 @@ protected:
 	QComboBox* fbxVersionCombo;
 	QCheckBox* showFbxDialogCheckBox;
 
+#ifdef UNITTEST_DZBRIDGE
+	friend class UnitTest_DzBridgeDialog;
+#endif
 
 };

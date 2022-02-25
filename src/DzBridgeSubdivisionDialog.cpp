@@ -302,7 +302,7 @@ void DzBridgeSubdivisionDialog::UnlockSubdivisionProperties()
 	UndoSubdivisionOverrides.clear();
 }
 
-// DEPRECATED: use DzRuntimePluginAction::writeAllSubdivisions(DzJsonWriter& writer)
+// DEPRECATED: use DzBridgeAction::writeAllSubdivisions(DzJsonWriter& writer)
 void DzBridgeSubdivisionDialog::WriteSubdivisions(DzJsonWriter& Writer)
 {
 	DzNode* Selection = dzScene->getPrimarySelection();
