@@ -1913,8 +1913,12 @@ void DzBridgeAction::writeInstances(DzNode* Node, DzJsonWriter& Writer, QMap<QSt
 QUuid DzBridgeAction::writeInstance(DzNode* Node, DzJsonWriter& Writer, QUuid ParentID)
 {
 	if (Node == nullptr)
+#ifdef __APPLE__
+        return 0;
+#else
 		return false;
-
+#endif
+    
 	QString Path = Node->getAssetFileInfo().getUri().getFilePath();
 	QFile File(Path);
 	QString FileName = File.fileName();
