@@ -29,12 +29,12 @@ bool method_name(UnitTest::TestResult* testResult);
 #define RUNTEST RUNTEST_1ARG
 
 #define RUNTEST_0ARG(method_name) \
-UnitTest::TestResult *##method_name##_testResult = createTestResult(#method_name); \
-##method_name##_testResult->bResult = method_name();
+UnitTest::TestResult *method_name ## _testResult = createTestResult(#method_name); \
+method_name ## _testResult->bResult = method_name();
 
 #define RUNTEST_1ARG(method_name) \
-UnitTest::TestResult *##method_name##_testResult = createTestResult(#method_name); \
-##method_name##_testResult->bResult = method_name(##method_name##_testResult);
+UnitTest::TestResult *method_name ## _testResult = createTestResult(#method_name); \
+method_name ## _testResult->bResult = method_name(method_name ## _testResult);
 
 #define LOGTEST_TEXT(text) \
 logToTestResult(testResult, QString(text));
