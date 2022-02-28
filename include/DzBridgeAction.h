@@ -11,16 +11,6 @@
 
 #include "DzBridgeMorphSelectionDialog.h"
 
-#undef DLLExport
-#define DLLExport Q_DECL_IMPORT
-#ifdef DZ_BRIDGE_SHARED
-#undef DLLExport
-#define DLLExport Q_DECL_EXPORT
-#elif DZ_BRIDGE_STATIC
-#undef DLLExport
-#define DLLExport
-#endif
-
 class DzProgress;
 class DzGeometry;
 
@@ -86,6 +76,7 @@ protected:
 		DzNode* Parent;
 		DzNode* Child;
 	};
+#include "dzbridge.h"
 
 	DzBridgeDialog* m_bridgeDialog;
 	DzBridgeSubdivisionDialog* m_subdivisionDialog;

@@ -6,16 +6,6 @@
 #include <QtCore/qsettings.h>
 #include "dznode.h"
 
-#undef DLLExport
-#define DLLExport Q_DECL_IMPORT
-#ifdef DZ_BRIDGE_SHARED
-	#undef DLLExport
-	#define DLLExport Q_DECL_EXPORT
-#elif DZ_BRIDGE_STATIC
-	#undef DLLExport
-	#define DLLExport
-#endif
-
 class QListWidget;
 class QListWidgetItem;
 class QTreeWidget;
@@ -49,6 +39,7 @@ struct MorphInfo {
 };
 
 struct JointLinkKey
+#include "dzbridge.h"
 {
 	int Angle;
 	int Value;

@@ -8,27 +8,9 @@
 #include "OpenFBXInterface.h"
 #include "DzBridgeScriptableAction.h"
 
-#ifdef __APPLE__
-DZ_PLUGIN_DEFINITION("Daz Bridges Common Library");
-#else
-BOOL WINAPI DllMain(HINSTANCE hinstDLL, ULONG fdwReason, LPVOID lpvReserved)	
-{	
-	switch (fdwReason) {
-	case DLL_PROCESS_ATTACH:
-			break;
-	case DLL_THREAD_ATTACH:
-			break;
-	case DLL_THREAD_DETACH:
-			break;
-	case DLL_PROCESS_DETACH:
-			break;
-	}
-	return TRUE;
-}
-static DzPlugin s_pluginDef("Daz Bridges Common Library"); 
-extern "C" __declspec(dllexport) DzVersion getSDKVersion() { return DZ_SDK_VERSION; }
-extern "C" __declspec(dllexport) DzPlugin * getPluginDefinition() { return &s_pluginDef; }
-#endif
+#include "dzbridge.h"
+
+CPP_PLUGIN_DEFINITION("Daz Bridges Common Library")
 
 DZ_PLUGIN_AUTHOR("Daz 3D, Inc");
 
@@ -40,54 +22,11 @@ Bridge Collaboration Project<br><br>\
 <a href = \"https://github.com/danielbui78-bridge-collab/DazToRuntime/tree/dzbridge-library-main\">Github</a><br><br>"
 ).arg(COMMON_MAJOR).arg(COMMON_MINOR).arg(COMMON_REV).arg(COMMON_BUILD));
 
-DZ_PLUGIN_CUSTOM_CLASS_GUID(DzBridgeDialog, c0830510-cea8-419a-b17b-49b3353e3d07);
-DZ_PLUGIN_CUSTOM_CLASS_GUID(DzBridgeMorphSelectionDialog, 321916ba-0bcc-45d9-8c7e-ebbe80dea51c);
-DZ_PLUGIN_CUSTOM_CLASS_GUID(DzBridgeSubdivisionDialog, a2342e17-db3b-4032-a576-75b5843fa893);
+NEW_PLUGIN_CUSTOM_CLASS_GUID(DzBridgeDialog, c0830510-cea8-419a-b17b-49b3353e3d07);
+NEW_PLUGIN_CUSTOM_CLASS_GUID(DzBridgeMorphSelectionDialog, 321916ba-0bcc-45d9-8c7e-ebbe80dea51c);
+NEW_PLUGIN_CUSTOM_CLASS_GUID(DzBridgeSubdivisionDialog, a2342e17-db3b-4032-a576-75b5843fa893);
 DZ_PLUGIN_CLASS_GUID(OpenFBXInterface, 9aaaf080-28c1-4e0f-a3e9-a0205e91a154);
 DZ_PLUGIN_CLASS_GUID(DzBridgeScriptableAction, 71fb7202-4b49-47ba-a82a-4780e3819776);
-
-static QWidget* GetParentArg0(const QVariantList& args)
-{
-	QWidget* parent = nullptr;
-	QVariant qvar = args[0];
-	QObject* obj = qvar.value<QObject*>();
-	if (obj && obj->inherits("QWidget"))
-	{
-		parent = (QWidget*)obj;
-	}
-
-	return parent;
-}
-
-QObject* DzBridgeDialogFactory::createInstance(const QVariantList& args) const
-{
-	QWidget* parent = GetParentArg0(args);
-	return (QObject*) new DzBridgeDialog(parent);
-}
-QObject* DzBridgeDialogFactory::createInstance() const
-{
-	return (QObject*) new DzBridgeDialog(nullptr);
-}
-
-QObject* DzBridgeMorphSelectionDialogFactory::createInstance(const QVariantList& args) const
-{
-	QWidget* parent = GetParentArg0(args);
-	return (QObject*) new DzBridgeMorphSelectionDialog(parent);
-}
-QObject* DzBridgeMorphSelectionDialogFactory::createInstance() const
-{
-	return (QObject*) new DzBridgeMorphSelectionDialog(nullptr);
-}
-
-QObject* DzBridgeSubdivisionDialogFactory::createInstance(const QVariantList& args) const
-{
-	QWidget* parent = GetParentArg0(args);
-	return (QObject*) new DzBridgeSubdivisionDialog(parent);
-}
-QObject* DzBridgeSubdivisionDialogFactory::createInstance() const
-{
-	return (QObject*) new DzBridgeSubdivisionDialog(nullptr);
-}
 
 #ifdef UNITTEST_DZBRIDGE
 #include "UnitTest_DzBridgeScriptableAction.h"

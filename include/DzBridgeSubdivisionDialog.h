@@ -6,16 +6,6 @@
 #include "dznode.h"
 #include <dzjsonwriter.h>
 
-#undef DLLExport
-#define DLLExport Q_DECL_IMPORT
-#ifdef DZ_BRIDGE_SHARED
-	#undef DLLExport
-	#define DLLExport Q_DECL_EXPORT
-#elif DZ_BRIDGE_STATIC
-	#undef DLLExport
-	#define DLLExport
-#endif
-
 class QListWidget;
 class QListWidgetItem;
 class QTreeWidget;
@@ -24,6 +14,7 @@ class QLineEdit;
 class QComboBox;
 class QGridLayout;
 
+#include "dzbridge.h"
 
 class DLLExport DzBridgeSubdivisionDialog : public DzBasicDialog {
 	Q_OBJECT
