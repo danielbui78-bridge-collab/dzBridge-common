@@ -34,6 +34,7 @@ Local definitions
 *****************************/
 #define DAZ_BRIDGE_LIBRARY_NAME "Daz Bridge"
 
+using namespace DzBridgeNameSpace;
 
 DzBridgeDialog::DzBridgeDialog(QWidget *parent, const QString &windowTitle) :
 	DzBasicDialog(parent, DAZ_BRIDGE_LIBRARY_NAME)

@@ -49,8 +49,9 @@ Local definitions
 *****************************/
 #define DAZ_BRIDGE_LIBRARY_NAME "Daz Bridge"
 
+using namespace DzBridgeNameSpace;
 
-DLLExport DzBridgeSubdivisionDialog* DzBridgeSubdivisionDialog::singleton = nullptr;
+CPP_Export DzBridgeSubdivisionDialog* DzBridgeSubdivisionDialog::singleton = nullptr;
 
 DzBridgeSubdivisionDialog::DzBridgeSubdivisionDialog(QWidget *parent) :
 	DzBasicDialog(parent, DAZ_BRIDGE_LIBRARY_NAME)

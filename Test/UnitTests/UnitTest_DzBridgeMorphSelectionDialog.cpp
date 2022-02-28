@@ -3,6 +3,8 @@
 #include "UnitTest_DzBridgeMorphSelectionDialog.h"
 #include "DzBridgeMorphSelectionDialog.h"
 
+#include "dzbridge.h"
+using namespace DzBridgeNameSpace;
 
 UnitTest_DzBridgeMorphSelectionDialog::UnitTest_DzBridgeMorphSelectionDialog()
 {
