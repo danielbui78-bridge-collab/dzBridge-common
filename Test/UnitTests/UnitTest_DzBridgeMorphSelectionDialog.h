@@ -4,8 +4,6 @@
 #include <QObject>
 #include "UnitTest.h"
 
-class DzBridgeMorphSelectionDialog;
-
 class UnitTest_DzBridgeMorphSelectionDialog : public UnitTest {
 	Q_OBJECT
 public:

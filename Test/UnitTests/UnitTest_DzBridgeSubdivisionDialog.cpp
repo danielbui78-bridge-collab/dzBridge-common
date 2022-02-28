@@ -3,6 +3,9 @@
 #include "UnitTest_DzBridgeSubdivisionDialog.h"
 #include "DzBridgeSubdivisionDialog.h"
 
+#include "dzbridge.h"
+using namespace DzBridgeNameSpace;
+
 UnitTest_DzBridgeSubdivisionDialog::UnitTest_DzBridgeSubdivisionDialog()
 {
 	m_testObject = (QObject*) new DzBridgeSubdivisionDialog();
