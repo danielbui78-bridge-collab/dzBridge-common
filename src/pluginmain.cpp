@@ -2,9 +2,9 @@
 #include "dzapp.h"
 
 #include "common_version.h"
-#include "DzBridgeDialog.h"
-#include "DzBridgeMorphSelectionDialog.h"
-#include "DzBridgeSubdivisionDialog.h"
+#include "DzBridgeDialog_Scriptable.h"
+#include "DzBridgeMorphSelectionDialog_Scriptable.h"
+#include "DzBridgeSubdivisionDialog_Scriptable.h"
 #include "OpenFBXInterface.h"
 #include "DzBridgeScriptableAction.h"
 
