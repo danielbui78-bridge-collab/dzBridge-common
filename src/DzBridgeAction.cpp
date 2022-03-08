@@ -1395,10 +1395,11 @@ QString DzBridgeAction::makeUniqueFilename(QString sFilename)
 
 }
 
-void DzBridgeAction::writePropertyTexture(DzJsonWriter& Writer, QString sName, QString sValue, QString sType, QString sTexture)
+void DzBridgeAction::writePropertyTexture(DzJsonWriter& Writer, QString sName, QString sLabel, QString sValue, QString sType, QString sTexture)
 {
 	Writer.startObject(true);
 	Writer.addMember("Name", sName);
+	Writer.addMember("Label", sLabel);
 	Writer.addMember("Value", sValue);
 	Writer.addMember("Data Type", sType);
 	Writer.addMember("Texture", sTexture);
@@ -1406,10 +1407,11 @@ void DzBridgeAction::writePropertyTexture(DzJsonWriter& Writer, QString sName, Q
 
 }
 
-void DzBridgeAction::writePropertyTexture(DzJsonWriter& Writer, QString sName, double dValue, QString sType, QString sTexture)
+void DzBridgeAction::writePropertyTexture(DzJsonWriter& Writer, QString sName, QString sLabel, double dValue, QString sType, QString sTexture)
 {
 	Writer.startObject(true);
 	Writer.addMember("Name", sName);
+	Writer.addMember("Label", sLabel);
 	Writer.addMember("Value", dValue);
 	Writer.addMember("Data Type", sType);
 	Writer.addMember("Texture", sTexture);
@@ -1419,7 +1421,7 @@ void DzBridgeAction::writePropertyTexture(DzJsonWriter& Writer, QString sName, d
 
 void DzBridgeAction::writeDTUHeader(DzJsonWriter& writer)
 {
-	writer.addMember("DTU Version", 3);
+	writer.addMember("DTU Version", 4);
 	writer.addMember("Asset Name", m_sAssetName);
 	writer.addMember("Asset Type", m_sAssetType);
 	writer.addMember("FBX File", m_sDestinationFBX);
@@ -1483,7 +1485,7 @@ void DzBridgeAction::startMaterialBlock(DzNode* Node, DzJsonWriter& Writer, QTex
 		return;
 
 	Writer.startObject(true);
-	Writer.addMember("Version", 3);
+	Writer.addMember("Version", 4);
 	Writer.addMember("Asset Name", Node->getLabel());
 	Writer.addMember("Material Name", Material->getName());
 	Writer.addMember("Material Type", Material->getMaterialName());
@@ -1531,8 +1533,9 @@ void DzBridgeAction::writeMaterialProperty(DzNode* Node, DzJsonWriter& Writer, Q
 	if (Node == nullptr || Material == nullptr || Property == nullptr)
 		return;
 
-	QString Name = Property->getName();
-	QString TextureName = "";
+	QString sName = Property->getName();
+	QString sLabel = Property->getLabel();
+	QString sTextureFilename = "";
 	QString dtuPropType = "";
 	QString dtuPropValue = "";
 	double dtuPropNumericValue = 0.0;
@@ -1545,7 +1548,7 @@ void DzBridgeAction::writeMaterialProperty(DzNode* Node, DzJsonWriter& Writer, Q
 	{
 		if (ImageProperty->getValue())
 		{
-			TextureName = ImageProperty->getValue()->getFilename();
+			sTextureFilename = ImageProperty->getValue()->getFilename();
 		}
 		dtuPropValue = Material->getDiffuseColor().name();
 		dtuPropType = QString("Texture");
@@ -1563,7 +1566,7 @@ void DzBridgeAction::writeMaterialProperty(DzNode* Node, DzJsonWriter& Writer, Q
 	{
 		if (ColorProperty->getMapValue())
 		{
-			TextureName = ColorProperty->getMapValue()->getFilename();
+			sTextureFilename = ColorProperty->getMapValue()->getFilename();
 		}
 		dtuPropValue = ColorProperty->getColorValue().name();
 		dtuPropType = QString("Color");
@@ -1572,7 +1575,7 @@ void DzBridgeAction::writeMaterialProperty(DzNode* Node, DzJsonWriter& Writer, Q
 	{
 		if (NumericProperty->getMapValue())
 		{
-			TextureName = NumericProperty->getMapValue()->getFilename();
+			sTextureFilename = NumericProperty->getMapValue()->getFilename();
 		}
 		dtuPropType = QString("Double");
 		dtuPropNumericValue = NumericProperty->getDoubleValue();
@@ -1584,29 +1587,29 @@ void DzBridgeAction::writeMaterialProperty(DzNode* Node, DzJsonWriter& Writer, Q
 		return;
 	}
 
-	QString dtuTextureName = TextureName;
-	if (TextureName != "")
+	QString dtuTextureName = sTextureFilename;
+	if (sTextureFilename != "")
 	{
 		if (this->m_bUseRelativePaths)
 		{
-			dtuTextureName = dzApp->getContentMgr()->getRelativePath(TextureName, true);
+			dtuTextureName = dzApp->getContentMgr()->getRelativePath(sTextureFilename, true);
 		}
-		if (isTemporaryFile(TextureName))
+		if (isTemporaryFile(sTextureFilename))
 		{
-			dtuTextureName = exportAssetWithDtu(TextureName, Node->getLabel() + "_" + Material->getName());
+			dtuTextureName = exportAssetWithDtu(sTextureFilename, Node->getLabel() + "_" + Material->getName());
 		}
 	}
 	if (bUseNumeric)
-		writePropertyTexture(Writer, Name, dtuPropNumericValue, dtuPropType, dtuTextureName);
+		writePropertyTexture(Writer, sName, sLabel, dtuPropNumericValue, dtuPropType, dtuTextureName);
 	else
-		writePropertyTexture(Writer, Name, dtuPropValue, dtuPropType, dtuTextureName);
+		writePropertyTexture(Writer, sName, sLabel, dtuPropValue, dtuPropType, dtuTextureName);
 
 	if (m_bExportMaterialPropertiesCSV && pCVSStream)
 	{
 		if (bUseNumeric)
-			*pCVSStream << "2, " << Node->getLabel() << ", " << Material->getName() << ", " << Material->getMaterialName() << ", " << Name << ", " << dtuPropNumericValue << ", " << dtuPropType << ", " << TextureName << endl;
+			*pCVSStream << "2, " << Node->getLabel() << ", " << Material->getName() << ", " << Material->getMaterialName() << ", " << sName << ", " << dtuPropNumericValue << ", " << dtuPropType << ", " << sTextureFilename << endl;
 		else
-			*pCVSStream << "2, " << Node->getLabel() << ", " << Material->getName() << ", " << Material->getMaterialName() << ", " << Name << ", " << dtuPropValue << ", " << dtuPropType << ", " << TextureName << endl;
+			*pCVSStream << "2, " << Node->getLabel() << ", " << Material->getName() << ", " << Material->getMaterialName() << ", " << sName << ", " << dtuPropValue << ", " << dtuPropType << ", " << sTextureFilename << endl;
 	}
 	return;
 
@@ -2724,5 +2727,67 @@ bool DzBridgeAction::copyFile(QFile* file, QString* dst, bool replace, bool comp
 	return result;
 }
 
+void DzBridgeAction::writeSkeletonData(DzNode* Node, DzJsonWriter& writer)
+{
+	if (Node == nullptr)
+		return;
+
+	DzObject* Object = Node->getObject();
+	DzShape* Shape = Object ? Object->getCurrentShape() : nullptr;
+
+	writer.startMemberArray("SkeletonData", true);
+	
+	writer.startMemberArray("skeletonScale", true);
+	writer.addMember("skeletonScale", double());
+	writer.finishArray();
+	
+	writer.startMemberArray("offset", true);
+	writer.addMember("offset", double());
+	writer.finishArray();
+	
+	writer.finishArray();
+
+	return;
+}
+
+Q_INVOKABLE void DzBridgeAction::writeHeadTailData(DzNode* Node, DzJsonWriter& writer)
+{
+	if (Node == nullptr)
+		return;
+
+	QString sNodeName = Node->getName();
+
+	DzObject* Object = Node->getObject();
+	DzShape* Shape = Object ? Object->getCurrentShape() : nullptr;
+
+	// get skeleton and initial bone list
+	DzSkeleton* pSkeleton = Node->getSkeleton();
+	QObjectList aBoneList = pSkeleton->getAllBones();
+	// add additional follower bones if any
+	// 1. Walk through entire scene
+	// 2. if inherits Skeleton, Check to see if it follows pSkeleton
+	// 3. if 2, Compare bones to pSkeleton to see if it is not in pSkeleton
+	// 4. If 3, Add to bonelist
+
+	writer.startMemberArray("HeadTailData", true);
+
+	for (auto pBone : aBoneList) {
+		writer.startMemberArray(sNodeName, true);
+		for (int i = 0; i < 9; i++)
+		{
+			writer.addItem(double());
+		}
+		for (int i = 0; i < 9; i++)
+		{
+			writer.addItem(double());
+		}
+		writer.finishArray();
+
+	}
+
+	writer.finishArray();
+
+	return;
+}
 
 #include "moc_DzBridgeAction.cpp"
