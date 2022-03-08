@@ -203,8 +203,8 @@ protected:
 
 	bool isTemporaryFile(QString sFilename);
 	QString exportAssetWithDtu(QString sFilename, QString sAssetMaterialName = "");
-	void writePropertyTexture(DzJsonWriter& Writer, QString sName, QString sLabel, QString sValue, QString sType, QString sTexture);
-	void writePropertyTexture(DzJsonWriter& Writer, QString sName, QString sLabel, double dValue, QString sType, QString sTexture);
+	void writePropertyTexture(DzJsonWriter& Writer, QString sName, QString sValue, QString sType, QString sTexture);
+	void writePropertyTexture(DzJsonWriter& Writer, QString sName, double dValue, QString sType, QString sTexture);
 	QString makeUniqueFilename(QString sFilename);
 
 	Q_INVOKABLE bool getUndoNormalMaps() { return this->m_bUndoNormalMaps; };
@@ -224,9 +224,6 @@ protected:
 	Q_INVOKABLE bool metaInvokeMethod(QObject* object, const char* methodSig, void** returnPtr);
 	Q_INVOKABLE bool copyFile(QFile* file, QString* dst, bool replace = true, bool compareFiles = true);
 	Q_INVOKABLE QString getMD5(const QString& path);
-
-	Q_INVOKABLE virtual void writeSkeletonData(DzNode* Node, DzJsonWriter& writer);
-	Q_INVOKABLE virtual void writeHeadTailData(DzNode* Node, DzJsonWriter& writer);
 
 private:
 	class MaterialGroupExportOrderMetaData
