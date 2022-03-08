@@ -4,7 +4,7 @@ var includeDir_oFILE = new DzFile( getScriptFileName() );
 var sIncludePath = "C:/GitHub/dzBridge-common/Test/UnitTests/"
 var sOutputPath = "C:/GitHub/dzBridge-common/Test/Results/"
 
-obj = new UnitTest_DzBridgeScriptableAction();
+obj = new UnitTest_DzBridgeAction();
 result = false;
 result = obj.runUnitTests();
 print("Unit Test Results (DzBridgeAction): " + result);

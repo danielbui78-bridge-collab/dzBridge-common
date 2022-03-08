@@ -6,16 +6,6 @@
 #include "dznode.h"
 #include <dzjsonwriter.h>
 
-#undef DLLExport
-#define DLLExport Q_DECL_IMPORT
-#ifdef DZ_BRIDGE_SHARED
-	#undef DLLExport
-	#define DLLExport Q_DECL_EXPORT
-#elif DZ_BRIDGE_STATIC
-	#undef DLLExport
-	#define DLLExport
-#endif
-
 class QListWidget;
 class QListWidgetItem;
 class QTreeWidget;
@@ -24,68 +14,72 @@ class QLineEdit;
 class QComboBox;
 class QGridLayout;
 
+#include "dzbridge.h"
+namespace DzBridgeNameSpace
+{
+	class CPP_Export DzBridgeSubdivisionDialog : public DzBasicDialog {
+		Q_OBJECT
+		Q_PROPERTY(QObjectList aSubdivisionCombos READ getSubdivisionCombos)
+	public:
+		Q_INVOKABLE QObjectList getSubdivisionCombos();
 
-class DLLExport DzBridgeSubdivisionDialog : public DzBasicDialog {
-	Q_OBJECT
-	Q_PROPERTY(QObjectList aSubdivisionCombos READ getSubdivisionCombos)
-public:
-	Q_INVOKABLE QObjectList getSubdivisionCombos();
+		/** Constructor **/
+		DzBridgeSubdivisionDialog(QWidget* parent = nullptr);
 
-	/** Constructor **/
-	DzBridgeSubdivisionDialog(QWidget *parent=nullptr);
+		Q_INVOKABLE void PrepareDialog();
 
-	Q_INVOKABLE void PrepareDialog();
+		/** Destructor **/
+		virtual ~DzBridgeSubdivisionDialog() {}
 
-	/** Destructor **/
-	virtual ~DzBridgeSubdivisionDialog() {}
-
-	Q_INVOKABLE static DzBridgeSubdivisionDialog* Get(QWidget* Parent)
-	{
-		if (singleton == nullptr)
+		Q_INVOKABLE static DzBridgeSubdivisionDialog* Get(QWidget* Parent)
 		{
-			singleton = new DzBridgeSubdivisionDialog(Parent);
+			if (singleton == nullptr)
+			{
+				singleton = new DzBridgeSubdivisionDialog(Parent);
+			}
+			else
+			{
+				singleton->PrepareDialog();
+			}
+			return singleton;
 		}
-		else
+
+		QGridLayout* subdivisionItemsGrid;
+
+		Q_INVOKABLE void LockSubdivisionProperties(bool subdivisionEnabled);
+		Q_INVOKABLE void WriteSubdivisions(DzJsonWriter& Writer);
+		Q_INVOKABLE DzNode* FindObject(DzNode* Node, QString Name);
+
+		Q_INVOKABLE bool setSubdivisionLevelByNode(DzNode* Node, int level);
+
+		Q_INVOKABLE void UnlockSubdivisionProperties();
+		std::map<std::string, int>* GetLookupTable();
+
+	public slots:
+		void HandleSubdivisionLevelChanged(const QString& text);
+
+	private:
+		void CreateList(DzNode* Node);
+
+		void SavePresetFile(QString filePath);
+
+		QSize minimumSizeHint() const override;
+
+		QString presetsFolder;
+
+		QList<QComboBox*> SubdivisionCombos;
+
+		QMap<QString, int> SubdivisionLevels;
+
+		static DzBridgeSubdivisionDialog* singleton;
+
+		struct UndoData
 		{
-			singleton->PrepareDialog();
-		}
-		return singleton;
-	}
+			bool originalLockState;
+			double originalValue;
+		};
+		QMap<DzProperty*, UndoData> UndoSubdivisionOverrides;
 
-	QGridLayout* subdivisionItemsGrid;
-
-	Q_INVOKABLE void LockSubdivisionProperties(bool subdivisionEnabled);
-	Q_INVOKABLE void WriteSubdivisions(DzJsonWriter& Writer);
-	Q_INVOKABLE DzNode* FindObject(DzNode* Node, QString Name);
-
-	Q_INVOKABLE bool setSubdivisionLevelByNode(DzNode* Node, int level);
-
-	Q_INVOKABLE void UnlockSubdivisionProperties();
-	std::map<std::string, int>* GetLookupTable();
-
-public slots:
-	void HandleSubdivisionLevelChanged(const QString& text);
-
-private:
-	void CreateList(DzNode* Node);
-
-	void SavePresetFile(QString filePath);
-
-	QSize minimumSizeHint() const override;
-
-	QString presetsFolder;
-
-	QList<QComboBox*> SubdivisionCombos;
-
-	QMap<QString, int> SubdivisionLevels;
-
-	static DzBridgeSubdivisionDialog* singleton;
-
-	struct UndoData
-	{
-		bool originalLockState;
-		double originalValue;
 	};
-	QMap<DzProperty*, UndoData> UndoSubdivisionOverrides;
 
-};
+}
