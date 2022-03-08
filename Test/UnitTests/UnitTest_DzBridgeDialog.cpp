@@ -3,6 +3,8 @@
 #include "UnitTest_DzBridgeDialog.h"
 #include "DzBridgeDialog.h"
 
+#include "dzbridge.h"
+using namespace DzBridgeNameSpace;
 
 UnitTest_DzBridgeDialog::UnitTest_DzBridgeDialog()
 {

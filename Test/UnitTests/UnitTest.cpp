@@ -6,10 +6,6 @@
 #include <dzjsonwriter.h>
 #include <dzapp.h>
 
-// UnitTest does not have any methods
-
-#include "moc_UnitTest.cpp"
-
 UnitTest::UnitTest()
 {
     m_testObject = nullptr;
@@ -22,7 +18,7 @@ bool UnitTest::writeAllTestResults(QString outputPath)
         outputPath = dzApp->getDocumentsPath();
     }
     QString sClassName = m_testObject ? m_testObject->metaObject()->className() : this->metaObject()->className();
-    QString sFileNameStem = "TestResults_" + sClassName;
+    QString sFileNameStem = "TestResults_" + cleanString(sClassName);
 
     QFile jsonFile(outputPath + "/" + sFileNameStem + ".json");
     jsonFile.open(QIODevice::WriteOnly);
@@ -152,6 +148,5 @@ bool UnitTest::logToTestResult(UnitTest::TestResult* testResult, QString text)
     return true;
 }
 
-
-
+#include "moc_UnitTest.cpp"
 #endif

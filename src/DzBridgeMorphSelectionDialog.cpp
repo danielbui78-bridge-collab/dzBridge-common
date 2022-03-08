@@ -49,8 +49,9 @@ Local definitions
 *****************************/
 #define DAZ_BRIDGE_LIBRARY_NAME "Daz Bridge"
 
+using namespace DzBridgeNameSpace;
 
-DLLExport DzBridgeMorphSelectionDialog* DzBridgeMorphSelectionDialog::singleton = nullptr;
+CPP_Export DzBridgeMorphSelectionDialog* DzBridgeMorphSelectionDialog::singleton = nullptr;
 
 // For sorting the lists
 class SortingListItem : public QListWidgetItem {

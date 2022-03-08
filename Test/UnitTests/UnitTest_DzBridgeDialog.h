@@ -4,8 +4,6 @@
 #include <QObject>
 #include "UnitTest.h"
 
-class DzBridgeDialog;
-
 class UnitTest_DzBridgeDialog : public UnitTest {
 	Q_OBJECT
 public:
