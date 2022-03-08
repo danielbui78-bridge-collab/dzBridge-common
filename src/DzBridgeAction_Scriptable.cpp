@@ -23,13 +23,13 @@
 #include "idzsceneasset.h"
 #include "dzuri.h"
 
-#include "DzBridgeScriptableAction.h"
-#include "DzBridgeDialog.h"
-#include "DzBridgeMorphSelectionDialog.h"
-#include "DzBridgeSubdivisionDialog.h"
+#include "DzBridgeAction_Scriptable.h"
+#include "DzBridgeDialog_Scriptable.h"
+#include "DzBridgeMorphSelectionDialog_Scriptable.h"
+#include "DzBridgeSubdivisionDialog_Scriptable.h"
 
-DzBridgeScriptableAction::DzBridgeScriptableAction() :
-	 DzBridgeAction(tr("Daz &Scriptable Bridge"), tr("Send the selected node to Daz Scriptable Bridge."))
+DzBridgeAction::DzBridgeAction() :
+	 DzBridgeNameSpace::DzBridgeAction(tr("Daz &Scriptable Bridge"), tr("Send the selected node to Daz Scriptable Bridge."))
 {
      m_nNonInteractiveMode = 0;
 	 m_sAssetType = QString("SkeletalMesh");
@@ -43,7 +43,7 @@ DzBridgeScriptableAction::DzBridgeScriptableAction() :
 	 m_bGenerateNormalMaps = false;
 }
 
-void DzBridgeScriptableAction::executeAction()
+void DzBridgeAction::executeAction()
 {
 	 // Check if the main window has been created yet.
 	 // If it hasn't, alert the user and exit early.
@@ -122,7 +122,7 @@ void DzBridgeScriptableAction::executeAction()
     }
 }
 
-void DzBridgeScriptableAction::writeConfiguration()
+void DzBridgeAction::writeConfiguration()
 {
 	 QString DTUfilename = m_sDestinationPath + m_sAssetName + ".dtu";
 	 QFile DTUfile(DTUfilename);
@@ -165,16 +165,16 @@ void DzBridgeScriptableAction::writeConfiguration()
 }
 
 // Setup custom FBX export options
-void DzBridgeScriptableAction::setExportOptions(DzFileIOSettings& ExportOptions)
+void DzBridgeAction::setExportOptions(DzFileIOSettings& ExportOptions)
 {
 
 }
 
 // Overrides baseclass implementation with Unreal specific resets
 // Resets Default Values but Ignores any saved settings
-void DzBridgeScriptableAction::resetToDefaults()
+void DzBridgeAction::resetToDefaults()
 {
-	DzBridgeAction::resetToDefaults();
+	DzBridgeNameSpace::DzBridgeAction::resetToDefaults();
 
 	// Must Instantiate m_bridgeDialog so that we can override any saved states
 	if (m_bridgeDialog == nullptr)
@@ -198,9 +198,9 @@ void DzBridgeScriptableAction::resetToDefaults()
 
 }
 
-QString DzBridgeScriptableAction::readGuiRootFolder()
+QString DzBridgeAction::readGuiRootFolder()
 {
 	return QString("");
 }
 
-#include "moc_DzBridgeScriptableAction.cpp"
+#include "moc_DzBridgeAction_Scriptable.cpp"

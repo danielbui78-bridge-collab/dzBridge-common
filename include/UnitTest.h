@@ -10,17 +10,17 @@
 
 #ifdef UNITTEST_DZBRIDGE
 
-#include <QObject>
-#include <qlist.h>
+#include <qobject.h>
+#include <qregexp.h>
 
-#undef DLLExport
-#define DLLExport Q_DECL_IMPORT
+#undef CPP_Export
+#define CPP_Export Q_DECL_IMPORT
 #ifdef DZ_BRIDGE_SHARED
-	#undef DLLExport
-	#define DLLExport Q_DECL_EXPORT
+	#undef CPP_Export
+	#define CPP_Export Q_DECL_EXPORT
 #elif DZ_BRIDGE_STATIC
-	#undef DLLExport
-	#define DLLExport
+	#undef CPP_Export
+	#define CPP_Export
 #endif
 
 #define DECLARE_TEST(method_name) \
@@ -57,10 +57,9 @@ catch (...) { LOGTEST_TEXT(error_string); bResult = false; }
 try { method_call; } \
 catch (...) { LOGTEST_TEXT("C++ exception caught. Failed nullptr C++ exception test."); bResult = false; } 
 
-
 class QStringList;
 
-class DLLExport UnitTest : public QObject {
+class CPP_Export UnitTest : public QObject {
 	Q_OBJECT
 public:
 	Q_INVOKABLE virtual bool runUnitTests()=0;
@@ -71,6 +70,7 @@ public:
 	Q_INVOKABLE bool convertTestResutlsToXls();
 	Q_INVOKABLE bool convertTestResultsToHtml();
 	Q_INVOKABLE QObject* getTestObject();
+	Q_INVOKABLE QString cleanString(QString argString) { return argString.remove(QRegExp("[^A-Za-z0-9_]")); };
 
 protected:
 	struct TestResult {
