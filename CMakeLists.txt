@@ -43,13 +43,10 @@ endif(APPLE)
 project("DzBridgeProject")
 set(FBX_SDK_DIR "" CACHE PATH "Path to FBX SDK" )
 set(OPENSUBDIV_DIR "" CACHE PATH "Path to Opensubdiv folder" )
+set(DAZ_STUDIO_EXE_DIR "" CACHE PATH "Path to DAZ Studio, needs to be installed to a writeable location" )
+option(INSTALL_QA_PLUGIN "Build QA-Test Plugin (INSTALL_QA_PLUGIN)" OFF)
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
-
-#set(DAZ_STUDIO_EXE_DIR "" CACHE PATH "Path to DAZ Studio, needs to be installed to a writeable location" )
-#if(NOT DAZ_STUDIO_EXE_DIR )
-#	message("Location to DAZ Studio not provided. Projects will build locally.")
-#endif()
 
 if(WIN32)
 	set(DZ_LIB_SUFFIX ".lib")
@@ -256,11 +253,13 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 
+
 # if building a plugin and you want the compiled result placed in the Daz Studio ./plugins directory
-#if(DAZ_STUDIO_EXE_DIR)
-#	set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${DAZ_STUDIO_EXE_DIR}/plugins)
-#	set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${DAZ_STUDIO_EXE_DIR}/plugins)
-#endif()
+if(INSTALL_QA_PLUGIN)
+	if(DAZ_STUDIO_EXE_DIR)
+		set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${DAZ_STUDIO_EXE_DIR}/plugins)
+	endif()
+endif()
 
 add_subdirectory("include")
 add_subdirectory("Test/UnitTests")
