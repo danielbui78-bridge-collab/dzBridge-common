@@ -2753,5 +2753,44 @@ void DzBridgeAction::writeSkeletonData(DzNode* Node, DzJsonWriter& writer)
 	return;
 }
 
+void DzBridgeAction::writeHeadTailData(DzNode* Node, DzJsonWriter& writer)
+{
+	if (Node == nullptr)
+		return;
+
+	QString sNodeName = Node->getName();
+
+	DzObject* Object = Node->getObject();
+	DzShape* Shape = Object ? Object->getCurrentShape() : nullptr;
+
+	// get skeleton and initial bone list
+	DzSkeleton* pSkeleton = Node->getSkeleton();
+	QObjectList aBoneList = pSkeleton->getAllBones();
+	// add additional follower bones if any
+	// 1. Walk through entire scene
+	// 2. if inherits Skeleton, Check to see if it follows pSkeleton
+	// 3. if 2, Compare bones to pSkeleton to see if it is not in pSkeleton
+	// 4. If 3, Add to bonelist
+
+	writer.startMemberArray("HeadTailData", true);
+
+	for (auto pBone : aBoneList) {
+		writer.startMemberArray(sNodeName, true);
+		for (int i = 0; i < 9; i++)
+		{
+			writer.addItem(double());
+		}
+		for (int i = 0; i < 9; i++)
+		{
+			writer.addItem(double());
+		}
+		writer.finishArray();
+
+	}
+
+	writer.finishArray();
+
+	return;
+}
 
 #include "moc_DzBridgeAction.cpp"
