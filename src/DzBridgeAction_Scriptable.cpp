@@ -200,7 +200,21 @@ void DzBridgeAction::resetToDefaults()
 
 QString DzBridgeAction::readGuiRootFolder()
 {
-	return QString("");
+	QString rootFolder = QDesktopServices::storageLocation(QDesktopServices::DocumentsLocation) + QDir::separator() + "DazBridge";
+
+	if (m_bridgeDialog)
+	{
+		QLineEdit* intermediateFolderEdit = nullptr;
+		DzBridgeDialog* bridgeDialog = qobject_cast<DzBridgeDialog*>(m_bridgeDialog);
+
+		//if (bridgeDialog)
+		//	intermediateFolderEdit = bridgeDialog->getIntermediateFolderEdit();
+
+		if (intermediateFolderEdit)
+			rootFolder = intermediateFolderEdit->text().replace("\\", "/");
+	}
+
+	return rootFolder;
 }
 
 #include "moc_DzBridgeAction_Scriptable.cpp"
