@@ -87,6 +87,10 @@ else()
 	message(FATAL_ERROR "Unknown architecture")
 endif(WIN32)
 
+if(NOT USE_DZBRIDGE_SUBMODULE)
+
+option(INSTALL_QA_PLUGIN "Build QA-Test Plugin (INSTALL_QA_PLUGIN)" OFF)
+
 set(DAZ_SDK_DIR_DEFAULT "")
 set(DAZ_SDK_CORE_RELATIVE_PATH "lib/${DZ_MIXED_PLATFORM}/${DZ_LIB_PREFIX}dzcore${DZ_LIB_SUFFIX}")
 if(NOT DAZ_SDK_DIR)
@@ -260,6 +264,8 @@ if(INSTALL_QA_PLUGIN)
 		set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${DAZ_STUDIO_EXE_DIR}/plugins)
 	endif()
 endif()
+
+endif(NOT USE_DZBRIDGE_SUBMODULE)
 
 add_subdirectory("include")
 add_subdirectory("Test/UnitTests")

@@ -60,6 +60,8 @@ set_target_properties (dzbridge-static
 	PROJECT_LABEL "DzBridge Static"
 )
 
+if (NOT USE_DZBRIDGE_SUBMODULE)
+
 add_library(dzbridge-shared
 	SHARED
 	${LIB_SRCS}
@@ -105,6 +107,8 @@ target_compile_definitions(dzbridge-shared
 	DZ_BRIDGE_SHARED
 	$<$<CONFIG:DEBUG>:UNITTEST_DZBRIDGE>
 )
+
+endif(NOT USE_DZBRIDGE_SUBMODULE)
 
 target_compile_definitions(dzbridge-static
 	PUBLIC
