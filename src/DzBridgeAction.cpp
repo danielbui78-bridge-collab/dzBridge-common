@@ -2728,5 +2728,30 @@ bool DzBridgeAction::copyFile(QFile* file, QString* dst, bool replace, bool comp
 	return result;
 }
 
+void DzBridgeAction::writeSkeletonData(DzNode* Node, DzJsonWriter& writer)
+{
+	if (Node == nullptr)
+		return;
+
+	DzObject* Object = Node->getObject();
+	DzShape* Shape = Object ? Object->getCurrentShape() : nullptr;
+
+	writer.startMemberObject("SkeletonData");
+
+	writer.startMemberArray("skeletonScale", true);
+	writer.addItem(QString("skeletonScale"));
+	writer.addItem(double(1.0));
+	writer.finishArray();
+
+	writer.startMemberArray("offset", true);
+	writer.addItem(QString("offset"));
+	writer.addItem(double(0.0));
+	writer.finishArray();
+
+	writer.finishObject();
+
+	return;
+}
+
 
 #include "moc_DzBridgeAction.cpp"

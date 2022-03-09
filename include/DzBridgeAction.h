@@ -219,6 +219,7 @@ namespace DzBridgeNameSpace
 		Q_INVOKABLE bool copyFile(QFile* file, QString* dst, bool replace = true, bool compareFiles = true);
 		Q_INVOKABLE QString getMD5(const QString& path);
 
+		Q_INVOKABLE void writeSkeletonData(DzNode* Node, DzJsonWriter& writer);
 	private:
 		class MaterialGroupExportOrderMetaData
 		{
