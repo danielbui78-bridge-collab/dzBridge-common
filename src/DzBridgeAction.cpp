@@ -65,6 +65,7 @@ DzBridgeAction::DzBridgeAction(const QString& text, const QString& desc) :
 	m_subdivisionDialog = nullptr;
 	m_morphSelectionDialog = nullptr;
 	m_bGenerateNormalMaps = false;
+	m_pSelectedNode = nullptr;
 
 #ifdef _DEBUG
 	 m_bUndoNormalMaps = false;
