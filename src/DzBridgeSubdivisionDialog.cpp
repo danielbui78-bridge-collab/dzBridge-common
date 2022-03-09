@@ -196,6 +196,9 @@ void DzBridgeSubdivisionDialog::HandleSubdivisionLevelChanged(const QString& tex
 
 DzNode* DzBridgeSubdivisionDialog::FindObject(DzNode* Node, QString Name)
 {
+	if (Node == nullptr)
+		return nullptr;
+
 	DzObject* Object = Node->getObject();
 	if (Object)
 	{
@@ -213,6 +216,9 @@ DzNode* DzBridgeSubdivisionDialog::FindObject(DzNode* Node, QString Name)
 
 bool DzBridgeSubdivisionDialog::setSubdivisionLevelByNode(DzNode* Node, int level)
 {
+	if (Node == nullptr)
+		return nullptr;
+
 	DzNode* selection = dzScene->getPrimarySelection();
 	QString searchName = Node->getName();
 	foreach(QComboBox * combo, SubdivisionCombos)

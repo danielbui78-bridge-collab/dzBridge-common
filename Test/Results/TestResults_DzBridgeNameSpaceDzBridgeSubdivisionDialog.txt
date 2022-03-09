@@ -1,11 +1,5 @@
 ======= UnitTest Details =======
 
-[ 5] FindObject:
-C++ exception caught. Failed nullptr C++ exception test.
-
-[ 6] setSubdivisionLevelByNode:
-C++ exception caught. Failed nullptr C++ exception test.
-
 
 ======= UnitTest Summary =======
 
@@ -17,8 +11,8 @@ Number of UnitTests: 10
 [ 2] PrepareDialog:.................[ PASSED ]
 [ 3] LockSubdivisionProperties:.....[ PASSED ]
 [ 4] WriteSubdivisions:.............[ PASSED ]
-[ 5] FindObject:....................[ *** FAILED *** ]
-[ 6] setSubdivisionLevelByNode:.....[ *** FAILED *** ]
+[ 5] FindObject:....................[ PASSED ]
+[ 6] setSubdivisionLevelByNode:.....[ PASSED ]
 [ 7] UnlockSubdivisionProperties:...[ PASSED ]
 [ 8] GetLookupTable:................[ PASSED ]
 [ 9] HandleSubdivisionLevelChanged:.[ PASSED ]
