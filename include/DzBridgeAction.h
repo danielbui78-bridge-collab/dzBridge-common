@@ -197,8 +197,8 @@ namespace DzBridgeNameSpace
 
 		bool isTemporaryFile(QString sFilename);
 		QString exportAssetWithDtu(QString sFilename, QString sAssetMaterialName = "");
-		void writePropertyTexture(DzJsonWriter& Writer, QString sName, QString sValue, QString sType, QString sTexture);
-		void writePropertyTexture(DzJsonWriter& Writer, QString sName, double dValue, QString sType, QString sTexture);
+		void writePropertyTexture(DzJsonWriter& Writer, QString sName, QString sLabel, QString sValue, QString sType, QString sTexture);
+		void writePropertyTexture(DzJsonWriter& Writer, QString sName, QString sLabel, double dValue, QString sType, QString sTexture);
 		QString makeUniqueFilename(QString sFilename);
 
 		Q_INVOKABLE bool getUndoNormalMaps() { return this->m_bUndoNormalMaps; };

@@ -1396,10 +1396,11 @@ QString DzBridgeAction::makeUniqueFilename(QString sFilename)
 
 }
 
-void DzBridgeAction::writePropertyTexture(DzJsonWriter& Writer, QString sName, QString sValue, QString sType, QString sTexture)
+void DzBridgeAction::writePropertyTexture(DzJsonWriter& Writer, QString sName, QString sLabel, QString sValue, QString sType, QString sTexture)
 {
 	Writer.startObject(true);
 	Writer.addMember("Name", sName);
+	Writer.addMember("Label", sLabel);
 	Writer.addMember("Value", sValue);
 	Writer.addMember("Data Type", sType);
 	Writer.addMember("Texture", sTexture);
@@ -1407,10 +1408,11 @@ void DzBridgeAction::writePropertyTexture(DzJsonWriter& Writer, QString sName, Q
 
 }
 
-void DzBridgeAction::writePropertyTexture(DzJsonWriter& Writer, QString sName, double dValue, QString sType, QString sTexture)
+void DzBridgeAction::writePropertyTexture(DzJsonWriter& Writer, QString sName, QString sLabel, double dValue, QString sType, QString sTexture)
 {
 	Writer.startObject(true);
 	Writer.addMember("Name", sName);
+	Writer.addMember("Label", sLabel);
 	Writer.addMember("Value", dValue);
 	Writer.addMember("Data Type", sType);
 	Writer.addMember("Texture", sTexture);
@@ -1420,7 +1422,7 @@ void DzBridgeAction::writePropertyTexture(DzJsonWriter& Writer, QString sName, d
 
 void DzBridgeAction::writeDTUHeader(DzJsonWriter& writer)
 {
-	writer.addMember("DTU Version", 3);
+	writer.addMember("DTU Version", 4);
 	writer.addMember("Asset Name", m_sAssetName);
 	writer.addMember("Asset Type", m_sAssetType);
 	writer.addMember("FBX File", m_sDestinationFBX);
@@ -1484,7 +1486,7 @@ void DzBridgeAction::startMaterialBlock(DzNode* Node, DzJsonWriter& Writer, QTex
 		return;
 
 	Writer.startObject(true);
-	Writer.addMember("Version", 3);
+	Writer.addMember("Version", 4);
 	Writer.addMember("Asset Name", Node->getLabel());
 	Writer.addMember("Material Name", Material->getName());
 	Writer.addMember("Material Type", Material->getMaterialName());
@@ -1533,6 +1535,7 @@ void DzBridgeAction::writeMaterialProperty(DzNode* Node, DzJsonWriter& Writer, Q
 		return;
 
 	QString Name = Property->getName();
+	QString sLabel = Property->getLabel();
 	QString TextureName = "";
 	QString dtuPropType = "";
 	QString dtuPropValue = "";
@@ -1598,9 +1601,9 @@ void DzBridgeAction::writeMaterialProperty(DzNode* Node, DzJsonWriter& Writer, Q
 		}
 	}
 	if (bUseNumeric)
-		writePropertyTexture(Writer, Name, dtuPropNumericValue, dtuPropType, dtuTextureName);
+		writePropertyTexture(Writer, Name, sLabel, dtuPropNumericValue, dtuPropType, dtuTextureName);
 	else
-		writePropertyTexture(Writer, Name, dtuPropValue, dtuPropType, dtuTextureName);
+		writePropertyTexture(Writer, Name, sLabel, dtuPropValue, dtuPropType, dtuTextureName);
 
 	if (m_bExportMaterialPropertiesCSV && pCVSStream)
 	{
