@@ -44,7 +44,6 @@ project("DzBridgeProject")
 set(FBX_SDK_DIR "" CACHE PATH "Path to FBX SDK" )
 set(OPENSUBDIV_DIR "" CACHE PATH "Path to Opensubdiv folder" )
 set(DAZ_STUDIO_EXE_DIR "" CACHE PATH "Path to DAZ Studio, needs to be installed to a writeable location" )
-option(INSTALL_QA_PLUGIN "Build QA-Test Plugin (INSTALL_QA_PLUGIN)" OFF)
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
@@ -86,6 +85,10 @@ elseif(APPLE)
 else()
 	message(FATAL_ERROR "Unknown architecture")
 endif(WIN32)
+
+if(NOT USE_DZBRIDGE_SUBMODULE)
+
+option(INSTALL_QA_PLUGIN "Build QA-Test Plugin (INSTALL_QA_PLUGIN)" OFF)
 
 set(DAZ_SDK_DIR_DEFAULT "")
 set(DAZ_SDK_CORE_RELATIVE_PATH "lib/${DZ_MIXED_PLATFORM}/${DZ_LIB_PREFIX}dzcore${DZ_LIB_SUFFIX}")
@@ -260,6 +263,8 @@ if(INSTALL_QA_PLUGIN)
 		set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${DAZ_STUDIO_EXE_DIR}/plugins)
 	endif()
 endif()
+
+endif(NOT USE_DZBRIDGE_SUBMODULE)
 
 add_subdirectory("include")
 add_subdirectory("Test/UnitTests")
