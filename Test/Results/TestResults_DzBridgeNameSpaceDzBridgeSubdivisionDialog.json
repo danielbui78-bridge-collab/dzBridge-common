@@ -36,14 +36,14 @@
 		{
 			"UnitTest ID" : 5,
 			"Method Name" : "FindObject",
-			"Test Result" : false,
-			"Test Log" : "C++ exception caught. Failed nullptr C++ exception test."
+			"Test Result" : true,
+			"Test Log" : ""
 		},
 		{
 			"UnitTest ID" : 6,
 			"Method Name" : "setSubdivisionLevelByNode",
-			"Test Result" : false,
-			"Test Log" : "C++ exception caught. Failed nullptr C++ exception test."
+			"Test Result" : true,
+			"Test Log" : ""
 		},
 		{
 			"UnitTest ID" : 7,
