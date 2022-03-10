@@ -266,7 +266,7 @@ function Run_Exporter(sExportFilename, sAssetType, sRootFolder, sExportFolder, s
 {
 //	var oBridge = new DzUnrealAction();
 //	var oBridge = new DzBridgeUnityAction();
-	var oBridge = new DzBridgeScriptableAction();
+	var oBridge = new DzBridgeAction();
 	oBridge.resetToDefaults();
 
 	var sResultString = Run_Exporter2(oBridge, sExportFilename, sAssetType, sRootFolder, sExportFolder, sProductName, sComponentName, arrayMorphList);
