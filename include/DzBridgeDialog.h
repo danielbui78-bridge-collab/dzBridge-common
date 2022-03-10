@@ -45,7 +45,7 @@ namespace DzBridgeNameSpace
 		// Pass so the DazTRoUnrealAction can access it from the morph dialog
 		Q_INVOKABLE QMap<QString, QString> GetMorphMapping() { return morphMapping; }
 		Q_INVOKABLE virtual void resetToDefaults();
-		Q_INVOKABLE bool loadSavedSettings();
+		Q_INVOKABLE virtual bool loadSavedSettings();
 
 		void Accepted();
 
