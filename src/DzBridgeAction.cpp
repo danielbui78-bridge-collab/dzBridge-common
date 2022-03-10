@@ -39,6 +39,9 @@
 #include "dzfacegroup.h"
 #include "dzmaterial.h"
 #include <dzvec3.h>
+#include <dzskinbinding.h>
+#include <dzbonebinding.h>
+#include <dzerclink.h>
 
 #include <QtCore/qdir.h>
 #include <QtGui/qlineedit.h>
@@ -2756,6 +2759,71 @@ void DzBridgeAction::writeSkeletonData(DzNode* Node, DzJsonWriter& writer)
 	return;
 }
 
+DzVec3 calculatePrimaryAxis(DzBone* pBone, DzVec3 &vecEndVector, double nBoneLength)
+{
+	DzVec3 vecFirstAxis(0.0f, 0.0f, 0.0f);
+	double nNodeScale = pBone->getScaleControl()->getValue();
+	int nSign = 1;
+	double nAxisScale = 1.0;
+	switch (pBone->getRotationOrder()[0])
+	{
+	case 0:
+		nSign = (vecEndVector.m_x >= 0) ? 1 : -1;
+		nAxisScale = pBone->getXScaleControl()->getValue();
+		vecFirstAxis.m_x = nBoneLength * nSign * nAxisScale * nNodeScale;
+		break;
+	case 1:
+		nSign = (vecEndVector.m_y >= 0) ? 1 : -1;
+		nAxisScale = pBone->getYScaleControl()->getValue();
+		vecFirstAxis.m_y = nBoneLength * nSign * nAxisScale * nNodeScale;
+		break;
+	case 2:
+		nSign = (vecEndVector.m_z >= 0) ? 1 : -1;
+		nAxisScale = pBone->getZScaleControl()->getValue();
+		vecFirstAxis.m_z = nBoneLength * nSign * nAxisScale * nNodeScale;
+		break;
+	}
+	DzQuat quatOrientation = pBone->getOrientation();
+	DzVec3 vecPrimaryAxis = quatOrientation.multVec(vecFirstAxis);
+
+	return vecPrimaryAxis;
+}
+
+DzVec3 calculateSecondaryAxis(DzBone* pBone, DzVec3& vecEndVector)
+{
+	DzVec3 vecSecondAxis(0.0f, 0.0f, 0.0f);
+	int nSign = 1;
+	switch (pBone->getRotationOrder()[0])
+	{
+	case 0:
+		nSign = (vecEndVector.m_x >= 0) ? 1 : -1;
+		break;
+	case 1:
+		nSign = (vecEndVector.m_y >= 0) ? 1 : -1;
+		break;
+	case 2:
+		nSign = (vecEndVector.m_z >= 0) ? 1 : -1;
+		break;
+	}
+	switch (pBone->getRotationOrder()[1])
+	{
+	case 0:
+		vecSecondAxis.m_x = nSign;
+		break;
+	case 1:
+		vecSecondAxis.m_y = nSign;
+		break;
+	case 2:
+		vecSecondAxis.m_z = nSign;
+		break;
+	}
+
+	DzQuat quatOrientation = pBone->getOrientation();
+	vecSecondAxis = quatOrientation.multVec(vecSecondAxis);
+
+	return vecSecondAxis;
+}
+
 void DzBridgeAction::writeHeadTailData(DzNode* Node, DzJsonWriter& writer)
 {
 	if (Node == nullptr)
@@ -2777,39 +2845,73 @@ void DzBridgeAction::writeHeadTailData(DzNode* Node, DzJsonWriter& writer)
 
 	writer.startMemberObject("HeadTailData", true);
 
-	for (auto pObject : aBoneList) {
+	for (auto pObject : aBoneList) 
+	{
 		DzBone* pBone = qobject_cast<DzBone*>(pObject);
-		if (pBone) {
+		if (pBone) 
+		{
+			// Calculate Bone Offset
+			DzVec3 vecBoneOffset(0.0f, 0.0f, 0.0f);
+			for (auto pObject : pBone->getPropertyList())
+			{
+				DzProperty* property = qobject_cast<DzProperty*>(pObject);
+				if (property)
+				{
+					if (property->getName() == "YTranslate")
+					{
+						for (auto pObject2 : property->getControllerList())
+						{
+							DzERCLink* pERCLink = qobject_cast<DzERCLink*>(pObject2);
+							if (pERCLink)
+							{
+								auto controlerProperty = pERCLink->getProperty();
+								if (controlerProperty->getDoubleValue() != 0)
+								{
+									vecBoneOffset.m_y += pERCLink->getScalar() * controlerProperty->getDoubleValue();
+								}
+							}
+						}
+					}
+				}
+			}
+
 			// Assign Head
 			DzVec3 vecHead = pBone->getOrigin(false);
+			if (pBone->className() == "DzFigure")
+			{
+				DzFigure* figure = qobject_cast<DzFigure*>(pSkeleton);
+				DzSkinBinding* skinBinding = figure->getSkinBinding();
+				if (skinBinding) 
+				{
+					DzBoneBinding* boneBinding = skinBinding->findBoneBinding(pBone);
+					if (boneBinding) {
+						vecHead = boneBinding->getScaledOrigin();
+					}
+				}
+			}
 			// Calculate Bone Length
 			DzVec3 vecEndVector = pBone->getEndPoint() - vecHead;
 			double nBoneLength = vecEndVector.length();
 			// Calculate Primary Axis
-			DzVec3 vecPrimaryAxis;
-			int nSign=1;
-			switch (pBone->getRotationOrder()[0]) {
-			case 0:
-				nSign = (vecEndVector.m_x >= 0) ? 1 : -1;
-				break;
-			case 1:
-				nSign = (vecEndVector.m_y >= 0) ? 1 : -1;
-				break;
-			case 2:
-				nSign = (vecEndVector.m_z >= 0) ? 1 : -1;
-				break;
-			}
-			double nNodeScale = pBone->getScaleControl()->getValue();
-
+			DzVec3 vecPrimaryAxis = calculatePrimaryAxis(pBone, vecEndVector, nBoneLength);
+			// Calculate Secondary Axis
+			DzVec3 vecSecondAxis = calculateSecondaryAxis(pBone, vecEndVector);
 			// Calculate Tail
-			DzVec3 vecTail;
+			DzVec3 vecTail = vecHead + vecPrimaryAxis;
+			double nSkeletonScale = pSkeleton->getScaleControl()->getValue();
 
 			QString sBoneName = pBone->getName();
 			writer.startMemberArray(sBoneName, true);
-			for (int i = 0; i < 9; i++)
-			{
-				writer.addItem(double());
+			for (int axis = 0; axis <= 2; axis++) {
+				writer.addItem((vecHead[axis] + vecBoneOffset[axis]) * nSkeletonScale);
 			}
+			for (int axis = 0; axis <= 2; axis++) {
+				writer.addItem((vecTail[axis] + vecBoneOffset[axis]) * nSkeletonScale);
+			}
+			for (int axis = 0; axis <= 2; axis++) {
+				writer.addItem(vecSecondAxis[axis]);
+			}
+
 			for (int i = 0; i < 9; i++)
 			{
 				writer.addItem(double());
