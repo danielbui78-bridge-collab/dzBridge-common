@@ -146,6 +146,7 @@ void DzBridgeAction::writeConfiguration()
 		 writeAllMaterials(m_pSelectedNode, writer, pCVSStream);
 		 writeAllMorphs(writer);
 		 writeSkeletonData(m_pSelectedNode, writer);
+		 writeHeadTailData(m_pSelectedNode, writer);
 		 writeAllSubdivisions(writer);
 		 writeAllDforceInfo(m_pSelectedNode, writer);
 	 }

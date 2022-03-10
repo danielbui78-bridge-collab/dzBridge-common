@@ -38,6 +38,7 @@
 #include "dzfacetmesh.h"
 #include "dzfacegroup.h"
 #include "dzmaterial.h"
+#include <dzvec3.h>
 
 #include <QtCore/qdir.h>
 #include <QtGui/qlineedit.h>
@@ -2774,23 +2775,50 @@ void DzBridgeAction::writeHeadTailData(DzNode* Node, DzJsonWriter& writer)
 	// 3. if 2, Compare bones to pSkeleton to see if it is not in pSkeleton
 	// 4. If 3, Add to bonelist
 
-	writer.startMemberArray("HeadTailData", true);
+	writer.startMemberObject("HeadTailData", true);
 
-	for (auto pBone : aBoneList) {
-		writer.startMemberArray(sNodeName, true);
-		for (int i = 0; i < 9; i++)
-		{
-			writer.addItem(double());
-		}
-		for (int i = 0; i < 9; i++)
-		{
-			writer.addItem(double());
-		}
-		writer.finishArray();
+	for (auto pObject : aBoneList) {
+		DzBone* pBone = qobject_cast<DzBone*>(pObject);
+		if (pBone) {
+			// Assign Head
+			DzVec3 vecHead = pBone->getOrigin(false);
+			// Calculate Bone Length
+			DzVec3 vecEndVector = pBone->getEndPoint() - vecHead;
+			double nBoneLength = vecEndVector.length();
+			// Calculate Primary Axis
+			DzVec3 vecPrimaryAxis;
+			int nSign=1;
+			switch (pBone->getRotationOrder()[0]) {
+			case 0:
+				nSign = (vecEndVector.m_x >= 0) ? 1 : -1;
+				break;
+			case 1:
+				nSign = (vecEndVector.m_y >= 0) ? 1 : -1;
+				break;
+			case 2:
+				nSign = (vecEndVector.m_z >= 0) ? 1 : -1;
+				break;
+			}
+			double nNodeScale = pBone->getScaleControl()->getValue();
 
+			// Calculate Tail
+			DzVec3 vecTail;
+
+			QString sBoneName = pBone->getName();
+			writer.startMemberArray(sBoneName, true);
+			for (int i = 0; i < 9; i++)
+			{
+				writer.addItem(double());
+			}
+			for (int i = 0; i < 9; i++)
+			{
+				writer.addItem(double());
+			}
+			writer.finishArray();
+		}
 	}
 
-	writer.finishArray();
+	writer.finishObject();
 
 	return;
 }
