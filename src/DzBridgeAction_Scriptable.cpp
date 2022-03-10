@@ -201,6 +201,7 @@ void DzBridgeAction::resetToDefaults()
 QString DzBridgeAction::readGuiRootFolder()
 {
 	QString rootFolder = QDesktopServices::storageLocation(QDesktopServices::DocumentsLocation) + QDir::separator() + "DazBridge";
+	rootFolder = rootFolder.replace("\\","/");
 
 	if (m_bridgeDialog)
 	{
