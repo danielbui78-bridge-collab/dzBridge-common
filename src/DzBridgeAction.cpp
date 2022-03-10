@@ -128,6 +128,7 @@ void DzBridgeAction::resetToDefaults()
 	m_undoTable_DuplicateMaterialRename.clear();
 	m_undoTable_GenerateMissingNormalMap.clear();
 	m_sExportFbx = "";
+	m_bExportMaterialPropertiesCSV = false;
 
 }
 
