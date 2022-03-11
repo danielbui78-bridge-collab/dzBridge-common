@@ -2930,6 +2930,17 @@ void DzBridgeAction::writeHeadTailData(DzNode* Node, DzJsonWriter& writer)
 	// get skeleton and initial bone list
 	DzSkeleton* pSkeleton = Node->getSkeleton();
 	QObjectList aBoneList = pSkeleton->getAllBones();
+	// Create boneName Lookup
+	QMap<QString, bool> aBoneNameLookup;
+	for (auto item : aBoneList)
+	{
+		DzBone* boneItem = qobject_cast<DzBone*>(item);
+		if (boneItem)
+		{
+			QString sKey = boneItem->getName();
+			aBoneNameLookup.insert(sKey, false);
+		}
+	}
 	// add additional follower bones if any
 	// 1. Walk through entire scene
 	for (auto node : dzScene->getNodeList())
@@ -2945,11 +2956,19 @@ void DzBridgeAction::writeHeadTailData(DzNode* Node, DzJsonWriter& writer)
 			DzSkeleton* followTarget = skeletonNode->getFollowTarget();
 			if (followTarget == pSkeleton)
 			{
-				// 4. If 3, Add any bones that are not already in aBoneList
-				for (auto followerBone : skeletonNode->getAllBones())
+				// 4. If 3, Add any bones that are not already in aBoneNameLookup
+				for (auto oFollowerBone : skeletonNode->getAllBones())
 				{
-					if (!aBoneList.contains(followerBone))
-						aBoneList.append(followerBone);
+					DzBone* boneFollowerBone = qobject_cast<DzBone*>(oFollowerBone);
+					if (boneFollowerBone)
+					{
+						QString sFollowerBoneName = boneFollowerBone->getName();
+						if (!aBoneNameLookup.contains(sFollowerBoneName))
+						{
+							aBoneList.append(boneFollowerBone);
+							aBoneNameLookup.insert(sFollowerBoneName, false);
+						}
+					}
 				}
 			}
 		}
