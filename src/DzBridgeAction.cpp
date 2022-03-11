@@ -42,6 +42,7 @@
 #include <dzskinbinding.h>
 #include <dzbonebinding.h>
 #include <dzerclink.h>
+#include <dzpropertygroup.h>
 
 #include <QtCore/qdir.h>
 #include <QtGui/qlineedit.h>
@@ -2824,6 +2825,33 @@ DzVec3 calculateSecondaryAxis(DzBone* pBone, DzVec3& vecEndVector)
 	return vecSecondAxis;
 }
 
+DzVec3 calculateBoneOffset(DzBone* pBone)
+{
+	DzVec3 vecBoneOffset(0.0f, 0.0f, 0.0f);
+	for (auto pObject : pBone->getPropertyList())
+	{
+		DzProperty* property = qobject_cast<DzProperty*>(pObject);
+		if (property && property->getName() == "YTranslate")
+		{
+			for (auto pObject2 : property->getControllerList())
+			{
+				DzERCLink* pERCLink = qobject_cast<DzERCLink*>(pObject2);
+				if (pERCLink)
+				{
+					auto controlerProperty = pERCLink->getProperty();
+					if (controlerProperty->getDoubleValue() != 0)
+					{
+						vecBoneOffset.m_y += pERCLink->getScalar() * controlerProperty->getDoubleValue();
+					}
+				}
+			}
+		}
+
+	}
+
+	return vecBoneOffset;
+}
+
 void DzBridgeAction::writeHeadTailData(DzNode* Node, DzJsonWriter& writer)
 {
 	if (Node == nullptr)
@@ -2851,29 +2879,7 @@ void DzBridgeAction::writeHeadTailData(DzNode* Node, DzJsonWriter& writer)
 		if (pBone) 
 		{
 			// Calculate Bone Offset
-			DzVec3 vecBoneOffset(0.0f, 0.0f, 0.0f);
-			for (auto pObject : pBone->getPropertyList())
-			{
-				DzProperty* property = qobject_cast<DzProperty*>(pObject);
-				if (property)
-				{
-					if (property->getName() == "YTranslate")
-					{
-						for (auto pObject2 : property->getControllerList())
-						{
-							DzERCLink* pERCLink = qobject_cast<DzERCLink*>(pObject2);
-							if (pERCLink)
-							{
-								auto controlerProperty = pERCLink->getProperty();
-								if (controlerProperty->getDoubleValue() != 0)
-								{
-									vecBoneOffset.m_y += pERCLink->getScalar() * controlerProperty->getDoubleValue();
-								}
-							}
-						}
-					}
-				}
-			}
+			DzVec3 vecBoneOffset = calculateBoneOffset(pBone);
 
 			// Assign Head
 			DzVec3 vecHead = pBone->getOrigin(false);
@@ -2912,9 +2918,110 @@ void DzBridgeAction::writeHeadTailData(DzNode* Node, DzJsonWriter& writer)
 				writer.addItem(vecSecondAxis[axis]);
 			}
 
-			for (int i = 0; i < 9; i++)
+			// Bone Transform Values
+			DzVec3 vecBonePosition(0.0f, 0.0f, 0.0f);
+			DzVec3 vecBoneRotation(0.0f, 0.0f, 0.0f);
+			DzVec3 vecBoneScale(0.0f, 0.0f, 0.0f);
+			// get properties list
+			DzPropertyList aPropertyList;
+			DzPropertyGroupList aPropertyGroup_ToDoList;
+			DzPropertyGroupTree* pGroupTree = pBone->getPropertyGroups();
+			if (pGroupTree)
 			{
-				writer.addItem(double());
+				DzPropertyGroup* propertyGroup = pGroupTree->getFirstChild();
+				if (propertyGroup)
+					aPropertyGroup_ToDoList.append(propertyGroup);
+			}
+			// Iterative stack-based algorithm to traverse GroupTree breadth-first
+			while (aPropertyGroup_ToDoList.isEmpty() == false)
+			{
+				DzPropertyGroup* propertyGroup = aPropertyGroup_ToDoList.takeFirst();
+				if (propertyGroup)
+				{
+					// get all properties on this node
+					DzPropertyListIterator propertyListIterator = propertyGroup->getProperties();
+					while (propertyListIterator.hasNext())
+					{
+						DzProperty* pProperty = propertyListIterator.next();
+						if (pProperty)
+						{
+							if (!aPropertyList.contains(pProperty))
+								aPropertyList.append(pProperty);
+						}
+					}
+
+					// add all sibling nodes to todo-list
+					DzPropertyGroup* firstChild = nullptr;
+					DzPropertyGroup* parentGroup = propertyGroup->getParent();
+					if (parentGroup)
+					{
+						firstChild = parentGroup->getFirstChild();
+					}
+					else
+					{
+						firstChild = pGroupTree->getFirstChild();
+					}
+					if (firstChild == propertyGroup)
+					{
+						DzPropertyGroup* siblingGroup = propertyGroup->getNextSibling();
+						while (siblingGroup)
+						{
+							if (!aPropertyGroup_ToDoList.contains(siblingGroup))
+								aPropertyGroup_ToDoList.append(siblingGroup);
+							siblingGroup = siblingGroup->getNextSibling();
+						}
+					}
+					// add all child nodes to todo-list
+					DzPropertyGroup* childGroup = propertyGroup->getFirstChild();
+					while (childGroup)
+					{
+						if (!aPropertyGroup_ToDoList.contains(childGroup))
+							aPropertyGroup_ToDoList.append(childGroup);
+						childGroup = childGroup->getNextSibling();
+					}
+				}
+			}
+
+
+			for (auto propertyItem : aPropertyList)
+			{
+				auto pOwner = propertyItem->getOwner();
+				if (!pOwner->inherits("DzBone"))
+					continue;
+
+				QStringList aAxisString;
+				aAxisString.append("X");
+				aAxisString.append("Y"); 
+				aAxisString.append("Z");
+
+				// Position
+				for (int i = 0; i < 3; i++)
+				{
+					QString searchLabel = QString(aAxisString[i] + QString("Translate"));
+					if (propertyItem->getName() == searchLabel && propertyItem->isHidden() == false)
+					{
+						vecBonePosition[i] = 1;
+					}
+				}
+				// Rotation
+				for (int i = 0; i < 3; i++)
+				{
+					QString searchLabel = QString(aAxisString[i] + QString("Rotate"));
+					if (propertyItem->getName() == searchLabel && propertyItem->isHidden() == false)
+					{
+						vecBoneRotation[i] = 1;
+					}
+				}
+				// Scale
+			}
+			for (int i = 0; i < 3; i++) {
+				writer.addItem(vecBonePosition[i]);
+			}
+			for (int i = 0; i < 3; i++) {
+				writer.addItem(vecBoneRotation[i]);
+			}
+			for (int i = 0; i < 3; i++) {
+				writer.addItem(vecBoneScale[i]);
 			}
 			writer.finishArray();
 		}
