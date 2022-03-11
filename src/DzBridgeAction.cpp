@@ -2852,6 +2852,71 @@ DzVec3 calculateBoneOffset(DzBone* pBone)
 	return vecBoneOffset;
 }
 
+DzPropertyList getAllProperties(DzBone* pBone)
+{
+	DzPropertyList aPropertyList;
+
+	DzPropertyGroupList aPropertyGroup_ToDoList;
+	DzPropertyGroupTree* pGroupTree = pBone->getPropertyGroups();
+	if (pGroupTree)
+	{
+		DzPropertyGroup* propertyGroup = pGroupTree->getFirstChild();
+		if (propertyGroup)
+			aPropertyGroup_ToDoList.append(propertyGroup);
+	}
+	// Iterative stack-based algorithm to traverse GroupTree breadth-first
+	while (aPropertyGroup_ToDoList.isEmpty() == false)
+	{
+		DzPropertyGroup* propertyGroup = aPropertyGroup_ToDoList.takeFirst();
+		if (propertyGroup)
+		{
+			// get all properties on this node
+			DzPropertyListIterator propertyListIterator = propertyGroup->getProperties();
+			while (propertyListIterator.hasNext())
+			{
+				DzProperty* pProperty = propertyListIterator.next();
+				if (pProperty)
+				{
+					if (!aPropertyList.contains(pProperty))
+						aPropertyList.append(pProperty);
+				}
+			}
+
+			// add all sibling nodes to todo-list
+			DzPropertyGroup* firstChild = nullptr;
+			DzPropertyGroup* parentGroup = propertyGroup->getParent();
+			if (parentGroup)
+			{
+				firstChild = parentGroup->getFirstChild();
+			}
+			else
+			{
+				firstChild = pGroupTree->getFirstChild();
+			}
+			if (firstChild == propertyGroup)
+			{
+				DzPropertyGroup* siblingGroup = propertyGroup->getNextSibling();
+				while (siblingGroup)
+				{
+					if (!aPropertyGroup_ToDoList.contains(siblingGroup))
+						aPropertyGroup_ToDoList.append(siblingGroup);
+					siblingGroup = siblingGroup->getNextSibling();
+				}
+			}
+			// add all child nodes to todo-list
+			DzPropertyGroup* childGroup = propertyGroup->getFirstChild();
+			while (childGroup)
+			{
+				if (!aPropertyGroup_ToDoList.contains(childGroup))
+					aPropertyGroup_ToDoList.append(childGroup);
+				childGroup = childGroup->getNextSibling();
+			}
+		}
+	}
+
+	return aPropertyList;
+}
+
 void DzBridgeAction::writeHeadTailData(DzNode* Node, DzJsonWriter& writer)
 {
 	if (Node == nullptr)
@@ -2867,9 +2932,29 @@ void DzBridgeAction::writeHeadTailData(DzNode* Node, DzJsonWriter& writer)
 	QObjectList aBoneList = pSkeleton->getAllBones();
 	// add additional follower bones if any
 	// 1. Walk through entire scene
-	// 2. if inherits Skeleton, Check to see if it follows pSkeleton
-	// 3. if 2, Compare bones to pSkeleton to see if it is not in pSkeleton
-	// 4. If 3, Add to bonelist
+	for (auto node : dzScene->getNodeList())
+	{
+		if (!node)
+			continue;
+
+		// 2. if inherits Skeleton, Check to see if it follows pSkeleton
+		DzSkeleton* skeletonNode = qobject_cast<DzSkeleton*>(node);
+		if (node->inherits("DzSkeleton") && skeletonNode)
+		{
+			// 3. if 2, Compare bones to pSkeleton to see if it is not in pSkeleton
+			DzSkeleton* followTarget = skeletonNode->getFollowTarget();
+			if (followTarget == pSkeleton)
+			{
+				// 4. If 3, Add any bones that are not already in aBoneList
+				for (auto followerBone : skeletonNode->getAllBones())
+				{
+					if (!aBoneList.contains(followerBone))
+						aBoneList.append(followerBone);
+				}
+			}
+		}
+
+	}
 
 	writer.startMemberObject("HeadTailData", true);
 
@@ -2924,64 +3009,7 @@ void DzBridgeAction::writeHeadTailData(DzNode* Node, DzJsonWriter& writer)
 			DzVec3 vecBoneScale(0.0f, 0.0f, 0.0f);
 			// get properties list
 			DzPropertyList aPropertyList;
-			DzPropertyGroupList aPropertyGroup_ToDoList;
-			DzPropertyGroupTree* pGroupTree = pBone->getPropertyGroups();
-			if (pGroupTree)
-			{
-				DzPropertyGroup* propertyGroup = pGroupTree->getFirstChild();
-				if (propertyGroup)
-					aPropertyGroup_ToDoList.append(propertyGroup);
-			}
-			// Iterative stack-based algorithm to traverse GroupTree breadth-first
-			while (aPropertyGroup_ToDoList.isEmpty() == false)
-			{
-				DzPropertyGroup* propertyGroup = aPropertyGroup_ToDoList.takeFirst();
-				if (propertyGroup)
-				{
-					// get all properties on this node
-					DzPropertyListIterator propertyListIterator = propertyGroup->getProperties();
-					while (propertyListIterator.hasNext())
-					{
-						DzProperty* pProperty = propertyListIterator.next();
-						if (pProperty)
-						{
-							if (!aPropertyList.contains(pProperty))
-								aPropertyList.append(pProperty);
-						}
-					}
-
-					// add all sibling nodes to todo-list
-					DzPropertyGroup* firstChild = nullptr;
-					DzPropertyGroup* parentGroup = propertyGroup->getParent();
-					if (parentGroup)
-					{
-						firstChild = parentGroup->getFirstChild();
-					}
-					else
-					{
-						firstChild = pGroupTree->getFirstChild();
-					}
-					if (firstChild == propertyGroup)
-					{
-						DzPropertyGroup* siblingGroup = propertyGroup->getNextSibling();
-						while (siblingGroup)
-						{
-							if (!aPropertyGroup_ToDoList.contains(siblingGroup))
-								aPropertyGroup_ToDoList.append(siblingGroup);
-							siblingGroup = siblingGroup->getNextSibling();
-						}
-					}
-					// add all child nodes to todo-list
-					DzPropertyGroup* childGroup = propertyGroup->getFirstChild();
-					while (childGroup)
-					{
-						if (!aPropertyGroup_ToDoList.contains(childGroup))
-							aPropertyGroup_ToDoList.append(childGroup);
-						childGroup = childGroup->getNextSibling();
-					}
-				}
-			}
-
+			aPropertyList = getAllProperties(pBone);
 
 			for (auto propertyItem : aPropertyList)
 			{
