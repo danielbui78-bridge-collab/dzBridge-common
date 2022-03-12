@@ -3078,9 +3078,8 @@ void DzBridgeAction::writeJointOrientation(DzBoneList& aBoneList, DzJsonWriter& 
 {
 	writer.startMemberObject("JointOrientation", true);
 	
-	for (auto item : aBoneList)
+	for (DzBone* pBone : aBoneList)
 	{
-		DzBone* pBone = qobject_cast<DzBone*>(item);
 		QString sBoneName = pBone->getName();
 		QString sRotationOrder = pBone->getRotationOrder().toString();
 		double nXOrientation = pBone->getOrientXControl()->getValue();
@@ -3161,6 +3160,41 @@ DzBoneList DzBridgeAction::getAllBones(DzNode* Node)
 	}
 
 	return aBoneList;
+}
+
+void DzBridgeAction::writeLimitData(DzBoneList& aBoneList, DzJsonWriter& writer)
+{
+	writer.startMemberObject("LimitData");
+
+	for (DzBone* pBone : aBoneList)
+	{
+		QString sBoneName = pBone->getName();
+		QString sRotationOrder = pBone->getRotationOrder().toString();
+		double nXRotationMin = pBone->getXRotControl()->getMin();
+		double nXRotationMax = pBone->getXRotControl()->getMax();
+		double nYRotationMin = pBone->getYRotControl()->getMin();
+		double nYRotationMax = pBone->getYRotControl()->getMax();
+		double nZRotationMin = pBone->getZRotControl()->getMin();
+		double nZRotationMax = pBone->getZRotControl()->getMax();
+
+		writer.startMemberArray(sBoneName, true);
+		writer.addItem(sBoneName);
+		writer.addItem(sRotationOrder);
+
+		writer.addItem(nXRotationMin);
+		writer.addItem(nXRotationMax);
+
+		writer.addItem(nYRotationMin);
+		writer.addItem(nYRotationMax);
+
+		writer.addItem(nZRotationMin);
+		writer.addItem(nZRotationMax);
+		writer.finishArray();
+	}
+
+	writer.finishObject();
+
+	return;
 }
 
 

@@ -152,6 +152,7 @@ void DzBridgeAction::writeConfiguration()
 		 writeHeadTailData(m_pSelectedNode, writer);
 
 		 writeJointOrientation(aBoneList, writer);
+		 writeLimitData(aBoneList, writer);
 
 		 writeAllSubdivisions(writer);
 		 writeAllDforceInfo(m_pSelectedNode, writer);
