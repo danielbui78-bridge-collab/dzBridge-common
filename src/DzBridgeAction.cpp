@@ -2922,11 +2922,6 @@ void DzBridgeAction::writeHeadTailData(DzNode* Node, DzJsonWriter& writer)
 	if (Node == nullptr)
 		return;
 
-	QString sNodeName = Node->getName();
-
-	DzObject* Object = Node->getObject();
-	DzShape* Shape = Object ? Object->getCurrentShape() : nullptr;
-
 	// get skeleton and initial bone list
 	DzSkeleton* pSkeleton = Node->getSkeleton();
 	QObjectList aBoneList = pSkeleton->getAllBones();
@@ -3078,5 +3073,95 @@ void DzBridgeAction::writeHeadTailData(DzNode* Node, DzJsonWriter& writer)
 
 	return;
 }
+
+void DzBridgeAction::writeJointOrientation(DzBoneList& aBoneList, DzJsonWriter& writer)
+{
+	writer.startMemberObject("JointOrientation", true);
+	
+	for (auto item : aBoneList)
+	{
+		DzBone* pBone = qobject_cast<DzBone*>(item);
+		QString sBoneName = pBone->getName();
+		QString sRotationOrder = pBone->getRotationOrder().toString();
+		double nXOrientation = pBone->getOrientXControl()->getValue();
+		double nYOrientation = pBone->getOrientYControl()->getValue();
+		double nZOrientation = pBone->getOrientZControl()->getValue();
+		DzQuat quatOrientation = pBone->getOrientation();
+
+		writer.startMemberArray(sBoneName, true);
+		writer.addItem(sRotationOrder);
+		writer.addItem(nXOrientation);
+		writer.addItem(nYOrientation);
+		writer.addItem(nZOrientation);
+		writer.addItem(quatOrientation.m_w);
+		writer.addItem(quatOrientation.m_x);
+		writer.addItem(quatOrientation.m_x);
+		writer.addItem(quatOrientation.m_z);
+		writer.finishArray();
+	}
+
+	writer.finishObject();
+
+	return;
+}
+
+DzBoneList DzBridgeAction::getAllBones(DzNode* Node)
+{
+	DzBoneList aBoneList;
+
+	if (Node == nullptr)
+		return aBoneList;
+
+	// get skeleton and initial bone list
+	DzSkeleton* pSkeleton = Node->getSkeleton();
+	QObjectList oBoneList = pSkeleton->getAllBones();
+	// Create boneName Lookup
+	QMap<QString, bool> aBoneNameLookup;
+	for (auto item : oBoneList)
+	{
+		DzBone* boneItem = qobject_cast<DzBone*>(item);
+		if (boneItem)
+		{
+			QString sKey = boneItem->getName();
+			aBoneNameLookup.insert(sKey, false);
+			aBoneList.append(boneItem);
+		}
+	}
+	// add additional follower bones if any
+	// 1. Walk through entire scene
+	for (auto node : dzScene->getNodeList())
+	{
+		if (!node)
+			continue;
+
+		// 2. if inherits Skeleton, Check to see if it follows pSkeleton
+		DzSkeleton* skeletonNode = qobject_cast<DzSkeleton*>(node);
+		if (node->inherits("DzSkeleton") && skeletonNode)
+		{
+			// 3. if 2, Compare bones to pSkeleton to see if it is not in pSkeleton
+			DzSkeleton* followTarget = skeletonNode->getFollowTarget();
+			if (followTarget == pSkeleton)
+			{
+				// 4. If 3, Add any bones that are not already in aBoneNameLookup
+				for (auto oFollowerBone : skeletonNode->getAllBones())
+				{
+					DzBone* boneFollowerBone = qobject_cast<DzBone*>(oFollowerBone);
+					if (boneFollowerBone)
+					{
+						QString sFollowerBoneName = boneFollowerBone->getName();
+						if (!aBoneNameLookup.contains(sFollowerBoneName))
+						{
+							aBoneList.append(boneFollowerBone);
+							aBoneNameLookup.insert(sFollowerBoneName, false);
+						}
+					}
+				}
+			}
+		}
+	}
+
+	return aBoneList;
+}
+
 
 #include "moc_DzBridgeAction.cpp"

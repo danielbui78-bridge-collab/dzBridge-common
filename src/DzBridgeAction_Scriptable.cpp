@@ -145,8 +145,14 @@ void DzBridgeAction::writeConfiguration()
 		 }
 		 writeAllMaterials(m_pSelectedNode, writer, pCVSStream);
 		 writeAllMorphs(writer);
+
+		 DzBoneList aBoneList = getAllBones(m_pSelectedNode);
+
 		 writeSkeletonData(m_pSelectedNode, writer);
 		 writeHeadTailData(m_pSelectedNode, writer);
+
+		 writeJointOrientation(aBoneList, writer);
+
 		 writeAllSubdivisions(writer);
 		 writeAllDforceInfo(m_pSelectedNode, writer);
 	 }
