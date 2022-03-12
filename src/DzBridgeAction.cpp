@@ -3197,5 +3197,95 @@ void DzBridgeAction::writeLimitData(DzBoneList& aBoneList, DzJsonWriter& writer)
 	return;
 }
 
+QString getObjectTypeAsString(DzNode* Node)
+{
+	if (Node == nullptr)
+		return QString("EMPTY");
+
+	if (Node->inherits("DzBone"))
+		return QString("BONE");
+
+	if (Node->inherits("DzLight"))
+		return QString("LIGHT");
+
+	if (Node->inherits("DzCamera"))
+		return QString("CAMERA");
+
+	DzObject* oObject = Node->getObject();
+	if (!oObject)
+		return QString("EMPTY");
+
+	DzShape* oShape = oObject->getCurrentShape();
+	if (!oShape)
+		return QString("EMPTY");
+
+	DzGeometry* oMesh = oShape->getGeometry();
+	if (!oMesh)
+		return QString("EMPTY");
+
+	return QString("MESH");
+}
+
+void DzBridgeAction::writePoseData(DzNode* Node, DzJsonWriter& writer, bool bIsFigure)
+{
+	if (Node == nullptr)
+		return;
+
+	// Create Node List
+	DzNodeList aNodeList;
+
+	aNodeList.append(Node);
+	for (auto item : Node->getNodeChildren(true))
+	{
+		DzNode* nodeItem = qobject_cast<DzNode*>(item);
+		aNodeList.append(nodeItem);
+	}
+
+	writer.startMemberObject("PoseData");
+
+	// iterate through each node in Node list
+	for (DzNode* node : aNodeList)
+	{
+		QString sNodeName = node->getName();
+		QString sLabel = node->getLabel();
+		QString sObjectType = getObjectTypeAsString(node);
+		QString sObjectName = "EMPTY";
+		if (sObjectType == "MESH")
+			sObjectName = node->getObject()->getName();
+		DzVec3 vecPosition = node->getLocalPos();
+		DzMatrix3 matrixScale = node->getLocalScale();
+
+		writer.startMemberObject(sNodeName);
+		writer.addMember("Name", sNodeName);
+		writer.addMember("Label", sLabel);
+		writer.addMember("Object Type", sObjectType);
+		writer.addMember("Object", sObjectName);
+		
+		writer.startMemberArray("Position", true);
+		writer.addItem(vecPosition.m_x);
+		writer.addItem(vecPosition.m_y);
+		writer.addItem(vecPosition.m_z);
+		writer.finishArray();
+
+		writer.startMemberArray("Rotation", true);
+		writer.addItem(node->getXRotControl()->getLocalValue());
+		writer.addItem(node->getYRotControl()->getLocalValue());
+		writer.addItem(node->getZRotControl()->getLocalValue());
+		writer.finishArray();
+
+		writer.startMemberArray("Scale", true);
+		writer.addItem(matrixScale[0][0]);
+		writer.addItem(matrixScale[1][1]);
+		writer.addItem(matrixScale[2][2]);
+		writer.finishArray();
+
+		writer.finishObject();
+	}
+
+	writer.finishObject();
+
+	return;
+}
+
 
 #include "moc_DzBridgeAction.cpp"

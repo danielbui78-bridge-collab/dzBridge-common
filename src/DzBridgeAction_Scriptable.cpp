@@ -153,7 +153,7 @@ void DzBridgeAction::writeConfiguration()
 
 		 writeJointOrientation(aBoneList, writer);
 		 writeLimitData(aBoneList, writer);
-
+		 writePoseData(m_pSelectedNode, writer, true);
 		 writeAllSubdivisions(writer);
 		 writeAllDforceInfo(m_pSelectedNode, writer);
 	 }

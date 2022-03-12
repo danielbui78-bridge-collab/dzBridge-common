@@ -224,6 +224,7 @@ namespace DzBridgeNameSpace
 		Q_INVOKABLE DzBoneList getAllBones(DzNode* Node);
 		Q_INVOKABLE void writeJointOrientation(DzBoneList& aBoneList, DzJsonWriter& writer);
 		Q_INVOKABLE void writeLimitData(DzBoneList& aBoneList, DzJsonWriter& writer);
+		Q_INVOKABLE void writePoseData(DzNode* Node, DzJsonWriter& writer, bool bIsFigure);
 	private:
 		class MaterialGroupExportOrderMetaData
 		{
