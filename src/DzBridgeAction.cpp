@@ -1021,6 +1021,35 @@ void DzBridgeAction::exportNode(DzNode* Node)
 			  }
 		  }
 
+
+		  // Override
+		  ExportOptions.setBoolValue("doSelected", false);
+		  ExportOptions.setBoolValue("doVisible", true);
+		  ExportOptions.setBoolValue("doFigures", true);
+		  ExportOptions.setBoolValue("doProps", false);
+		  ExportOptions.setBoolValue("doLights", false);
+		  ExportOptions.setBoolValue("doCameras", false);
+		  ExportOptions.setBoolValue("doAnims", false);
+		  ExportOptions.setBoolValue("doMorphs", true);
+		  ExportOptions.setBoolValue("doFps", true);
+		  ExportOptions.setStringValue("rules", m_sMorphSelectionRule);
+		  ExportOptions.setStringValue("format", "FBX 2014 -- Binary");
+		  ExportOptions.setIntValue("RunSilent", true);
+		  ExportOptions.setBoolValue("doEmbed", false);
+		  ExportOptions.setBoolValue("doCopyTextures", false);
+		  ExportOptions.setBoolValue("doDiffuseOpacity", false);
+		  ExportOptions.setBoolValue("doMergeClothing", true);
+		  ExportOptions.setBoolValue("doStaticClothing", false);
+		  ExportOptions.setBoolValue("degradedSkinning", false);
+		  ExportOptions.setBoolValue("degradedScaling", false);
+		  ExportOptions.setBoolValue("doSubD", false);
+		  //ExportOptions.setBoolValue("doCollapseUVTiles", false);
+		  ExportOptions.setBoolValue("doLocks", false);
+		  ExportOptions.setBoolValue("doLimits", false);
+		  ExportOptions.setBoolValue("doBaseFigurePoseOnly", false);
+		  ExportOptions.setBoolValue("doHelperScriptScripts", false);
+		  ExportOptions.setBoolValue("doMentalRayMaterials", false);
+
 		  preProcessScene(Parent);
 
 		  QDir dir;
@@ -1429,9 +1458,19 @@ void DzBridgeAction::writePropertyTexture(DzJsonWriter& Writer, QString sName, Q
 
 void DzBridgeAction::writeDTUHeader(DzJsonWriter& writer)
 {
+	QString sPresentationType = QString("Unknown");
+	DzPresentation* presentation = m_pSelectedNode->getPresentation();
+	if (presentation)
+	{
+		sPresentationType = presentation->getType();
+	}
+
+
 	writer.addMember("DTU Version", 4);
 	writer.addMember("Asset Name", m_sAssetName);
-	writer.addMember("Asset Type", m_sAssetType);
+	writer.addMember("Import Name", m_pSelectedNode->getName());
+//	writer.addMember("Asset Type", m_sAssetType);
+	writer.addMember("Asset Type", sPresentationType);
 	writer.addMember("FBX File", m_sDestinationFBX);
 	QString CharacterBaseFBX = m_sDestinationFBX;
 	CharacterBaseFBX.replace(".fbx", "_base.fbx");
@@ -1494,7 +1533,9 @@ void DzBridgeAction::startMaterialBlock(DzNode* Node, DzJsonWriter& Writer, QTex
 
 	Writer.startObject(true);
 	Writer.addMember("Version", 4);
-	Writer.addMember("Asset Name", Node->getLabel());
+//	Writer.addMember("Asset Name", Node->getLabel());
+	Writer.addMember("Asset Name", Node->getName());
+	Writer.addMember("Asset Label", Node->getLabel());
 	Writer.addMember("Material Name", Material->getName());
 	Writer.addMember("Material Type", Material->getMaterialName());
 
@@ -1516,6 +1557,7 @@ void DzBridgeAction::startMaterialBlock(DzNode* Node, DzJsonWriter& Writer, QTex
 		const QString presentationType = presentation->getType();
 		Writer.startObject(true);
 		Writer.addMember("Name", QString("Asset Type"));
+		Writer.addMember("Label", QString("Asset Type"));
 		Writer.addMember("Value", presentationType);
 		Writer.addMember("Data Type", QString("String"));
 		Writer.addMember("Texture", QString(""));
@@ -2837,8 +2879,10 @@ DzVec3 calculateBoneOffset(DzBone* pBone)
 		DzProperty* property = qobject_cast<DzProperty*>(pObject);
 		if (property && property->getName() == "YTranslate")
 		{
-			for (auto pObject2 : property->getControllerList())
+			DzControllerListIterator controlIterator = property->controllerListIterator();
+			while (controlIterator.hasNext())
 			{
+				DzController* pObject2 = controlIterator.next();
 				DzERCLink* pERCLink = qobject_cast<DzERCLink*>(pObject2);
 				if (pERCLink)
 				{
@@ -2974,6 +3018,12 @@ void DzBridgeAction::writeHeadTailData(DzNode* Node, DzJsonWriter& writer)
 
 	}
 
+	// Calculate Bone Offset
+	DzVec3 vecBoneOffset = calculateBoneOffset(qobject_cast<DzBone*>(aBoneList[0]));
+
+	pSkeleton->update();
+	pSkeleton->finalize();
+
 	writer.startMemberObject("HeadTailData", true);
 
 	for (auto pObject : aBoneList) 
@@ -2981,8 +3031,9 @@ void DzBridgeAction::writeHeadTailData(DzNode* Node, DzJsonWriter& writer)
 		DzBone* pBone = qobject_cast<DzBone*>(pObject);
 		if (pBone) 
 		{
-			// Calculate Bone Offset
-			DzVec3 vecBoneOffset = calculateBoneOffset(pBone);
+			//// Calculate Bone Offset
+			//DzVec3 vecBoneOffset = calculateBoneOffset(pBone);
+
 
 			// Assign Head
 			DzVec3 vecHead = pBone->getOrigin(false);

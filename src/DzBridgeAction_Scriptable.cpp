@@ -146,6 +146,11 @@ void DzBridgeAction::writeConfiguration()
 		 writeAllMaterials(m_pSelectedNode, writer, pCVSStream);
 		 writeAllMorphs(writer);
 
+		 writer.startMemberObject("MorphLinks");
+		 writer.finishObject();
+		 writer.startMemberArray("MorphNames");
+		 writer.finishArray();
+
 		 DzBoneList aBoneList = getAllBones(m_pSelectedNode);
 
 		 writeSkeletonData(m_pSelectedNode, writer);
