@@ -11,7 +11,7 @@
 
 #include "dzbridge.h"
 
-class DzBridgeAction : public DzBridgeNameSpace::DzBridgeAction {
+class DzBridgeAction : public DzUnreal::DzBridgeAction {
 	Q_OBJECT
 public:
 	DzBridgeAction();

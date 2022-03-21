@@ -52,7 +52,7 @@
 #include "DzBridgeSubdivisionDialog.h"
 #include "DzBridgeMorphSelectionDialog.h"
 
-using namespace DzBridgeNameSpace;
+using namespace DzUnreal;
 
 /// <summary>
 /// Initializes general export data and settings.

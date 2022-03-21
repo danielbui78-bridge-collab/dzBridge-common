@@ -49,7 +49,7 @@ Local definitions
 *****************************/
 #define DAZ_BRIDGE_LIBRARY_NAME "Daz Bridge"
 
-using namespace DzBridgeNameSpace;
+using namespace DzUnreal;
 
 CPP_Export DzBridgeMorphSelectionDialog* DzBridgeMorphSelectionDialog::singleton = nullptr;
 

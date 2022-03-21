@@ -4,7 +4,7 @@
 #include "DzBridgeSubdivisionDialog.h"
 
 #include "dzbridge.h"
-using namespace DzBridgeNameSpace;
+using namespace DzUnreal;
 
 UnitTest_DzBridgeSubdivisionDialog::UnitTest_DzBridgeSubdivisionDialog()
 {

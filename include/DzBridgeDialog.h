@@ -14,7 +14,7 @@ class UnitTest_DzBridgeDialog;
 
 #include "dzbridge.h"
 
-namespace DzBridgeNameSpace 
+namespace DzUnreal 
 {
 	class CPP_Export DzBridgeDialog : public DzBasicDialog {
 		Q_OBJECT
