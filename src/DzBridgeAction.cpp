@@ -1986,6 +1986,10 @@ void DzBridgeAction::readGui(DzBridgeDialog* BridgeDialog)
 	{
 		m_subdivisionDialog = DzBridgeSubdivisionDialog::Get(BridgeDialog);
 	}
+	if (m_morphSelectionDialog == nullptr)
+	{
+		m_morphSelectionDialog = DzBridgeMorphSelectionDialog::Get(BridgeDialog);
+	}
 	m_sFbxVersion = BridgeDialog->getFbxVersionCombo()->currentText();
 
 }
