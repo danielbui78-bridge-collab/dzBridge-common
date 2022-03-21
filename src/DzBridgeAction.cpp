@@ -139,11 +139,11 @@ void DzBridgeAction::resetToDefaults()
 
 /// <summary>
 /// Performs multiple pre-processing procedures prior to exporting FBX and generating DTU.
-/// 
+///
 /// Usage: Usually called from executeAction() prior to calling Export() or ExportHD().
 /// See Also: undoPreProcessScene()
 /// </summary>
-/// <param name="parentNode">The "root" node from which to start processing of all 
+/// <param name="parentNode">The "root" node from which to start processing of all
 /// children.  If null, then scene primary selection is used.</param>
 /// <returns>true if procedure was successful</returns>
 bool DzBridgeAction::preProcessScene(DzNode* parentNode)
@@ -216,11 +216,11 @@ bool DzBridgeAction::preProcessScene(DzNode* parentNode)
 /// <summary>
 /// Generate Normal Map texture for for use in Target Software that doesn't support HeightMap.
 /// Called by preProcessScene() for each exported material. Checks material for existing
-/// HeightMap texture but missing NormalMap texture before generating NormalMap. Exports HeightMap 
+/// HeightMap texture but missing NormalMap texture before generating NormalMap. Exports HeightMap
 /// strength to NormalMap strength in DTU file.
-/// 
+///
 /// Note: Must call undoGenerateMissingNormalMaps() to undo insertion of NormalMaps into materials.
-/// 
+///
 /// See Also: makeNormalMapFromHeightMap(), m_undoTable_GenerateMissingNormalMap,
 /// preProcessScene(), undoPreProcessScene().
 /// </summary>
@@ -1458,19 +1458,24 @@ void DzBridgeAction::writePropertyTexture(DzJsonWriter& Writer, QString sName, Q
 
 void DzBridgeAction::writeDTUHeader(DzJsonWriter& writer)
 {
+	QString sAssetId = "";
 	QString sPresentationType = QString("Unknown");
-	DzPresentation* presentation = m_pSelectedNode->getPresentation();
-	if (presentation)
-	{
-		sPresentationType = presentation->getType();
-	}
 
+	if (m_pSelectedNode)
+	{
+		sAssetId = m_pSelectedNode->getAssetId();
+		DzPresentation* presentation = m_pSelectedNode->getPresentation();
+		if (presentation)
+		{
+			sPresentationType = presentation->getType();
+		}
+	}
 
 	writer.addMember("DTU Version", 4);
 	writer.addMember("Asset Name", m_sAssetName);
 	writer.addMember("Import Name", m_pSelectedNode->getName());
 	writer.addMember("Asset Type", m_sAssetType);
-	writer.addMember("Asset Id", m_pSelectedNode->getAssetId());
+	writer.addMember("Asset Id", sAssetId);
 	writer.addMember("Database Type", sPresentationType);
 	writer.addMember("FBX File", m_sDestinationFBX);
 	QString CharacterBaseFBX = m_sDestinationFBX;
@@ -1972,7 +1977,7 @@ QUuid DzBridgeAction::writeInstance(DzNode* Node, DzJsonWriter& Writer, QUuid Pa
 #else
 		return false;
 #endif
-    
+
 	QString Path = Node->getAssetFileInfo().getUri().getFilePath();
 	QFile File(Path);
 	QString FileName = File.fileName();
@@ -2309,7 +2314,7 @@ bool DzBridgeAction::setBridgeDialog(DzBasicDialog* arg_dlg)
 }
 
 bool DzBridgeAction::setSubdivisionDialog(DzBasicDialog* arg_dlg)
-{ 
+{
 	m_subdivisionDialog = qobject_cast<DzBridgeSubdivisionDialog*>(arg_dlg);
 
 	if (m_subdivisionDialog == nullptr)
@@ -2332,8 +2337,8 @@ bool DzBridgeAction::setSubdivisionDialog(DzBasicDialog* arg_dlg)
 }
 
 bool DzBridgeAction::setMorphSelectionDialog(DzBasicDialog* arg_dlg)
-{ 
-	m_morphSelectionDialog = qobject_cast<DzBridgeMorphSelectionDialog*>(arg_dlg); 
+{
+	m_morphSelectionDialog = qobject_cast<DzBridgeMorphSelectionDialog*>(arg_dlg);
 
 	if (m_morphSelectionDialog == nullptr)
 	{
@@ -2349,7 +2354,7 @@ bool DzBridgeAction::setMorphSelectionDialog(DzBasicDialog* arg_dlg)
 
 		// return false to signal version mismatch
 		return false;
-	}		
+	}
 
 	return true;
 }
@@ -3027,10 +3032,10 @@ void DzBridgeAction::writeHeadTailData(DzNode* Node, DzJsonWriter& writer)
 
 	writer.startMemberObject("HeadTailData", true);
 
-	for (auto pObject : aBoneList) 
+	for (auto pObject : aBoneList)
 	{
 		DzBone* pBone = qobject_cast<DzBone*>(pObject);
-		if (pBone) 
+		if (pBone)
 		{
 			//// Calculate Bone Offset
 			//DzVec3 vecBoneOffset = calculateBoneOffset(pBone);
@@ -3042,7 +3047,7 @@ void DzBridgeAction::writeHeadTailData(DzNode* Node, DzJsonWriter& writer)
 			{
 				DzFigure* figure = qobject_cast<DzFigure*>(pSkeleton);
 				DzSkinBinding* skinBinding = figure->getSkinBinding();
-				if (skinBinding) 
+				if (skinBinding)
 				{
 					DzBoneBinding* boneBinding = skinBinding->findBoneBinding(pBone);
 					if (boneBinding) {
@@ -3089,7 +3094,7 @@ void DzBridgeAction::writeHeadTailData(DzNode* Node, DzJsonWriter& writer)
 
 				QStringList aAxisString;
 				aAxisString.append("X");
-				aAxisString.append("Y"); 
+				aAxisString.append("Y");
 				aAxisString.append("Z");
 
 				// Position
@@ -3133,7 +3138,7 @@ void DzBridgeAction::writeHeadTailData(DzNode* Node, DzJsonWriter& writer)
 void DzBridgeAction::writeJointOrientation(DzBoneList& aBoneList, DzJsonWriter& writer)
 {
 	writer.startMemberObject("JointOrientation", true);
-	
+
 	for (DzBone* pBone : aBoneList)
 	{
 		QString sBoneName = pBone->getName();
@@ -3316,7 +3321,7 @@ void DzBridgeAction::writePoseData(DzNode* Node, DzJsonWriter& writer, bool bIsF
 		writer.addMember("Label", sLabel);
 		writer.addMember("Object Type", sObjectType);
 		writer.addMember("Object", sObjectName);
-		
+
 		writer.startMemberArray("Position", true);
 		writer.addItem(vecPosition.m_x);
 		writer.addItem(vecPosition.m_y);

@@ -65,9 +65,9 @@ namespace DzBridgeNameSpace
 		// Normal Map Handling
 		Q_INVOKABLE QImage makeNormalMapFromHeightMap(QString heightMapFilename, double normalStrength);
 		// Pre-Process Scene data to workaround FbxExporter issues, called by Export() before FbxExport operation.
-		bool preProcessScene(DzNode* parentNode = nullptr);
+		virtual bool preProcessScene(DzNode* parentNode = nullptr);
 		// Undo changes made by preProcessScene(), called by Export() after FbxExport operation.
-		bool undoPreProcessScene();
+		virtual bool undoPreProcessScene();
 		bool renameDuplicateMaterial(DzMaterial* material, QList<QString>* existingMaterialNameList);
 		bool undoRenameDuplicateMaterials();
 		bool generateMissingNormalMap(DzMaterial* material);
