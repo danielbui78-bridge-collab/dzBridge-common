@@ -133,11 +133,11 @@ void DzBridgeAction::resetToDefaults()
 
 /// <summary>
 /// Performs multiple pre-processing procedures prior to exporting FBX and generating DTU.
-/// 
+///
 /// Usage: Usually called from executeAction() prior to calling Export() or ExportHD().
 /// See Also: undoPreProcessScene()
 /// </summary>
-/// <param name="parentNode">The "root" node from which to start processing of all 
+/// <param name="parentNode">The "root" node from which to start processing of all
 /// children.  If null, then scene primary selection is used.</param>
 /// <returns>true if procedure was successful</returns>
 bool DzBridgeAction::preProcessScene(DzNode* parentNode)
@@ -210,11 +210,11 @@ bool DzBridgeAction::preProcessScene(DzNode* parentNode)
 /// <summary>
 /// Generate Normal Map texture for for use in Target Software that doesn't support HeightMap.
 /// Called by preProcessScene() for each exported material. Checks material for existing
-/// HeightMap texture but missing NormalMap texture before generating NormalMap. Exports HeightMap 
+/// HeightMap texture but missing NormalMap texture before generating NormalMap. Exports HeightMap
 /// strength to NormalMap strength in DTU file.
-/// 
+///
 /// Note: Must call undoGenerateMissingNormalMaps() to undo insertion of NormalMaps into materials.
-/// 
+///
 /// See Also: makeNormalMapFromHeightMap(), m_undoTable_GenerateMissingNormalMap,
 /// preProcessScene(), undoPreProcessScene().
 /// </summary>
@@ -1421,9 +1421,17 @@ void DzBridgeAction::writePropertyTexture(DzJsonWriter& Writer, QString sName, d
 
 void DzBridgeAction::writeDTUHeader(DzJsonWriter& writer)
 {
+	QString sAssetId = "";
+
+	if (m_pSelectedNode)
+	{
+		sAssetId = m_pSelectedNode->getAssetId();
+	}
+
 	writer.addMember("DTU Version", 3);
 	writer.addMember("Asset Name", m_sAssetName);
 	writer.addMember("Asset Type", m_sAssetType);
+	writer.addMember("Asset Id", sAssetId);
 	writer.addMember("FBX File", m_sDestinationFBX);
 	QString CharacterBaseFBX = m_sDestinationFBX;
 	CharacterBaseFBX.replace(".fbx", "_base.fbx");
@@ -1920,7 +1928,7 @@ QUuid DzBridgeAction::writeInstance(DzNode* Node, DzJsonWriter& Writer, QUuid Pa
 #else
 		return false;
 #endif
-    
+
 	QString Path = Node->getAssetFileInfo().getUri().getFilePath();
 	QFile File(Path);
 	QString FileName = File.fileName();
@@ -2257,7 +2265,7 @@ bool DzBridgeAction::setBridgeDialog(DzBasicDialog* arg_dlg)
 }
 
 bool DzBridgeAction::setSubdivisionDialog(DzBasicDialog* arg_dlg)
-{ 
+{
 	m_subdivisionDialog = qobject_cast<DzBridgeSubdivisionDialog*>(arg_dlg);
 
 	if (m_subdivisionDialog == nullptr)
@@ -2280,8 +2288,8 @@ bool DzBridgeAction::setSubdivisionDialog(DzBasicDialog* arg_dlg)
 }
 
 bool DzBridgeAction::setMorphSelectionDialog(DzBasicDialog* arg_dlg)
-{ 
-	m_morphSelectionDialog = qobject_cast<DzBridgeMorphSelectionDialog*>(arg_dlg); 
+{
+	m_morphSelectionDialog = qobject_cast<DzBridgeMorphSelectionDialog*>(arg_dlg);
 
 	if (m_morphSelectionDialog == nullptr)
 	{
@@ -2297,7 +2305,7 @@ bool DzBridgeAction::setMorphSelectionDialog(DzBasicDialog* arg_dlg)
 
 		// return false to signal version mismatch
 		return false;
-	}		
+	}
 
 	return true;
 }
