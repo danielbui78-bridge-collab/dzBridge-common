@@ -1459,24 +1459,26 @@ void DzBridgeAction::writePropertyTexture(DzJsonWriter& Writer, QString sName, Q
 void DzBridgeAction::writeDTUHeader(DzJsonWriter& writer)
 {
 	QString sAssetId = "";
-	QString sPresentationType = QString("Unknown");
+	QString sContentType = QString("Unknown");
+	QString sImportName = "";
 
 	if (m_pSelectedNode)
 	{
 		sAssetId = m_pSelectedNode->getAssetId();
+		sImportName = m_pSelectedNode->getName();
 		DzPresentation* presentation = m_pSelectedNode->getPresentation();
 		if (presentation)
 		{
-			sPresentationType = presentation->getType();
+			sContentType = presentation->getType();
 		}
 	}
 
 	writer.addMember("DTU Version", 4);
 	writer.addMember("Asset Name", m_sAssetName);
-	writer.addMember("Import Name", m_pSelectedNode->getName());
+	writer.addMember("Import Name", sImportName); // Blender Compatibility
 	writer.addMember("Asset Type", m_sAssetType);
-	writer.addMember("Asset Id", sAssetId);
-	writer.addMember("Database Type", sPresentationType);
+	writer.addMember("Asset Id", sAssetId); // Unity Compatibility
+	writer.addMember("Content Type", sContentType);
 	writer.addMember("FBX File", m_sDestinationFBX);
 	QString CharacterBaseFBX = m_sDestinationFBX;
 	CharacterBaseFBX.replace(".fbx", "_base.fbx");
