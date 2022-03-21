@@ -1469,8 +1469,9 @@ void DzBridgeAction::writeDTUHeader(DzJsonWriter& writer)
 	writer.addMember("DTU Version", 4);
 	writer.addMember("Asset Name", m_sAssetName);
 	writer.addMember("Import Name", m_pSelectedNode->getName());
-//	writer.addMember("Asset Type", m_sAssetType);
-	writer.addMember("Asset Type", sPresentationType);
+	writer.addMember("Asset Type", m_sAssetType);
+	writer.addMember("Asset Id", m_pSelectedNode->getAssetId());
+	writer.addMember("Database Type", sPresentationType);
 	writer.addMember("FBX File", m_sDestinationFBX);
 	QString CharacterBaseFBX = m_sDestinationFBX;
 	CharacterBaseFBX.replace(".fbx", "_base.fbx");
