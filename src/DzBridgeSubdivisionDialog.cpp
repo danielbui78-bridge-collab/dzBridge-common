@@ -49,7 +49,7 @@ Local definitions
 *****************************/
 #define DAZ_BRIDGE_LIBRARY_NAME "Daz Bridge"
 
-using namespace DzBridgeNameSpace;
+using namespace DzUnityNS;
 
 CPP_Export DzBridgeSubdivisionDialog* DzBridgeSubdivisionDialog::singleton = nullptr;
 

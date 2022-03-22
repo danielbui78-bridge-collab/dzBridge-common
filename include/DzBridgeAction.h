@@ -16,7 +16,7 @@ class DzGeometry;
 class UnitTest_DzBridgeAction;
 
 #include "dzbridge.h"
-namespace DzBridgeNameSpace
+namespace DzUnityNS
 {
 	class DzBridgeDialog;
 	class DzBridgeMorphSelectionDialog;
