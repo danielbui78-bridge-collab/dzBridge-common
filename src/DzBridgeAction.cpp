@@ -3033,6 +3033,7 @@ void DzBridgeAction::writeHeadTailData(DzNode* Node, DzJsonWriter& writer)
 	// Calculate Bone Offset
 	DzVec3 vecBoneOffset = calculateBoneOffset(qobject_cast<DzBone*>(aBoneList[0]));
 
+	double nSkeletonScale = pSkeleton->getScaleControl()->getValue();
 
 	writer.startMemberObject("HeadTailData", true);
 
@@ -3047,7 +3048,7 @@ void DzBridgeAction::writeHeadTailData(DzNode* Node, DzJsonWriter& writer)
 
 			// Assign Head
 			DzVec3 vecHead = pBone->getOrigin(false);
-			if (pBone->className() == "DzFigure")
+			if (Node->className() == "DzFigure")
 			{
 				DzFigure* figure = qobject_cast<DzFigure*>(pSkeleton);
 				DzSkinBinding* skinBinding = figure->getSkinBinding();
@@ -3060,7 +3061,7 @@ void DzBridgeAction::writeHeadTailData(DzNode* Node, DzJsonWriter& writer)
 				}
 			}
 			// Calculate Bone Length
-			DzVec3 vecEndVector = pBone->getEndPoint() - vecHead;
+			DzVec3 vecEndVector = pBone->getEndPoint() - pBone->getOrigin(false);
 			double nBoneLength = vecEndVector.length();
 			// Calculate Primary Axis
 			DzVec3 vecPrimaryAxis = calculatePrimaryAxis(pBone, vecEndVector, nBoneLength);
@@ -3068,7 +3069,6 @@ void DzBridgeAction::writeHeadTailData(DzNode* Node, DzJsonWriter& writer)
 			DzVec3 vecSecondAxis = calculateSecondaryAxis(pBone, vecEndVector);
 			// Calculate Tail
 			DzVec3 vecTail = vecHead + vecPrimaryAxis;
-			double nSkeletonScale = pSkeleton->getScaleControl()->getValue();
 
 			QString sBoneName = pBone->getName();
 			writer.startMemberArray(sBoneName, true);
@@ -3105,8 +3105,7 @@ void DzBridgeAction::writeHeadTailData(DzNode* Node, DzJsonWriter& writer)
 				for (int i = 0; i < 3; i++)
 				{
 					QString searchLabel = QString(aAxisString[i] + QString("Translate"));
-					if (propertyItem->getName() == searchLabel && propertyItem->isHidden() == false)
-					{
+					if (propertyItem->getName() == searchLabel && propertyItem->isHidden() == false) {
 						vecBonePosition[i] = 1;
 					}
 				}
@@ -3114,8 +3113,7 @@ void DzBridgeAction::writeHeadTailData(DzNode* Node, DzJsonWriter& writer)
 				for (int i = 0; i < 3; i++)
 				{
 					QString searchLabel = QString(aAxisString[i] + QString("Rotate"));
-					if (propertyItem->getName() == searchLabel && propertyItem->isHidden() == false)
-					{
+					if (propertyItem->getName() == searchLabel && propertyItem->isHidden() == false) {
 						vecBoneRotation[i] = 1;
 					}
 				}
@@ -3159,7 +3157,7 @@ void DzBridgeAction::writeJointOrientation(DzBoneList& aBoneList, DzJsonWriter& 
 		writer.addItem(nZOrientation);
 		writer.addItem(quatOrientation.m_w);
 		writer.addItem(quatOrientation.m_x);
-		writer.addItem(quatOrientation.m_x);
+		writer.addItem(quatOrientation.m_y);
 		writer.addItem(quatOrientation.m_z);
 		writer.finishArray();
 	}
