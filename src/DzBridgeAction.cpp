@@ -2978,6 +2978,9 @@ void DzBridgeAction::writeHeadTailData(DzNode* Node, DzJsonWriter& writer)
 	if (Node == nullptr)
 		return;
 
+	Node->update();
+	Node->finalize();
+
 	// get skeleton and initial bone list
 	DzSkeleton* pSkeleton = Node->getSkeleton();
 	QObjectList aBoneList = pSkeleton->getAllBones();
@@ -3029,8 +3032,6 @@ void DzBridgeAction::writeHeadTailData(DzNode* Node, DzJsonWriter& writer)
 	// Calculate Bone Offset
 	DzVec3 vecBoneOffset = calculateBoneOffset(qobject_cast<DzBone*>(aBoneList[0]));
 
-	pSkeleton->update();
-	pSkeleton->finalize();
 
 	writer.startMemberObject("HeadTailData", true);
 
