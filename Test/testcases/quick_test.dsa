@@ -1,0 +1,25 @@
+// DAZ Studio version 4.16.0.3 filetype DAZ Script
+var sIncludePath = "C:/GitHub/dzBridge-common/Test/TestCases/"
+Global_sOutputPath = "C:/GitHub/dzBridge-common/Test/Results/";
+
+include(sIncludePath + "QA_Utility_Functions.dsa")
+
+var sTestAsset = "people/genesis 8 female/characters/topsy 8.duf";
+//var sTestAsset = "/people/genesis 8 female/genesis 8 basic female.duf";
+
+Scene.clear();
+var oContentMgr = App.getContentMgr();
+
+// load Test Asset
+var sFullPath = oContentMgr.findFile(sTestAsset);
+oContentMgr.openFile(sFullPath);
+
+// Export
+var oBridge = new DzBridgeAction()
+var sAssetType = "";
+var sRootFolder = "";
+var sExportFolder = "";
+var sProductName = "";
+var sComponentName = "";
+var arrayMorphList = [];
+Run_Exporter2(oBridge, sTestAsset, sAssetType, sRootFolder, sExportFolder, sProductName, sComponentName, arrayMorphList);
