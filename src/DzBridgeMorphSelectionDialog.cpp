@@ -49,7 +49,7 @@ Local definitions
 *****************************/
 #define DAZ_BRIDGE_LIBRARY_NAME "Daz Bridge"
 
-using namespace DzUnreal;
+using namespace DzUnrealNS;
 
 CPP_Export DzBridgeMorphSelectionDialog* DzBridgeMorphSelectionDialog::singleton = nullptr;
 
@@ -80,7 +80,7 @@ DzBridgeMorphSelectionDialog::DzBridgeMorphSelectionDialog(QWidget *parent) :
 	 fullBodyMorphTreeItem = NULL;
 	 charactersTreeItem = NULL;
 
-	// Set the dialog title 
+	// Set the dialog title
 	setWindowTitle(tr("Select Morphs"));
 
 	// Setup folder
@@ -154,14 +154,14 @@ DzBridgeMorphSelectionDialog::DzBridgeMorphSelectionDialog(QWidget *parent) :
 	{
 		autoJCMCheckBox->setChecked(settings->value("AutoJCMEnabled").toBool());
 	}
-	
+
 	connect(ArmsJCMButton, SIGNAL(released()), this, SLOT(HandleArmJCMMorphsButton()));
 	connect(LegsJCMButton, SIGNAL(released()), this, SLOT(HandleLegJCMMorphsButton()));
 	connect(TorsoJCMButton, SIGNAL(released()), this, SLOT(HandleTorsoJCMMorphsButton()));
 	connect(ARKit81Button, SIGNAL(released()), this, SLOT(HandleARKitGenesis81MorphsButton()));
 	connect(FaceFX8Button, SIGNAL(released()), this, SLOT(HandleFaceFXGenesis8Button()));
 	connect(autoJCMCheckBox, SIGNAL(clicked(bool)), this, SLOT(HandleAutoJCMCheckBoxChange(bool)));
-	
+
 	treeLayout->addWidget(MorphGroupBox);
 	morphsLayout->addLayout(treeLayout);
 
@@ -347,12 +347,12 @@ QStringList DzBridgeMorphSelectionDialog::GetAvailableMorphs(DzNode* Node)
 						//qDebug() << "Path " << property->getGroupOnlyPath();
 					}
 				}
-				
+
 			}
 
 		}
 	}
-	
+
 	return newMorphList;
 }
 
@@ -886,7 +886,7 @@ void DzBridgeMorphSelectionDialog::HandleFaceFXGenesis8Button()
 	MorphsToAdd.append("eCTRLvM");
 	MorphsToAdd.append("eCTRLvF");
 	MorphsToAdd.append("eCTRLMouthOpen");
-	MorphsToAdd.append("eCTRLMouthWide-Narrow"); 
+	MorphsToAdd.append("eCTRLMouthWide-Narrow");
 	MorphsToAdd.append("eCTRLTongueIn-Out");
 	MorphsToAdd.append("eCTRLTongueUp-Down");
 
@@ -930,7 +930,7 @@ void DzBridgeMorphSelectionDialog::RefreshPresetsCombo()
 	presetCombo->addItem("None");
 
 	QDirIterator it(presetsFolder, QStringList() << "*.csv", QDir::NoFilter, QDirIterator::NoIteratorFlags);
-	while (it.hasNext()) 
+	while (it.hasNext())
 	{
 		QString Path = it.next();
 		QString NewPath = Path.right(Path.length() - presetsFolder.length() - 1);

@@ -52,7 +52,7 @@
 #include "DzBridgeSubdivisionDialog.h"
 #include "DzBridgeMorphSelectionDialog.h"
 
-using namespace DzUnreal;
+using namespace DzUnrealNS;
 
 /// <summary>
 /// Initializes general export data and settings.
@@ -133,11 +133,11 @@ void DzBridgeAction::resetToDefaults()
 
 /// <summary>
 /// Performs multiple pre-processing procedures prior to exporting FBX and generating DTU.
-/// 
+///
 /// Usage: Usually called from executeAction() prior to calling Export() or ExportHD().
 /// See Also: undoPreProcessScene()
 /// </summary>
-/// <param name="parentNode">The "root" node from which to start processing of all 
+/// <param name="parentNode">The "root" node from which to start processing of all
 /// children.  If null, then scene primary selection is used.</param>
 /// <returns>true if procedure was successful</returns>
 bool DzBridgeAction::preProcessScene(DzNode* parentNode)
@@ -210,11 +210,11 @@ bool DzBridgeAction::preProcessScene(DzNode* parentNode)
 /// <summary>
 /// Generate Normal Map texture for for use in Target Software that doesn't support HeightMap.
 /// Called by preProcessScene() for each exported material. Checks material for existing
-/// HeightMap texture but missing NormalMap texture before generating NormalMap. Exports HeightMap 
+/// HeightMap texture but missing NormalMap texture before generating NormalMap. Exports HeightMap
 /// strength to NormalMap strength in DTU file.
-/// 
+///
 /// Note: Must call undoGenerateMissingNormalMaps() to undo insertion of NormalMaps into materials.
-/// 
+///
 /// See Also: makeNormalMapFromHeightMap(), m_undoTable_GenerateMissingNormalMap,
 /// preProcessScene(), undoPreProcessScene().
 /// </summary>
@@ -709,7 +709,7 @@ void DzBridgeAction::exportHD(DzProgress* exportProgress)
 		if (m_nNonInteractiveMode == 0)
 		{
 			QMessageBox::information(0, "DazBridge",
-				tr("Export phase from Daz Studio complete. Please switch to Unity to begin Import phase."), QMessageBox::Ok);
+				tr("Export phase from Daz Studio complete. Please switch to your destination software to begin Import phase."), QMessageBox::Ok);
 		}
 
 	}
@@ -1084,6 +1084,9 @@ void DzBridgeAction::undoRenameDuplicateMaterials(DzNode* Node, QList<QString>& 
 void DzBridgeAction::getScenePropList(DzNode* Node, QMap<QString, DzNode*>& Types)
 {
 	if (Node == nullptr)
+		return;
+
+	if (Node->inherits("DzBone"))
 		return;
 
 	DzObject* Object = Node->getObject();
@@ -1920,7 +1923,7 @@ QUuid DzBridgeAction::writeInstance(DzNode* Node, DzJsonWriter& Writer, QUuid Pa
 #else
 		return false;
 #endif
-    
+
 	QString Path = Node->getAssetFileInfo().getUri().getFilePath();
 	QFile File(Path);
 	QString FileName = File.fileName();
@@ -2257,7 +2260,7 @@ bool DzBridgeAction::setBridgeDialog(DzBasicDialog* arg_dlg)
 }
 
 bool DzBridgeAction::setSubdivisionDialog(DzBasicDialog* arg_dlg)
-{ 
+{
 	m_subdivisionDialog = qobject_cast<DzBridgeSubdivisionDialog*>(arg_dlg);
 
 	if (m_subdivisionDialog == nullptr)
@@ -2280,8 +2283,8 @@ bool DzBridgeAction::setSubdivisionDialog(DzBasicDialog* arg_dlg)
 }
 
 bool DzBridgeAction::setMorphSelectionDialog(DzBasicDialog* arg_dlg)
-{ 
-	m_morphSelectionDialog = qobject_cast<DzBridgeMorphSelectionDialog*>(arg_dlg); 
+{
+	m_morphSelectionDialog = qobject_cast<DzBridgeMorphSelectionDialog*>(arg_dlg);
 
 	if (m_morphSelectionDialog == nullptr)
 	{
@@ -2297,7 +2300,7 @@ bool DzBridgeAction::setMorphSelectionDialog(DzBasicDialog* arg_dlg)
 
 		// return false to signal version mismatch
 		return false;
-	}		
+	}
 
 	return true;
 }

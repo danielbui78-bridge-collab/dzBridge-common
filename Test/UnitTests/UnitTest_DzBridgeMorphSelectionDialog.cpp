@@ -4,7 +4,7 @@
 #include "DzBridgeMorphSelectionDialog.h"
 
 #include "dzbridge.h"
-using namespace DzUnreal;
+using namespace DzUnrealNS;
 
 UnitTest_DzBridgeMorphSelectionDialog::UnitTest_DzBridgeMorphSelectionDialog()
 {

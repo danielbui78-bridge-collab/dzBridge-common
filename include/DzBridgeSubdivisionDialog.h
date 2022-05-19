@@ -15,7 +15,7 @@ class QComboBox;
 class QGridLayout;
 
 #include "dzbridge.h"
-namespace DzUnreal
+namespace DzUnrealNS
 {
 	class CPP_Export DzBridgeSubdivisionDialog : public DzBasicDialog {
 		Q_OBJECT

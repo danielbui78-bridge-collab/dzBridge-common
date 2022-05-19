@@ -3,24 +3,23 @@
 //////////////////////////////////////////////
 //
 // Define Daz Bridge Namespace
-// 
+//
 // NOTE: If you are want to static link the Daz Bridge Common library into
 // a Daz Plugin, you **MUST** edit the DZ_BRIDGE_NAMESPACE macro so that it
 // defines a unique namespace so that your version of the Common Library
 // can co-exist with Common Library from other Daz Plugins. I recommend that
 // you paste your Plugin's GUID onto the end of your namespace. See example
 // below.
-// 
+//
 //////////////////////////////////////////////
 
-#define DZ_BRIDGE_NAMESPACE DzUnreal
-//#define DZ_BRIDGE_NAMESPACE DzBridgeStatic_71fb72024b4947baa82a4780e3819776
+#define DZ_BRIDGE_NAMESPACE DzUnrealNS
 
 
 /////////////////////////////////////////////
 //
 // Define C++ compatible DLL and Plugin Macros
-// 
+//
 // NOTE: The order to export C++ classes in a Windows DLL, you should use
 // the CPP_Export macro below. Additionally, you must **NOT** use .DEF file
 // method of exporting DLL functions. The current Microsoft does not allow
@@ -63,12 +62,12 @@ extern "C" __declspec(dllexport) DzPlugin *getPluginDefinition() { return &s_plu
 #endif
 
 //////////////////////////////////////////////
-// 
+//
 // Fixed DZ_PLUGIN_CUSTOM_CLASS macro
-// 
+//
 // The original DazSDK macros are missing the proper factory functions to handle arguments
 // for custom classes. The following alternative macros fix this.
-// 
+//
 //////////////////////////////////////////////
 
 #include <qwidget.h>
@@ -100,4 +99,3 @@ QObject* typeName ## Factory::createInstance() const \
 { \
 	return qobject_cast<QObject*>(new typeName(nullptr)); \
 }
-

@@ -15,7 +15,7 @@ class QComboBox;
 class QCheckBox;
 
 #include "dzbridge.h"
-namespace DzUnreal
+namespace DzUnrealNS
 {
 	struct MorphInfo {
 		QString Name;
