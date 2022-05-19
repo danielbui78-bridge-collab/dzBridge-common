@@ -2002,6 +2002,7 @@ void DzBridgeAction::readGui(DzBridgeDialog* BridgeDialog)
 		m_morphSelectionDialog = DzBridgeMorphSelectionDialog::Get(BridgeDialog);
 	}
 	m_sFbxVersion = BridgeDialog->getFbxVersionCombo()->currentText();
+	m_bGenerateNormalMaps = BridgeDialog->getEnableNormalMapGenerationCheckBox()->isChecked();
 
 }
 
