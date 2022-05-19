@@ -126,7 +126,11 @@ DzBridgeDialog::DzBridgeDialog(QWidget *parent, const QString &windowTitle) :
 	// Show FBX Dialog option
 	showFbxDialogCheckBox = new QCheckBox("", this);
 	connect(showFbxDialogCheckBox, SIGNAL(stateChanged(int)), this, SLOT(HandleShowFbxDialogCheckBoxChange(int)));
-	
+
+	// Enable Normal Map Generation checkbox
+	enableNormalMapGenerationCheckBox = new QCheckBox("", this);
+	connect(enableNormalMapGenerationCheckBox, SIGNAL(stateChanged(int)), this, SLOT(HandleEnableNormalMapGenerationCheckBoxChange(int)));
+
 	// Add the widget to the basic dialog
 	mainLayout->addRow("Asset Name", assetNameEdit);
 	mainLayout->addRow("Asset Type", assetTypeCombo);
@@ -134,6 +138,7 @@ DzBridgeDialog::DzBridgeDialog(QWidget *parent, const QString &windowTitle) :
 	mainLayout->addRow("Enable Subdivision", subdivisionLayout);
 	advancedLayout->addRow("FBX Version", fbxVersionCombo);
 	advancedLayout->addRow("Show FBX Dialog", showFbxDialogCheckBox);
+	advancedLayout->addRow("Enable Normal Map Generation", enableNormalMapGenerationCheckBox);
 
 	addLayout(mainLayout);
 
@@ -191,6 +196,10 @@ bool DzBridgeDialog::loadSavedSettings()
 		{
 			fbxVersionCombo->setCurrentIndex(index);
 		}
+	}
+	if (!settings->value("EnableNormalMapGeneration").isNull())
+	{
+		enableNormalMapGenerationCheckBox->setChecked(settings->value("EnableNormalMapGeneration").toBool());
 	}
 
 	return true;
@@ -291,4 +300,11 @@ void DzBridgeDialog::HandleShowAdvancedSettingsCheckBoxChange(bool checked)
 	if (settings == nullptr) return;
 	settings->setValue("ShowAdvancedSettings", checked);
 }
+void DzBridgeDialog::HandleEnableNormalMapGenerationCheckBoxChange(int state)
+{
+	if (settings == nullptr) return;
+	settings->setValue("EnableNormalMapGeneration", state == Qt::Checked);
+}
+
+
 #include "moc_DzBridgeDialog.cpp"
