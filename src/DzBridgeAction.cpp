@@ -1424,9 +1424,17 @@ void DzBridgeAction::writePropertyTexture(DzJsonWriter& Writer, QString sName, d
 
 void DzBridgeAction::writeDTUHeader(DzJsonWriter& writer)
 {
+	QString sAssetId = "";
+
+	if (m_pSelectedNode)
+	{
+		sAssetId = m_pSelectedNode->getAssetId();
+	}
+
 	writer.addMember("DTU Version", 3);
 	writer.addMember("Asset Name", m_sAssetName);
 	writer.addMember("Asset Type", m_sAssetType);
+	writer.addMember("Asset Id", sAssetId);
 	writer.addMember("FBX File", m_sDestinationFBX);
 	QString CharacterBaseFBX = m_sDestinationFBX;
 	CharacterBaseFBX.replace(".fbx", "_base.fbx");
