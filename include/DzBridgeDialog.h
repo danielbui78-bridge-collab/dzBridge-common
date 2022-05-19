@@ -25,6 +25,7 @@ namespace DzUnrealNS
 		Q_PROPERTY(QWidget* wAdvancedSettingsGroupBox READ getAdvancedSettingsGroupBox)
 		Q_PROPERTY(QWidget* wFbxVersionCombo READ getFbxVersionCombo)
 		Q_PROPERTY(QWidget* wShowFbxDialogCheckBox READ getShowFbxDialogCheckBox)
+		Q_PROPERTY(QWidget* wEnableNormalMapGenerationCheckBox READ getEnableNormalMapGenerationCheckBox)
 	public:
 		Q_INVOKABLE QLineEdit* getAssetNameEdit() { return assetNameEdit; }
 		Q_INVOKABLE QComboBox* getAssetTypeCombo() { return assetTypeCombo; }
@@ -33,6 +34,7 @@ namespace DzUnrealNS
 		Q_INVOKABLE QGroupBox* getAdvancedSettingsGroupBox() { return advancedSettingsGroupBox; }
 		Q_INVOKABLE QComboBox* getFbxVersionCombo() { return fbxVersionCombo; }
 		Q_INVOKABLE QCheckBox* getShowFbxDialogCheckBox() { return showFbxDialogCheckBox; }
+		Q_INVOKABLE QCheckBox* getEnableNormalMapGenerationCheckBox() { return enableNormalMapGenerationCheckBox; }
 
 		/** Constructor **/
 		DzBridgeDialog(QWidget* parent = nullptr, const QString& windowTitle = "");
@@ -59,6 +61,7 @@ namespace DzUnrealNS
 		void HandleShowFbxDialogCheckBoxChange(int state);
 		void HandleExportMaterialPropertyCSVCheckBoxChange(int state);
 		void HandleShowAdvancedSettingsCheckBoxChange(bool checked);
+		void HandleEnableNormalMapGenerationCheckBoxChange(int state);
 
 	protected:
 		QSettings* settings;
@@ -83,6 +86,7 @@ namespace DzUnrealNS
 		QWidget* advancedWidget;
 		QComboBox* fbxVersionCombo;
 		QCheckBox* showFbxDialogCheckBox;
+		QCheckBox* enableNormalMapGenerationCheckBox;
 
 #ifdef UNITTEST_DZBRIDGE
 		friend class ::UnitTest_DzBridgeDialog;
